@@ -1,20 +1,12 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
 import shutil  # 用于清空文件夹
-
-app = Flask(__name__)
-
+from AIPPT_app import app
 # 设置文件上传的目标文件夹
-UPLOAD_ANS = 'uploads'
-UPLOAD_AUDIO = 'audio'
-RESULT_FOLDER = 'result'
-app.config['UPLOAD_ANS'] = UPLOAD_ANS
-app.config['UPLOAD_AUDIO'] = UPLOAD_AUDIO
-app.config['RESULT_FOLDER'] = RESULT_FOLDER
+UPLOAD_ANS = 'pre_text'
+RESULT_FOLDER = 'generate_ppt'
 app.config['ALLOWED_EXTENSIONS'] = {
     UPLOAD_ANS: {'txt'},
-    UPLOAD_AUDIO: {'mp3', 'wav', 'pcm', 'aac', 'opus', 'flac', 'ogg', 'm4a', 'amr', 'speex',
-                   'lyb', 'ac3', 'aac', 'ape', 'm4r', 'mp4', 'acc', 'wma'}
 }
 
 
@@ -26,7 +18,7 @@ def allowed_file(filename, folder):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     folder = request.args.get('folder')
-    if folder not in [UPLOAD_ANS, UPLOAD_AUDIO]:
+    if folder not in [UPLOAD_ANS]:
         return jsonify({'error': '无效的上传目录！'}), 400
 
     if 'file' not in request.files:
@@ -49,7 +41,7 @@ def delete_file():
     folder = request.args.get('folder')
     filename = request.args.get('filename')
 
-    if folder not in [UPLOAD_ANS, UPLOAD_AUDIO]:
+    if folder not in [UPLOAD_ANS]:
         return jsonify({'error': '无效的目录！'}), 400
 
     file_path = os.path.join(app.config[folder], filename)
@@ -64,7 +56,7 @@ def delete_file():
 def clear_folder():
     folder = request.args.get('folder')
 
-    if folder not in [UPLOAD_ANS, UPLOAD_AUDIO]:
+    if folder not in [UPLOAD_ANS]:
         return jsonify({'error': '无效的目录！'}), 400
 
     folder_path = app.config[folder]
@@ -94,10 +86,3 @@ def download_result():
     if os.path.exists(os.path.join(RESULT_FOLDER, app.config['RESULT_FILE'])):
         return send_from_directory(RESULT_FOLDER, app.config['RESULT_FILE'], as_attachment=True)
 
-
-if __name__ == '__main__':
-    # 确保uploads和audio目录存在
-    os.makedirs(app.config['UPLOAD_ANS'], exist_ok=True)
-    os.makedirs(app.config['UPLOAD_AUDIO'], exist_ok=True)
-    os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)
-    app.run(debug=True)
