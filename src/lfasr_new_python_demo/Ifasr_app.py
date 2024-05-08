@@ -33,6 +33,15 @@ def upload_file():
 
 @app.route('/api/run_the_assistant', methods=['POST'])
 def run_the_assistant():
+    """
+    完成一个背诵检查助手完整的流程
+    1.读取音频区（audio)的所有文件
+    2.调用语音转写API
+    3.得到每个音频文件的文字版，放在res_context
+    4.读取答案区（uploads）的某个被选中文件
+    5.依次将每个文件进行打分，打分结果写入结果区的结果文件（result/result.txt)
+    :return:
+    """
     appid = "e76d7d8f"
     secret_key = "3d354554a40d73e05331347dda9380c0"
     audio_folder = app.config['UPLOAD_AUDIO']
@@ -71,6 +80,43 @@ def run_the_assistant():
             return jsonify({'error': accuracy_response}), 400
 
     return results
+
+
+@app.route('/api/run_the_assistant_send_context_to_starfire', methods=['POST'])
+def run_the_assistant_send_context_to_starfire():
+    """
+    完成一个课堂内容生成的部分流程
+    1.读取音频区（audio)的文件（这里必须规定只有一个文件）
+    2.调用语音转写API
+    3.得到音频文件的文字版放在res_context
+    TODO: 星火大模型API部分需要拿走res_context中的文件再处理，
+    在星火大模型部分调用这个方法。
+    :return:
+    """
+
+    appid = "e76d7d8f"
+    secret_key = "3d354554a40d73e05331347dda9380c0"
+    audio_folder = app.config['UPLOAD_AUDIO']
+
+    # 检查文件夹中文件数量
+    audio_files = os.listdir(audio_folder)
+    if len(audio_files) != 1:
+        # 如果不止一个文件或无文件，直接返回错误
+        return jsonify({'error': '音频暂存区内必须仅有一个文件。请确保上传了一个并且只有一个音频文件。'}), 400
+
+    audio_file = audio_files[0]
+    audio_file_path = os.path.join(audio_folder, audio_file)
+
+    # 创建 RequestApi 实例
+    api = RequestApi(appid=appid, secret_key=secret_key, upload_file_path=audio_file_path)
+
+    # 获取结果
+    result = api.get_result()
+    os.remove(audio_file_path)  # 删除上传的文件，避免服务器上文件堆积
+
+    # 直接返回处理后的结果
+    return jsonify(result), 200
+
 
 
 def remove_backslashes(input_string):
