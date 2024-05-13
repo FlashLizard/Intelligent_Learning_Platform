@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import Levenshtein
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 import base64
 import hashlib
@@ -10,7 +11,10 @@ import requests
 import urllib
 import random
 import os
-import Levenshtein
+from ..spark.SparkApi import SparkLLM
+import time
+import json5
+
 
 app = Flask(__name__)
 UPLOAD_ANS = 'uploads'  # 上传作为答案的文件
@@ -19,16 +23,22 @@ AUDIO2CONTEXT = 'res_context'
 app.config['UPLOAD_ANS'] = UPLOAD_ANS
 app.config['UPLOAD_AUDIO'] = UPLOAD_AUDIO
 app.config['AUDIO2CONTEXT'] = AUDIO2CONTEXT
+audio_folder = app.config['UPLOAD_AUDIO']
 
 lfasr_host = 'https://raasr.xfyun.cn/v2/api'
 # 请求的接口名
 api_upload = '/upload'
 api_get_result = '/getResult'
 
+with open('../config.json', encoding='utf-8') as f:
+    config = json5.load(f)
+appid = config['appid']
+api_secret = config['api_secret']
+secret_key = api_secret
+api_key = config['api_key']
 
-def remove_backslashes(input_string):
-    # 使用 replace() 函数移除所有的反斜杠 "\"
-    return input_string.replace("\\", "")
+domain = "generalv3.5"    # v3.0版本
+Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
 
 def extract_w_values(input_string):
@@ -70,6 +80,7 @@ class RequestApi(object):
 
     def upload(self):
         print("上传部分：")
+
         upload_file_path = self.upload_file_path
         file_len = os.path.getsize(upload_file_path)
         file_name = os.path.basename(upload_file_path)
@@ -91,7 +102,10 @@ class RequestApi(object):
         print("upload resp:", result)
         return result
 
-    def get_result(self):
+    def get_result(self, op):
+        """
+        op = 0时，使用星火大模型优化
+        """
         uploadresp = self.upload()
         orderId = uploadresp['content']['orderId']
         param_dict = {}
@@ -113,7 +127,7 @@ class RequestApi(object):
             print(result)
             status = result['content']['orderInfo']['status']
             context = result['content']['orderResult']  # 返回的文本结果
-            context = remove_backslashes(context)
+            context = context.replace("\\", "")
 
             print("status=", status)
             if status == 4:
@@ -129,10 +143,15 @@ class RequestApi(object):
             os.makedirs(directory)
 
         # 为用户提供提示并获取输入的文件名
-        file_name = self.eachname
+        file_name = self.eachnamer
 
         # 用.txt扩展名完善文件名
         file_name_with_extension = file_name + '.txt'
+
+        if op == 0:
+            llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
+            Input = "请提炼这段文字，只保留其中与课堂内容相关的部分:+" + result_context
+            result_context = llm.query(Input)
 
         # 保存字符串到指定文件
         string_to_save = result_context
@@ -203,9 +222,7 @@ def run_the_assistant():
     5.依次将每个文件进行打分，打分结果写入结果区的结果文件（result/result.txt)
     :return:
     """
-    appid = "e76d7d8f"
-    secret_key = "3d354554a40d73e05331347dda9380c0"
-    audio_folder = app.config['UPLOAD_AUDIO']
+
 
     # 检查文件夹是否为空
     if not os.listdir(audio_folder):
@@ -219,7 +236,7 @@ def run_the_assistant():
         # 为每个文件创建 RequestApi 实例
         api = RequestApi(appid=appid, secret_key=secret_key, upload_file_path=to_judge_file_path, eachname=eachname)
         # 获取结果
-        result = api.get_result()
+        result = api.get_result(op=1)
         os.remove(to_judge_file_path)  # 每次调用后删除上传的文件，避免服务器上文件堆积
 
         results.append(result)  # 改动：将每个文件的结果添加到结果列表中
@@ -272,7 +289,7 @@ def run_the_assistant_send_context_to_starfire():
     api = RequestApi(appid=appid, secret_key=secret_key, upload_file_path=audio_file_path)
 
     # 获取结果
-    result = api.get_result()
+    result = api.get_result(op=0)
     os.remove(audio_file_path)  # 删除上传的文件，避免服务器上文件堆积
 
     # 直接返回处理后的结果

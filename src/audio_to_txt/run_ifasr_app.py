@@ -8,3 +8,7 @@ if __name__ == '__main__':
     os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)
     app.run()
 
+
+
+
+
