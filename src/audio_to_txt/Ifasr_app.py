@@ -11,15 +11,15 @@ import requests
 import urllib
 import random
 import os
-from ..spark.SparkApi import SparkLLM
+from src.spark.SparkApi import SparkLLM
 import time
 import json5
 
 
 app = Flask(__name__)
-UPLOAD_ANS = 'uploads'  # 上传作为答案的文件
-UPLOAD_AUDIO = 'audio'
-AUDIO2CONTEXT = 'res_context'
+UPLOAD_ANS = 'src/audio_to_txt/uploads'  # 上传作为答案的文件
+UPLOAD_AUDIO = 'src/audio_to_txt/audio'
+AUDIO2CONTEXT = 'src/audio_to_txt/res_context'
 app.config['UPLOAD_ANS'] = UPLOAD_ANS
 app.config['UPLOAD_AUDIO'] = UPLOAD_AUDIO
 app.config['AUDIO2CONTEXT'] = AUDIO2CONTEXT
@@ -56,7 +56,7 @@ def extract_w_values(input_string):
     return result.rstrip()  # 返回结果字符串，并移除末尾的空格
 
 
-class RequestApi(object):
+class audio2txt_Api(object):
     def __init__(self, appid, secret_key, upload_file_path, eachname):
         self.appid = appid
         self.secret_key = secret_key
@@ -143,7 +143,7 @@ class RequestApi(object):
             os.makedirs(directory)
 
         # 为用户提供提示并获取输入的文件名
-        file_name = self.eachnamer
+        file_name = self.eachname
 
         # 用.txt扩展名完善文件名
         file_name_with_extension = file_name + '.txt'
@@ -153,13 +153,18 @@ class RequestApi(object):
             Input = "请提炼这段文字，只保留其中与课堂内容相关的部分:+" + result_context
             result_context = llm.query(Input)
 
+        if op == 2:
+            llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
+            Input = "请提炼这段文字，使其成为对某个问题的回答:+" + result_context
+            result_context = llm.query(Input)
+
         # 保存字符串到指定文件
         string_to_save = result_context
         with open(os.path.join(directory, file_name_with_extension), 'w') as file:
             file.write(string_to_save)
 
         print(f"文件已保存在 {directory}{file_name_with_extension}")
-        return result
+        return result_context
 
 
 class InputAns(object):
@@ -234,7 +239,7 @@ def run_the_assistant():
     for eachname in os.listdir(audio_folder):  # 遍历所有需要检查的音频文件
         to_judge_file_path = os.path.join(audio_folder, eachname)
         # 为每个文件创建 RequestApi 实例
-        api = RequestApi(appid=appid, secret_key=secret_key, upload_file_path=to_judge_file_path, eachname=eachname)
+        api = audio2txt_Api(appid=appid, secret_key=secret_key, upload_file_path=to_judge_file_path, eachname=eachname)
         # 获取结果
         result = api.get_result(op=1)
         os.remove(to_judge_file_path)  # 每次调用后删除上传的文件，避免服务器上文件堆积
@@ -286,7 +291,7 @@ def run_the_assistant_send_context_to_starfire():
     audio_file_path = os.path.join(audio_folder, audio_file)
 
     # 创建 RequestApi 实例
-    api = RequestApi(appid=appid, secret_key=secret_key, upload_file_path=audio_file_path)
+    api = audio2txt_Api(appid=appid, secret_key=secret_key, upload_file_path=audio_file_path)
 
     # 获取结果
     result = api.get_result(op=0)

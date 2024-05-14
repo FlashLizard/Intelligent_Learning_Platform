@@ -13,7 +13,7 @@ Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
 if __name__ == '__main__':
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-    while(1):
-        Input = input("\n" +"我:")
-        ans = llm.query(Input) # 注意，这里是阻塞的
+    while (1):
+        Input = input("\n" + "我:")
+        ans = llm.query(Input)  # 注意，这里是阻塞的
         print(ans)
