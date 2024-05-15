@@ -34,7 +34,7 @@ with open('../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 appid = config['appid']
 api_secret = config['api_secret']
-secret_key = api_secret
+secret_key = config['secret_key']
 api_key = config['api_key']
 
 domain = "generalv3.5"    # v3.0版本
@@ -277,8 +277,6 @@ def run_the_assistant_send_context_to_starfire():
     :return:
     """
 
-    appid = "e76d7d8f"
-    secret_key = "3d354554a40d73e05331347dda9380c0"
     audio_folder = app.config['UPLOAD_AUDIO']
 
     # 检查文件夹中文件数量
