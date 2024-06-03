@@ -10,6 +10,9 @@ import HexagonChart from '@/components/component/HexagonChart.vue';
 import SidebarMenu from '@/components/component/SidebarMenu.vue';
 import AiQa from '@/components/pages/aiqa/AiQa.vue';
 import VirtualTeacher from '@/components/pages/aiqa/VirtualTeacher.vue';
+import TeacherRecording from '@/components/pages/classrecord/TeacherRecording.vue';
+import ClassSelect from '@/components/pages/classrecord/ClassSelect.vue'
+import ClassStudy from '@/components/pages/classrecord/ClassStudy.vue'
 
 const routes = [
   {
@@ -66,6 +69,21 @@ const routes = [
     path: '/virtualteacher',
     name: 'VirtualTeacher',
     component: VirtualTeacher,
+  },
+  {
+    path: '/teacherrecording',
+    name: 'TeacherRecording',
+    component: TeacherRecording,
+  },
+  {
+    path: '/classselect',
+    name: 'ClassSelect',
+    component: ClassSelect,
+  },
+  {
+    path: '/classstudy',
+    name: 'ClassStudy',
+    component: ClassStudy,
   },
 ];
 

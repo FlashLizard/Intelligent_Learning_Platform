@@ -12,7 +12,7 @@
       <div class="top-section">
         <h2 class="section-title">教师助手</h2>
         <div class="button-container">
-          <div class="button" @click="handleClick('/pptgenerator')">
+          <div class="button" @click="handleClick('/courserecord')">
             <h3 class="button-title">课程记录</h3>
             <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
           </div>
@@ -54,10 +54,26 @@
           </button>
         </div>
       </div>
+      <!-- New Section: Course Management -->
+      <div class="course-management-section">
+        <h2 class="section-title">课程管理</h2>
+        <div class="button-container">
+          <div class="button" @click="handleClick('/teacherrecording')">
+            <h3 class="button-title">教师录课</h3>
+            <p class="button-description">录制教师的课程内容。</p>
+          </div>
+          <div class="button" @click="handleClick('/classselect')">
+            <h3 class="button-title">课程观看</h3>
+            <p class="button-description">观看录制好的课程。</p>
+          </div>
+        </div>
+      </div>
       
       <!-- Logout Button -->
       <div class="top-right">
-        <button class="logout-button" @click="logout">退出登录</button>
+        <button class="logout-button" @click="logout">
+          <i class="fas fa-arrow-left"></i><span>退出登录</span>
+        </button>
       </div>
     </div>
   </div>
@@ -120,7 +136,8 @@ export default {
 
   .top-section,
   .middle-section,
-  .bottom-section {
+  .bottom-section,
+  .course-management-section {
     margin-bottom: 20px;
     padding: 20px;
     background: #fff;
@@ -181,6 +198,8 @@ export default {
   }
 
   .logout-button {
+    display: flex;
+    align-items: center; /* 垂直居中图标和文本 */
     padding: 10px 20px;
     border: none;
     border-radius: 10px;
@@ -193,6 +212,14 @@ export default {
     &:hover {
       background: #584eec;
       transform: translateY(-5px);
+    }
+
+    i {
+      margin-right: 8px; /* 增加图标和文本之间的间距 */
+    }
+
+    span {
+      margin-left: 8px;
     }
   }
 }
