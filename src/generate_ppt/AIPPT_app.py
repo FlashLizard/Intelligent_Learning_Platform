@@ -5,10 +5,7 @@ import base64
 import json
 import os
 import time
-
 import requests
-from flask import Flask, request, render_template
-
 
 class AIPPT():
 
@@ -132,25 +129,3 @@ class AIPPT():
             print(f"File downloaded successfully: {file_path}")
         else:
             print("Failed to download file.")
-
-app = Flask(__name__)
-
-@app.route('/generate_ppt', methods=['GET', 'POST'])
-def generate_ppt():
-    # 从表单获取数据
-    text = request.form.get('text')
-    selected_file_name = request.form.get('filename')
-    theme = request.form.get('theme')
-    is_card_note = request.form.get('is_card_note')
-    is_card_note = is_card_note.lower() in ['true', '1']   # 转换为Bool类型
-
-    APPId = "e76d7d8f"
-    APISecret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"
-
-    # 创建AIPPT类的实例并处理PPT
-    demo = AIPPT(APPId, APISecret, text)
-    demo.get_result(theme=theme, is_card_note=is_card_note, selected_file_name=selected_file_name)
-
-
-    # TODO 在前端显示结果
-    return render_template('result.html')

@@ -16,12 +16,12 @@ HOST = "api-dx.xf-yun.com"
 APP_ID = "e76d7d8f"
 API_KEY = "990e2770b030441fbcc126c691daf5cd"
 API_SECRET = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"
-selected_file = ""
+file = ""
 
 
 class TestTask():
 
-    def __init__(self, file, speed=50, language="zh", volumn=50):
+    def __init__(self, file, result, speed=50, language="zh", volumn=50):
         self.host = HOST
         self.app_id = APP_ID
         self.api_key = API_KEY
@@ -30,6 +30,7 @@ class TestTask():
         self.language = language
         self.volumn = volumn
         self.file = file
+        self.result = result
 
     # 生成鉴权的url
     def assemble_auth_url(self, path):
@@ -153,20 +154,20 @@ class TestTask():
 
     def run(self):
         text = self.file.read()
-        task_id = do_create(text, speed=self.speed, volumn=self.volumn, language=self.language)
+        task_id = do_create(text, file=self.file, speed=self.speed, volumn=self.volumn, language=self.language)
         self.file.close()
         print(f"task_id = {task_id}")
         # 3、执行查询任务
         # 创建任务执行成功后，由返回的task_id执行查询任务
         if task_id:
-            query_result = do_query(task_id, speed=speed, volumn=volumn, language=language)
+            query_result = do_query(task_id, speed=self.speed, volumn=self.volumn, language=self.language)
 
         # 4、下载到本地
         Download_addres = query_result
         f = requests.get(Download_addres)
         # 下载文件，根据需要更改文件后缀
         current_time_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(result, current_time_str + '.mp3')
+        filename = os.path.join(self.result, current_time_str + '.mp3')
         with open(filename, "wb") as code:
             code.write(f.content)
         if filename:
@@ -174,7 +175,7 @@ class TestTask():
 
 
 # 创建任务
-def do_create(text, speed, volumn, language):
+def do_create(text, file, speed, volumn, language):
     # 调用创建任务接口
     test_task = TestTask(file=file, speed=speed, volumn=volumn, language=language)
     create_result = test_task.test_create(text)
@@ -221,7 +222,7 @@ def do_query(task_id, speed, volumn, language):
             sys.exit(1)
 
 
-def choose_file():
+def choose_file(directory):
     files = [f for f in os.listdir(directory) if f.endswith('.txt')]
 
     # 确保有文件可选
@@ -252,14 +253,11 @@ def choose_file():
             print("输入无效，请输入数字编号。")
 
 
-if __name__ == "__main__":
-    # 'context'是存放文本文件的目录
-    directory = 'context'
+def txt_to_audio(file, speed, volumn, language):
     result = 'audio'
-    file = choose_file()
-    speed = int(input("选择生成的语速"))
-    volumn = int(input("选择生成的音量"))
-    language = input("选择生成的语言")
-    # TODO 上述内容需要改成从前端选择
-    api = TestTask(file=file, speed=speed, volumn=volumn, language=language)
+    file = file
+    speed = speed
+    volumn = volumn
+    language = language
+    api = TestTask(file=file, result=result, speed=speed, volumn=volumn, language=language)
     api.run()

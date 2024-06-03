@@ -20,6 +20,7 @@ app = Flask(__name__)
 UPLOAD_ANS = 'src/audio_to_txt/uploads'  # 上传作为答案的文件
 UPLOAD_AUDIO = 'src/audio_to_txt/audio'
 AUDIO2CONTEXT = 'src/audio_to_txt/res_context'
+
 app.config['UPLOAD_ANS'] = UPLOAD_ANS
 app.config['UPLOAD_AUDIO'] = UPLOAD_AUDIO
 app.config['AUDIO2CONTEXT'] = AUDIO2CONTEXT
@@ -30,16 +31,17 @@ lfasr_host = 'https://raasr.xfyun.cn/v2/api'
 api_upload = '/upload'
 api_get_result = '/getResult'
 
+
+
+domain = "generalv3.5"    # v3.0版本
+Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
+
 with open('../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 appid = config['appid']
 api_secret = config['api_secret']
 secret_key = config['secret_key']
 api_key = config['api_key']
-
-domain = "generalv3.5"    # v3.0版本
-Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
-
 
 def extract_w_values(input_string):
     result = ''
@@ -170,20 +172,7 @@ class audio2txt_Api(object):
 class InputAns(object):
     def __init__(self):
         self.ans_file_name = ""
-        self.result = "./result/result.txt"
-
-    def get_file_name(self):
-        # TODO: 这是个错误的方法, 这一步需要前端完成
-
-        self.ans_file_name = input("请输入答案的文件名（不包括.txt扩展名）：")
-        filename = os.path.join(app.config['UPLOAD_ANS'], self.ans_file_name)
-        if not os.path.exists(f"{filename}.txt"):
-            # 文件不存在
-            return "错误：文件不存在。"
-        else:
-            # 更新文件名
-            self.ans_file_name = f"{filename}.txt"
-            return f"文件 {self.ans_file_name} 存在，已更新。"
+        self.result = "./result/result.json"
 
     def calculate_accuracy(self, answer_file, compare_file):
 
@@ -199,6 +188,7 @@ class InputAns(object):
         if not self.ans_file_name:
             return "错误：没有指定答案文件。"
 
+        results = {}
         with open(self.result, 'w') as result_file:
             # 遍历 res_context 目录下所有 txt 文件
             for filename in os.listdir(app.config('AUDIO2CONTEXT')):
@@ -206,95 +196,7 @@ class InputAns(object):
                     # 计算每个文件与答案的准确率
                     accuracy = self.calculate_accuracy(self.ans_file_name, os.path.join(app.config['AUDIO2CONTEXT'],
                                                                                         filename))
+                    filename_without_extension = os.path.splitext(filename)[0]
                     # 写入准确率到结果文件
-                    result_file.write(f"{filename}: 准确率: {accuracy}\n")
-
-
-
-@app.route('/')
-def upload_file():
-    return render_template('upload.html')
-
-
-@app.route('/api/run_the_assistant', methods=['POST'])
-def run_the_assistant():
-    """
-    完成一个背诵检查助手完整的流程
-    1.读取音频区（audio)的所有文件
-    2.调用语音转写API
-    3.得到每个音频文件的文字版，放在res_context
-    4.读取答案区（uploads）的某个被选中文件
-    5.依次将每个文件进行打分，打分结果写入结果区的结果文件（result/result.txt)
-    :return:
-    """
-
-
-    # 检查文件夹是否为空
-    if not os.listdir(audio_folder):
-        # 如果为空，直接返回错误
-        return jsonify({'error': '音频暂存区中没有文件，请上传音频文件后再试。'}), 400
-
-    # 若文件夹不为空，则继续处理
-    results = []  # 改动：用于存储多个文件的处理结果
-    for eachname in os.listdir(audio_folder):  # 遍历所有需要检查的音频文件
-        to_judge_file_path = os.path.join(audio_folder, eachname)
-        # 为每个文件创建 RequestApi 实例
-        api = audio2txt_Api(appid=appid, secret_key=secret_key, upload_file_path=to_judge_file_path, eachname=eachname)
-        # 获取结果
-        result = api.get_result(op=1)
-        os.remove(to_judge_file_path)  # 每次调用后删除上传的文件，避免服务器上文件堆积
-
-        results.append(result)  # 改动：将每个文件的结果添加到结果列表中
-
-    # 返回所有处理后的结果
-
-    inputans = InputAns()
-
-    ans_response = inputans.get_file_name()
-    # TODO 前端将这个被选择的答案文件发到后端，把inputans.ans_file_name替换成用户选择的答案文件，然后删掉这个get_file_name方法
-
-    if "错误：" in ans_response:
-        # 发生错误，返回错误信息
-        return jsonify({'error': ans_response}), 400
-    else:
-        # 文件存在，开始计算准确率并写入结果文件
-        accuracy_response = inputans.compare_with_answer()
-        if "错误：" in accuracy_response:
-            return jsonify({'error': accuracy_response}), 400
-
-    return results
-
-
-@app.route('/api/run_the_assistant_send_context_to_starfire', methods=['POST'])
-def run_the_assistant_send_context_to_starfire():
-    """
-    完成一个课堂内容生成的部分流程
-    1.读取音频区（audio)的文件（这里必须规定只有一个文件）
-    2.调用语音转写API
-    3.得到音频文件的文字版放在res_context
-    TODO: 星火大模型API部分需要拿走res_context中的文件再处理，
-    在星火大模型部分调用这个方法。
-    :return:
-    """
-
-    audio_folder = app.config['UPLOAD_AUDIO']
-
-    # 检查文件夹中文件数量
-    audio_files = os.listdir(audio_folder)
-    if len(audio_files) != 1:
-        # 如果不止一个文件或无文件，直接返回错误
-        return jsonify({'error': '音频暂存区内必须仅有一个文件。请确保上传了一个并且只有一个音频文件。'}), 400
-
-    audio_file = audio_files[0]
-    audio_file_path = os.path.join(audio_folder, audio_file)
-
-    # 创建 RequestApi 实例
-    api = audio2txt_Api(appid=appid, secret_key=secret_key, upload_file_path=audio_file_path)
-
-    # 获取结果
-    result = api.get_result(op=0)
-    os.remove(audio_file_path)  # 删除上传的文件，避免服务器上文件堆积
-
-    # 直接返回处理后的结果
-    return jsonify(result), 200
-
+                    results[filename_without_extension] = f"准确率: {accuracy}"
+            json.dump(results, result_file, ensure_ascii=False, indent=4)
