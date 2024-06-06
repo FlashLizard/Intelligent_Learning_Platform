@@ -83,8 +83,6 @@ def assemble_ws_auth_url(requset_url, method="POST", api_key="", api_secret=""):
     return requset_url + "?" + urlencode(values)
 
 
-
-
 class img_2_words:
     def __init__(self, appid, APIKey, APISecret):
         self.way = "POST"
@@ -165,6 +163,7 @@ class img_2_words:
         print("内容已保存。")
         print(result_string)
 
-if __name__ == '__main__':
+
+def img_2_words_run():
     IMG2WORDS = img_2_words(APPId, APIKey, APISecret)
     IMG2WORDS.run()
