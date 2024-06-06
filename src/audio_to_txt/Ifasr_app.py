@@ -16,15 +16,13 @@ import time
 import json5
 
 
-app = Flask(__name__)
 UPLOAD_ANS = 'src/audio_to_txt/uploads'  # 上传作为答案的文件
 UPLOAD_AUDIO = 'src/audio_to_txt/audio'
 AUDIO2CONTEXT = 'src/audio_to_txt/res_context'
 
-app.config['UPLOAD_ANS'] = UPLOAD_ANS
-app.config['UPLOAD_AUDIO'] = UPLOAD_AUDIO
-app.config['AUDIO2CONTEXT'] = AUDIO2CONTEXT
-audio_folder = app.config['UPLOAD_AUDIO']
+UPLOAD_AUDIO = UPLOAD_AUDIO
+AUDIO2CONTEXT = AUDIO2CONTEXT
+audio_folder = UPLOAD_AUDIO
 
 lfasr_host = 'https://raasr.xfyun.cn/v2/api'
 # 请求的接口名
@@ -140,7 +138,7 @@ class audio2txt_Api(object):
         result_context = result_context.replace(" ", "")
 
         print("res:", result_context)
-        directory = app.config['AUDIO2CONTEXT']
+        directory = AUDIO2CONTEXT
         if not os.path.exists(directory):
             os.makedirs(directory)
 
@@ -194,7 +192,7 @@ class InputAns(object):
             for filename in os.listdir(app.config('AUDIO2CONTEXT')):
                 if filename.endswith('.txt'):
                     # 计算每个文件与答案的准确率
-                    accuracy = self.calculate_accuracy(self.ans_file_name, os.path.join(app.config['AUDIO2CONTEXT'],
+                    accuracy = self.calculate_accuracy(self.ans_file_name, os.path.join(AUDIO2CONTEXT,
                                                                                         filename))
                     filename_without_extension = os.path.splitext(filename)[0]
                     # 写入准确率到结果文件

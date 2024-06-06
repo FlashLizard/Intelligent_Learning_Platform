@@ -17,8 +17,9 @@ ALLOWED_EXTENSIONS = {'mp3', 'wav', 'pcm', 'aac', 'opus', 'flac', 'ogg', 'm4a',
 
 # 定义文件上传的目录
 UPLOAD_FOLDER = 'pre_text'
+AUDIO_FOLDER = 'audio'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+app.config['AUDIO_FOLDER'] = AUDIO_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and \

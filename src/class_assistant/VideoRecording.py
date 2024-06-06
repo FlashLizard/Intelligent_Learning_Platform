@@ -14,7 +14,7 @@ def record_video(resolution=(1920, 1080), fps=30, codec='XVID', record_time=3600
 
     # 定义编解码器并创建 VideoWriter 对象
     fourcc = cv2.VideoWriter_fourcc(*codec)
-    out = cv2.VideoWriter('video/output.avi', fourcc, fps, resolution)
+    out = cv2.VideoWriter('audio/output.avi', fourcc, fps, resolution)
 
     start_time = time.time()
 
