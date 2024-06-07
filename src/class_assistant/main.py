@@ -41,7 +41,6 @@ is_recording = True
 pause_recording = False
 
 
-
 # 假设的录音函数,需要返回保存的文件路径
 def record_audio(filename='tmp_question.wav', sample_rate=44100, channels=2):
     """
@@ -73,7 +72,7 @@ def record_audio(filename='tmp_question.wav', sample_rate=44100, channels=2):
                     print("警告: 音频缓冲区溢出")
                 audio_frames.append(frame)
             # 归一化并保存音频文件
-            #audio_dir_path = Path(__file__).parent.parent / 'audio_to_txt/audio'
+            # audio_dir_path = Path(__file__).parent.parent / 'audio_to_txt/audio'
             audio_dir_path = audio_tmp_folder
             os.makedirs(audio_dir_path, exist_ok=True)
             audio_file_path = audio_dir_path / filename
@@ -95,7 +94,7 @@ def record_audio(filename='tmp_question.wav', sample_rate=44100, channels=2):
 
     # 等待录音线程结束
     thread.join()
-    pause_recording = False     # 可以结束对课堂录音的暂停
+    pause_recording = False  # 可以结束对课堂录音的暂停
 
 
 def record_audio_for_whole_class(filename='output.wav', sample_rate=44100, channels=2):
@@ -139,7 +138,7 @@ def record_audio_for_whole_class(filename='output.wav', sample_rate=44100, chann
     thread = threading.Thread(target=recording_thread)
     thread.start()
 
-    #在主线程中等待用户输入暂停/恢复/停止指令
+    # 在主线程中等待用户输入暂停/恢复/停止指令
     # 强制性的指令
     while True:
         command = input()
@@ -185,7 +184,6 @@ def start_class():
     countdown_timer = Timer(60 * 60, end_class)  # 具体时间需要根据end_time计算
     countdown_timer.start()  # 启动倒计时
 
-
     while 1:
         command = input("等待指令（1-随机点名；2-AI回答；3-结束课堂, 4-课堂测试, 5-开启录音): ")  # TODO 前端点击选择
         if command == "1":
@@ -194,7 +192,7 @@ def start_class():
             audio = record_audio()  # 针对问题开始录音
             print("录音已经保存到临时文件夹。")
             llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-            audio2txt = audio2txt_Api(appid, secret_key, os.path.join(audio_tmp_folder,"tmp_question.wav"), "bot_ans")
+            audio2txt = audio2txt_Api(appid, secret_key, os.path.join(audio_tmp_folder, "tmp_question.wav"), "bot_ans")
             # 这里会保存在 audio_to_text/res_context目录下
             question = audio2txt.get_result(op=2)
             ans = llm.query(question)
@@ -204,7 +202,7 @@ def start_class():
         elif command == "4":
             # AI课堂小测？ 可以结合 1 出题
             pass
-        elif command == "5":   # 开启录音
+        elif command == "5":  # 开启录音
             global is_recording
             if is_recording:
                 check = input("你有正在进行的录音，是否结束")
@@ -216,10 +214,8 @@ def start_class():
             else:
                 time.sleep(1)
             if_record = 1
-            filename = input() # 前端给出，前端默认值为课堂名
+            filename = input()  # 前端给出，前端默认值为课堂名
             record_audio_for_whole_class(filename=filename)
-
-
 
     if if_record:  # 只要在本堂课内至少启动一次录音就可以
         if_save_content = input("是否保留这堂课的内容？")
@@ -254,11 +250,9 @@ def start_class():
 
             # 写入新文件
             with open('../audio_to_txt/whole_class.txt', 'w') as file:
-                file.write(whole_class_content)   #TODO: 这里应该永久地保存到数据库
+                file.write(whole_class_content)  # TODO: 这里应该永久地保存到数据库
 
             print(whole_class_content)
-
-
 
     end_class()
 

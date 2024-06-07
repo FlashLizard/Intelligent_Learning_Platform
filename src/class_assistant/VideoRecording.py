@@ -5,6 +5,7 @@ import time
 需要等待20s左右才能开始视频录制
 """
 
+
 def record_video(resolution=(1920, 1080), fps=30, codec='XVID', record_time=3600):
     cap = cv2.VideoCapture(0)
 
