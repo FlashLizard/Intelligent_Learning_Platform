@@ -12,7 +12,7 @@ from time import mktime
 from urllib.parse import urlencode
 from wsgiref.handlers import format_date_time
 import websocket  # 使用websocket_client
-from utils import Logger
+from ..utils import Logger
 
 MAX_HISTORY_LEN = 8000
 

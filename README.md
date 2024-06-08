@@ -14,8 +14,10 @@ pip install -r requirements.txt
 
 ### 运行
 
+
 ```shell
-python src/test_spark.py
+cd src
+python test_spark.py
 ```
 
 ## 其他库
