@@ -1,47 +1,48 @@
-from flask_cors import CORS
-import requests
-from flask import Flask, request, render_template, jsonify
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, CORS
 import os
-from audio_to_txt import run_the_assistant
 import shutil
+from werkzeug.utils import secure_filename
+import time
 
-# 创建服务器
+from src.audio_to_txt.audio_to_txt import run_the_assistant
+
 app = Flask(__name__)
 CORS(app)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['AUDIO_FOLDER'] = 'audio'
-ALLOWED_EXTENSIONS = {'mp3', 'wav', 'pcm', 'aac', 'opus', 'flac', 'ogg', 'm4a',
-                      'amr', 'speex', 'lyb', 'ac3', 'aac', 'ape', 'm4r', 'mp4',
-                      'acc', 'wma'}
 
-# 定义文件上传的目录
 UPLOAD_FOLDER = 'pre_text'
 AUDIO_FOLDER = 'audio'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['AUDIO_FOLDER'] = AUDIO_FOLDER
 
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'pcm', 'aac', 'opus', 'flac', 'ogg', 'm4a', 'amr', 'speex', 'lyb', 'ac3', 'aac',
+                      'ape', 'm4r', 'mp4', 'acc', 'wma'}
+
+timeout = 120 # 用于指定传送音频文件的时间上限
+
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    # 处理TXT答案文件
-    answer_file = request.files['answer']
-    if answer_file and answer_file.filename.endswith('.txt'):
-        answer_file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'ans.txt'))
-    else:
-        return 'Answer file is missing or not a .txt file', 400
-
-    # 清空音频文件夹
+    num_files_expected = int(request.form['num_files'])  #TODO 前端需要传一个INT类型数字表示 待传输音频个数
+    # 运行前清空AUDIO_FOLDER
     if os.path.exists(app.config['AUDIO_FOLDER']):
         shutil.rmtree(app.config['AUDIO_FOLDER'])
     os.makedirs(app.config['AUDIO_FOLDER'])
 
-    # 处理音频文件
-    audio_files = request.files.getlist('audio_files')
+    # 由于文件上传有延时，这里我们用一个简单的轮询方法检查文件是否全部到达
+    start_time = time.time()
+    while True:
+        elapsed_time = time.time() - start_time
+        if elapsed_time > timeout:
+            return 'File upload timed out', 408
+
+        audio_files = request.files.getlist('audio_files')   #TODO 前端传输的音频
+        if len(audio_files) == num_files_expected:
+            break
+        time.sleep(1)
+
     for file in audio_files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
