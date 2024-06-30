@@ -8,7 +8,7 @@ UPLOAD_AUDIO = 'audio'
 AUDIO2CONTEXT = 'res_context'
 audio_folder = 'uploads'
 
-with open('../config.json', encoding='utf-8') as f:
+with open('../../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 appid = config['appid']
 api_secret = config['api_secret']
