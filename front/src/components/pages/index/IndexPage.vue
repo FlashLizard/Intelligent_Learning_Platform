@@ -8,67 +8,97 @@
       <div class="page-title">
         <h1>智慧书苑</h1>
       </div>
-      <!-- Top Section: Teacher Assistant -->
-      <div class="top-section">
-        <h2 class="section-title">教师助手</h2>
-        <div class="button-container">
-          <div class="button" @click="handleClick('/courserecord')">
-            <h3 class="button-title">课程记录</h3>
-            <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
+
+      <!-- Application Switch Tabs -->
+      <div class="switch-tabs">
+        <div class="tab" :class="{ active: activeTab === 'teacher' }" @click="switchTab('teacher')">教师应用</div>
+        <div class="tab" :class="{ active: activeTab === 'student' }" @click="switchTab('student')">学生应用</div>
+      </div>
+
+      <!-- Teacher Application Section -->
+      <div v-if="activeTab === 'teacher'">
+        <!-- Top Section: Teacher Assistant -->
+        <div class="top-section">
+          <h2 class="section-title">教师助手</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/courserecord')">
+              <h3 class="button-title">课程记录</h3>
+              <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
+            </div>
+            <div class="button" @click="handleClick('/homeworkmanagement')">
+              <h3 class="button-title">背诵批改</h3>
+              <p class="button-description">管理学生的背诵作业，包括布置、查看和反馈。</p>
+            </div>
+            <div class="button" @click="handleClick('/pptgenerator')">
+              <h3 class="button-title">PPT生成</h3>
+              <p class="button-description">创建和编辑教学用的幻灯片，简化制作过程。</p>
+            </div>
           </div>
-          <div class="button" @click="handleClick('/homeworkmanagement')">
-            <h3 class="button-title">作业管理</h3>
-            <p class="button-description">管理学生的作业，包括布置、查看和反馈。</p>
+        </div>
+
+        <!-- Middle Section: Intelligent Q&A -->
+        <div class="middle-section">
+          <h2 class="section-title">智能问答</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/virtualteacher')">
+              <h3 class="button-title">虚拟人</h3>
+              <p class="button-description">与虚拟人进行互动，获取实时帮助。</p>
+            </div>
+            <div class="button" @click="handleClick('/aiqa')">
+              <h3 class="button-title">教育咨询</h3>
+              <p class="button-description">获取教育相关的咨询和建议。</p>
+            </div>
           </div>
-          <div class="button" @click="handleClick('/pptgenerator')">
-            <h3 class="button-title">PPT生成</h3>
-            <p class="button-description">创建和编辑教学用的幻灯片，简化制作过程。</p>
+        </div>
+
+        <!-- Course Management Section -->
+        <div class="course-management-section">
+          <h2 class="section-title">课程管理</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/teacherrecording')">
+              <h3 class="button-title">教师录课</h3>
+              <p class="button-description">录制教师的课程内容。</p>
+            </div>
+            <div class="button" @click="handleClick('/classselect')">
+              <h3 class="button-title">课程观看</h3>
+              <p class="button-description">观看录制好的课程。</p>
+            </div>
           </div>
         </div>
       </div>
-      <!-- Middle Section: Intelligent Q&A -->
-      <div class="middle-section">
-        <h2 class="section-title">智能问答</h2>
-        <div class="button-container">
-          <div class="button" @click="handleClick('/virtualteacher')">
-            <h3 class="button-title">虚拟人</h3>
-            <p class="button-description">与虚拟人进行互动，获取实时帮助。</p>
+
+      <!-- Student Application Section -->
+      <div v-if="activeTab === 'student'">
+        <!-- Bottom Section: Online Testing -->
+        <div class="bottom-section">
+          <h2 class="section-title">在线测试</h2>
+          <div class="button-container">
+            <button class="button" @click="startTest" title="进入选择不同测试">
+              <h3 class="button-title">开始测试</h3>
+              <p class="button-description">选择不同的测试方式以开始测试。</p>
+            </button>
+            <button class="button" @click="viewHistory" title="回顾最近的测试情况">
+              <h3 class="button-title">测试历史</h3>
+              <p class="button-description">查看最近的测试情况和结果。</p>
+            </button>
           </div>
-          <div class="button" @click="handleClick('/aiqa')">
-            <h3 class="button-title">教育咨询</h3>
-            <p class="button-description">获取教育相关的咨询和建议。</p>
+        </div>
+        <!-- Middle Section: Intelligent Q&A -->
+        <div class="middle-section">
+          <h2 class="section-title">智能问答</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/virtualteacher')">
+              <h3 class="button-title">虚拟人</h3>
+              <p class="button-description">与虚拟人进行互动，获取实时帮助。</p>
+            </div>
+            <div class="button" @click="handleClick('/aiqa')">
+              <h3 class="button-title">教育咨询</h3>
+              <p class="button-description">获取教育相关的咨询和建议。</p>
+            </div>
           </div>
         </div>
       </div>
-      <!-- Bottom Section: Online Testing -->
-      <div class="bottom-section">
-        <h2 class="section-title">在线测试</h2>
-        <div class="button-container">
-          <button class="button" @click="startTest" title="进入选择不同测试">
-            <h3 class="button-title">开始测试</h3>
-            <p class="button-description">选择不同的测试方式以开始测试。</p>
-          </button>
-          <button class="button" @click="viewHistory" title="回顾最近的测试情况">
-            <h3 class="button-title">测试历史</h3>
-            <p class="button-description">查看最近的测试情况和结果。</p>
-          </button>
-        </div>
-      </div>
-      <!-- New Section: Course Management -->
-      <div class="course-management-section">
-        <h2 class="section-title">课程管理</h2>
-        <div class="button-container">
-          <div class="button" @click="handleClick('/teacherrecording')">
-            <h3 class="button-title">教师录课</h3>
-            <p class="button-description">录制教师的课程内容。</p>
-          </div>
-          <div class="button" @click="handleClick('/classselect')">
-            <h3 class="button-title">课程观看</h3>
-            <p class="button-description">观看录制好的课程。</p>
-          </div>
-        </div>
-      </div>
-      
+
       <!-- Logout Button -->
       <div class="top-right">
         <button class="logout-button" @click="logout">
@@ -87,6 +117,11 @@ export default {
   components: {
     SidebarMenu
   },
+  data() {
+    return {
+      activeTab: 'teacher' // 默认显示教师应用内容
+    };
+  },
   methods: {
     handleClick(buttonroute) {
       this.$router.push(buttonroute);
@@ -100,8 +135,11 @@ export default {
     },
     logout() {
       this.$router.back();
+    },
+    switchTab(tab) {
+      this.activeTab = tab;
     }
-  },
+  }
 };
 </script>
 
@@ -131,6 +169,31 @@ export default {
       font-size: 2.5rem;
       color: #333;
       margin: 0;
+    }
+  }
+
+  .switch-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #1a8dec;
+      color: #fff;
+      transition: background-color 0.3s, color 0.3s;
+
+      &:hover {
+        background-color: #584eec;
+      }
+
+      &.active {
+        background-color: #584eec;
+      }
     }
   }
 

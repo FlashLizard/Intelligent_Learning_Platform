@@ -4,6 +4,7 @@
       <polygon :points="points" class="hexagon" />
       <polygon :points="dataPoints" class="data" />
       <line v-for="(line, index) in hexagonLines" :key="index" :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2" class="hexagon-line" />
+      <text v-for="(point, index) in labelPoints" :key="'label' + index" :x="point.x" :y="point.y" class="hexagon-label">{{ labels[index] }}</text>
     </svg>
   </div>
 </template>
@@ -12,6 +13,10 @@
 export default {
   props: {
     data: {
+      type: Array,
+      required: true,
+    },
+    labels: {
       type: Array,
       required: true,
     },
@@ -26,6 +31,12 @@ export default {
     hexagonLines() {
       return this.generateHexagonLines(1);
     },
+    labelPoints() {
+      return this.generateHexagonPoints(1.1).map(point => {
+        const [x, y] = point.split(',').map(Number);
+        return { x, y:y+0.04 };
+      });
+    },
   },
   methods: {
     generateHexagonPoints(radius, data = [100, 100, 100, 100, 100, 100]) {
@@ -34,8 +45,8 @@ export default {
         const r = radius * value / 100;
         const x = r * Math.cos(angle * index);
         const y = r * Math.sin(angle * index);
-        return `${x},${y}`;
-      });
+        return { x, y };
+      }).map(point => `${point.x},${point.y}`);
     },
     generateHexagonLines(radius) {
       const points = this.generateHexagonPoints(radius).map(point => {
@@ -68,5 +79,9 @@ export default {
 .hexagon-line {
   stroke: rgb(10, 9, 9);
   stroke-width: 0.01;
+}
+.hexagon-label {
+  font-size: 0.005em;
+  text-anchor: middle;
 }
 </style>

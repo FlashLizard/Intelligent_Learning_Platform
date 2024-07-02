@@ -6,6 +6,7 @@ import HomeworkManagement from '@/components/pages/teacher/HomeworkManagement.vu
 import TestHome from '@/components/pages/tests/TestHome.vue';
 import TestPage from '@/components/pages/tests/TestPage.vue';
 import EvaluationPage from '@/components/pages/tests/EvaluationPage.vue';
+import TestAnswer from '@/components/pages/tests/TestAnswer.vue';
 import HexagonChart from '@/components/component/HexagonChart.vue';
 import SidebarMenu from '@/components/component/SidebarMenu.vue';
 import AiQa from '@/components/pages/aiqa/AiQa.vue';
@@ -39,6 +40,11 @@ const routes = [
     path: '/testpage',
     name: 'TestPage',
     component: TestPage,
+  },
+  {
+    path: '/testanswer',
+    name: 'TestAnswer',
+    component: TestAnswer,
   },
   {
     path: '/evaluationpage',

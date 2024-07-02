@@ -16,9 +16,9 @@ import time
 import json5
 
 
-UPLOAD_ANS = 'src/audio_to_txt/uploads'  # 上传作为答案的文件
-UPLOAD_AUDIO = 'src/audio_to_txt/audio'
-AUDIO2CONTEXT = 'src/audio_to_txt/res_context'
+UPLOAD_ANS = 'uploads'  # 上传作为答案的文件
+UPLOAD_AUDIO = 'audio'
+AUDIO2CONTEXT = 'res_context'
 
 UPLOAD_AUDIO = UPLOAD_AUDIO
 AUDIO2CONTEXT = AUDIO2CONTEXT
@@ -34,7 +34,7 @@ api_get_result = '/getResult'
 domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
-with open('../config.json', encoding='utf-8') as f:
+with open('../../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 appid = config['appid']
 api_secret = config['api_secret']
@@ -64,6 +64,9 @@ class audio2txt_Api(object):
         self.eachname = eachname
         self.ts = str(int(time.time()))
         self.signa = self.get_signa()
+        # 待比较的两个字符串变量
+        self.standardanswer_string = ''
+        self.studentanswer_string = ''
 
     def get_signa(self):
         appid = self.appid
@@ -160,29 +163,44 @@ class audio2txt_Api(object):
 
         # 保存字符串到指定文件
         string_to_save = result_context
-        with open(os.path.join(directory, file_name_with_extension), 'w') as file:
-            file.write(string_to_save)
-
-        print(f"文件已保存在 {directory}{file_name_with_extension}")
+        self.studentanswer_string = string_to_save
+        print("音频解析结果：",string_to_save)
+        # with open(os.path.join(directory, file_name_with_extension), 'w') as file:
+        #     file.write(string_to_save)
+        # print(f"文件已保存在 {directory}{file_name_with_extension}")
         return result_context
 
 
 class InputAns(object):
     def __init__(self):
-        self.ans_file_name = ""
         self.result = "./result/result.json"
 
-    def calculate_accuracy(self, answer_file, compare_file):
-
-        with open(answer_file, 'r') as file:
-            answer_content = file.read()
-        with open(compare_file, 'r') as file:
-            compare_content = file.read()
-        distance = Levenshtein.distance(answer_content, compare_content)
-        similarity = 1 - distance / max(len(answer_content), len(compare_content))
+    def calculate_accuracy(self, standardanswer_string, studentanswer_string):
+        print('Into calculate_accuracy')
+        # with open(answer_file, 'r') as file:
+        #     answer_content = file.read()
+        # with open(compare_file, 'r') as file:
+        #     compare_content = file.read()
+        # print("待比较的两个文件读取成功")
+        # distance = Levenshtein.distance(answer_content, compare_content)
+        # similarity = 1 - distance / max(len(answer_content), len(compare_content))
+        distance = Levenshtein.distance(standardanswer_string, studentanswer_string)
+        similarity = 1 - distance / max(len(standardanswer_string), len(studentanswer_string))
+        print("similarity:",similarity)
         return similarity
 
-    def compare_with_answer(self):
+    def compare_with_answer(self, standard_answer, student_answers,filename_list):
+        results = {}
+        for i, student_answer in enumerate(student_answers):
+            print("student_answer:",student_answer)
+            accuracy = self.calculate_accuracy(standard_answer, student_answer)
+            results[f'{filename_list[i]}'] = f"准确率: {accuracy:.2%}"
+        # 将结果写入JSON文件
+        with open(self.result, 'w', encoding='utf-8') as result_file:
+            json.dump(results, result_file, ensure_ascii=False, indent=4)
+        return results
+
+    def compare_with_answer_nolongerused(self):
         if not self.ans_file_name:
             return "错误：没有指定答案文件。"
 

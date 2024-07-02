@@ -22,8 +22,8 @@
         <div class="generate-section">
           <button @click="showThemeDialog"><i class="fas fa-file-download"></i> 生成PPT</button>
         </div>
-        <textarea v-if="!fileContent" readonly class="placeholder-textarea" placeholder="PPT生成结果">PPT生成结果</textarea>
-        <textarea v-else v-model="fileContent" readonly placeholder="PPT生成结果"></textarea>
+        <textarea v-if="!pptContent" readonly class="placeholder-textarea" placeholder="PPT生成结果">PPT生成结果</textarea>
+        <textarea v-else v-model="pptContent" readonly placeholder="PPT生成结果"></textarea>
       </div>
     </div>
 
@@ -69,9 +69,9 @@
     <button class="back-button" @click="goBack"><i class="fas fa-arrow-left"></i> 返回</button>
   </div>
 </template>
-
 <script>
 import axios from 'axios'; // 引入 axios 库
+import PptxGenJS from 'pptxgenjs';
 
 export default {
   data() {
@@ -80,7 +80,8 @@ export default {
       showDialog: false, // 控制主题选择弹窗显示
       selectedTheme: 'auto', // 存储选择的主题
       selectedFile: null, // 存储上传的文件
-      notesOption: 0 // 存储选择的备注选项，默认值为0,不生成
+      notesOption: 0, // 存储选择的备注选项，默认值为0,不生成
+      pptContent: '' // 存储PPT生成结果
     };
   },
   methods: {
@@ -107,7 +108,7 @@ export default {
         reader.readAsText(file); // 这里只读取文本文件内容
       }
     },
-    uploadFile() {
+    async uploadFile() {
       if (!this.selectedFile) {
         alert("请先上传文件！");
         return;
@@ -117,26 +118,36 @@ export default {
       formData.append('file', this.selectedFile);
       formData.append('theme', this.selectedTheme);
       formData.append('is_card_note', this.notesOption);
-      console.log(this.selectedTheme)
-      console.log(this.notesOption)
-      console.log("formData: ",formData)
-      //const ip = 'http://10.15.155.215:5000/upload'; 
-      const ip = 'http://localhost:5000/api/uploadppt';
-      axios.post(ip, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      .then(response => {
-        // 处理成功响应
-        console.log(response.data);
-        alert('文件上传成功！');
-      })
-      .catch(error => {
-        // 处理错误响应
+
+      try {
+        const urlip = 'http://10.15.154.81:5000/uploadppt'
+        const response = await axios.post(urlip, formData, {
+          responseType: 'blob',
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log("response",response)
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'generated_ppt.pptx');
+        document.body.appendChild(link);
+        link.click();
+
+        // Use PptxGenJS to load the PPT and extract the first slide content
+        const pptx = new PptxGenJS();
+        await pptx.load(blob);
+        const firstSlide = pptx.getSlide(0);
+        this.pptContent = firstSlide ? firstSlide.text : "无法加载PPT内容";
+
+        URL.revokeObjectURL(url);
+      } catch (error) {
         console.error('文件上传失败', error);
         alert('文件上传失败');
-      });
+      }
 
       this.showDialog = false; // 关闭主题选择弹窗
     },
@@ -146,7 +157,6 @@ export default {
   },
 };
 </script>
-
 <style scoped lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');

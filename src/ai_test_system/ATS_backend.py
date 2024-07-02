@@ -1,5 +1,5 @@
 from flask_cors import CORS
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import regex
 import os
 import sys
@@ -24,7 +24,6 @@ app = Flask(__name__)
 CORS(app)
 
 # 创建SparkLLM对象
-
 llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain, False)
 
 get_subjects_prompt = ''' 我以以下格式: {
@@ -67,7 +66,7 @@ get_problems_prompt = '''我以以下格式:
                     }
                 ]
             }
-        返回其要求的试题数据。
+        返回其要求的试题数据。注意只返回3道单选，3道判断，3道填空题。
         提供给你的json如下, 请直接返回json, 不要添加任何其他描述:'''
 get_evaluation_prompt1 = '''我以以下两个格式: 
    {
@@ -103,8 +102,8 @@ get_evaluation_prompt1 = '''我以以下两个格式:
     给你提供一个题目的json1和用户答案的json2，请你根据里面的信息以我指定的格式: {
     	"evaluation": "还不错, 但有一些马虎的错误, 还有十足的进步空间" /*对用户作答情况的描述, 此处只是个请你依据实际情况描述, 不要少于15字*/,
     	"knowledge_radar": {
-    		"dimension": ["概念","计算","求导","积分","导数"], /*雷达图的维度, 你需要根据题目的json分析出应该包含哪些维度(至少5个), 而不是和示例一样, 并进行打分*/
-            "score": [100,80,0,10,10]
+    		"dimension": ["概念","计算","求导","积分","导数","基础"], /*雷达图的维度, 你需要根据题目的json分析出应该包含哪些维度(6维), 而不是和示例一样, 并进行打分*/
+            "score": [100,80,30,10,10,40]
     	},
         "shortcoming": "不会求导" /*缺点*/,
         "sugguest": "多练练求导" /*意见*/
@@ -113,7 +112,6 @@ get_evaluation_prompt1 = '''我以以下两个格式:
     给你的题目json1如下: '''
 get_evaluation_prompt2 = '''\n给你的用户答案json2如下: '''
 get_evaluation_prompt3 = '''\n请直接返回解析json, 不要添加任何其他描述:'''
-
 
 @app.route('/get_subjects', methods=['POST'])
 def get_subjects_handler():
@@ -146,9 +144,9 @@ def get_problems_handler():
     rest = len(subjects)
     ans = {'problems': []}
     for subject in subjects:
-        rest-=1
-        now_cnt = random.randint(1, cnt-rest)
-        cnt-=now_cnt
+        rest -= 1
+        now_cnt = random.randint(1, cnt - rest)
+        cnt -= now_cnt
         json_str = f'''{{
         "subjects": "{subject}" /*问题考察的知识点*/,
         "count": {now_cnt} /*要求提供的题目数量, 不要少于此数量或多于此数量*/,
@@ -160,13 +158,13 @@ def get_problems_handler():
         Logger.info(f'json_str:{json_str}')
         question = get_problems_prompt + json_str
         ans_str = llm.query(question)
-        ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}')+1]
+        ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
         # Logger.info(f'ans_str:{ans_str}')
-        now_ans =  json5.loads(ans_str)
+        now_ans = json5.loads(ans_str)
         ans['problems'].extend(now_ans['problems'])
         
     Logger.info(ans)
-    return f'{ans}'
+    return jsonify(ans)  # 确保返回的是JSON格式
 
 @app.route('/get_evaluation', methods=['POST'])
 def get_evaluation_handler():
@@ -210,8 +208,73 @@ def get_evaluation_handler():
     json2 = content['json2']
     question = get_evaluation_prompt1 + str(json1) + get_evaluation_prompt2 + str(json2) + get_evaluation_prompt3
     ans = llm.query(question)
-    ans = ans[ans.find('{'): ans.rfind('}')+1]
+    ans = ans[ans.find('{'): ans.rfind('}') + 1]
     Logger.info(ans)
     return ans
+
+@app.route('/submit_test', methods=['POST'])
+def submit_test():
+    data = request.json
+    # 处理接收到的数据
+    print(data)
+    transformed_data = transform_data(data)
+    print(transformed_data)
+    json1 = transformed_data['problems']
+    json2 = transformed_data['answers']
+    question = get_evaluation_prompt1 + str(json1) + get_evaluation_prompt2 + str(json2) + get_evaluation_prompt3
+    ans = llm.query(question)
+    ans = ans[ans.find('{'): ans.rfind('}') + 1]
+    print(ans)
+    return ans
+
+def transform_data(data):
+    transformed_problems = []
+    extracted_answers = []
+
+    # Process single_choice_problems
+    for problem in data.get('single_choice_problems', []):
+        transformed_problem = {
+            "type": "choice",
+            "problem": problem["problem"],
+            "choices": problem["choices"],
+            "answer": problem["answer"],
+            "analysis": problem["analysis"]
+        }
+        doneanswer = problem.get('doneanswer')
+        if doneanswer is not None:
+            extracted_answers.append(doneanswer)
+        transformed_problems.append(transformed_problem)
+
+    # Process fillin_problems
+    for problem in data.get('fillin_problems', []):
+        transformed_problem = {
+            "type": "completion",
+            "problem": problem["problem"],
+            "answer": problem["answer"],
+            "analysis": problem["analysis"]
+        }
+        doneanswer = problem.get('doneanswer')
+        if doneanswer is not None:
+            extracted_answers.append(doneanswer)
+        transformed_problems.append(transformed_problem)
+
+    # Process judgement_problems
+    for problem in data.get('judgement_problems', []):
+        transformed_problem = {
+            "type": "judgement",
+            "problem": problem["problem"],
+            "answer": problem["answer"],
+            "analysis": problem["analysis"]
+        }
+        doneanswer = problem.get('doneanswer')
+        if doneanswer is not None:
+            extracted_answers.append(doneanswer)
+        transformed_problems.append(transformed_problem)
+
+    return {
+        "problems": transformed_problems,
+        "answers": extracted_answers
+    }
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
