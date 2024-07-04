@@ -1,7 +1,8 @@
 import mysql.connector
 from mysql.connector import Error
 import json
-from ..utils import Logger
+from utils import Logger
+
 
 database = None
 

@@ -1,10 +1,11 @@
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from .Database import create_test,get_user_tests,get_test_by_id,get_user_id,create_user,delete_test
-from ..utils import Logger
+from utils import Logger
 import json5
 import time
 from datetime import datetime
+from App import app
 
 # 定义自定义序列化函数
 def datetime_serializer(obj):
@@ -12,11 +13,11 @@ def datetime_serializer(obj):
         return obj.isoformat()  # 将 datetime 对象转换为 ISO 格式的字符串
     raise TypeError(f"Type {type(obj)} not serializable")
 
-# 创建服务器
-app = Flask(__name__)
+# # 创建服务器
+# app = Flask(__name__)
 
-app.json.ensure_ascii = False
-CORS(app)
+# app.json.ensure_ascii = False
+# CORS(app)
 
 @app.route('/save_test', methods=['POST'])
 def save_test_handler():
