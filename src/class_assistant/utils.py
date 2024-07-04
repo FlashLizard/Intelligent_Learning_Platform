@@ -97,6 +97,7 @@ def random_call(class_name,course_name):
     selected_student = random.choice(students)
     print(f"点到的学生是：{selected_student}")
     record_audio()  # 开始录音
+
 def random_call_record(class_name, course_name, student_name):
     data = request.json
     valid = data.get('if_valid')  # 回答是否有效

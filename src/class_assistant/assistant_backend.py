@@ -39,16 +39,19 @@ countdown_seconds = 0
 countdown_event = Event()
 course_name = ""
 class_name = ""
+class_material = ""
 end_time_minutes = 0
 
 
-@app.route('/start_class', methods=['POST'])
-def start_class():
+
+@socketio.on('start_class')     # 等待前端的start指令
+def handle_start_class(data):
     global if_record, countdown_seconds, course_name, class_name, end_time_minutes
     data = request.json
     course_name = data.get('course_name')
     class_name = data.get('class_name')
     end_time_minutes = int(data.get('end_time'))  # end_time 单位是分钟
+    class_material = data.get('class_material')   # 选择课件内容
     if_record = data.get('if_record', False)
 
     if if_record:
@@ -79,15 +82,18 @@ def start_recording_thread(filename):
 
 
 def record_audio_for_whole_class(filename='output.wav', sample_rate=44100, channels=2):
+    """
+    用于在点击开始（无论是开始上课时还是上课途中）录音后，为整堂课进行录音
+    """
     global is_recording, pause_recording
 
     def recording_thread():
-        nonlocal is_recording, pause_recording
+        nonlocal is_recording, pause_recording  # 存疑，nonlocal还是global
         print("开始录音…")
         # 使用sounddevice的InputStream实现实时录音
         with sd.InputStream(samplerate=sample_rate, channels=channels) as stream:
             audio_frames = []
-            while is_recording:
+            while is_recording:   # 以is_recording作为是否继续录音的标志
                 if pause_recording:
                     continue
                 frame, overflowed = stream.read(sample_rate)  # 每次读1秒的音频帧
@@ -112,11 +118,19 @@ def record_audio_for_whole_class(filename='output.wav', sample_rate=44100, chann
 
 
 def send_countdown():
-    global countdown_seconds, countdown_event
+    """
+    向前端返回两个量：
+    countdown_seconds: 在前端显示课堂倒计时时长
+    is_recording: 后端是否在录音，如果是，前端显示“开始录音”，否则显示结束录音
+    """
+    global countdown_seconds, countdown_event, is_recording
     while countdown_seconds > 0 and not countdown_event.is_set():
         time.sleep(1)
         countdown_seconds -= 1
-        socketio.emit('countdown', {'countdown_seconds': countdown_seconds})
+        socketio.emit('countdown', {
+            'countdown_seconds': countdown_seconds,
+            'is_recording': is_recording
+        })
     if countdown_seconds <= 0:
         end_class(True)
 
@@ -141,22 +155,27 @@ def handle_command(data):
     elif command == "3":   # 提前结束课堂
         end_class()
     elif command == "4":
-        # AI课堂小测？ 可以结合学生端出题功能
+        """
+         AI课堂小测,结合学生端出题功能
+         这里需要把class_material作为提示词调用星火大模型
+        """
         pass
-    elif command == "5":   # 结束录音
-        if is_recording:
-            check = data.get('check')
+    elif command == "5":   # 开始或结束录音
+        if is_recording:   # 只有在录音过程中，才能决定结束录音
+            check = data.get('check')   # 确认结束录音？
             if check:
                 is_recording = False
                 time.sleep(1)
             else:
                 emit('response', {"status": "Recording ongoing, not stopped"})
-                return
-        else:
+
+        else:   # 只有非录音过程中，才能决定开始录音
+            is_recording = True
             time.sleep(1)
-        is_recording = True
-        filename = data.get('filename')
-        start_recording_thread(filename)
+            filename = data.get('filename')    # 为这一段录音命名，前端提供文件名称
+            start_recording_thread(filename)
+
+        return
 
 
 @app.route('/end_class', methods=['POST'])
@@ -208,6 +227,8 @@ def end_class(from_timer=False):
         socketio.emit('response', {"status": "Class ended due to timer"})
     else:
         emit('response', {"status": "Class ended"})
+
+    return
 
 
 if __name__ == '__main__':
