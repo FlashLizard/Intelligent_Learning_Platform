@@ -7,6 +7,7 @@ import TestHome from '@/components/pages/tests/TestHome.vue';
 import TestPage from '@/components/pages/tests/TestPage.vue';
 import EvaluationPage from '@/components/pages/tests/EvaluationPage.vue';
 import TestAnswer from '@/components/pages/tests/TestAnswer.vue';
+import TestHistory from '@/components/pages/tests/TestHistory.vue';
 import HexagonChart from '@/components/component/HexagonChart.vue';
 import SidebarMenu from '@/components/component/SidebarMenu.vue';
 import AiQa from '@/components/pages/aiqa/AiQa.vue';
@@ -14,6 +15,9 @@ import VirtualTeacher from '@/components/pages/aiqa/VirtualTeacher.vue';
 import TeacherRecording from '@/components/pages/classrecord/TeacherRecording.vue';
 import ClassSelect from '@/components/pages/classrecord/ClassSelect.vue'
 import ClassStudy from '@/components/pages/classrecord/ClassStudy.vue'
+import CourseHelper from '@/components/pages/teacher/CourseHelper.vue';
+import ClassTest from '@/components/pages/teacher/ClassTest.vue'
+import ClassTestEvaluation from '@/components/pages/teacher/ClassTestEvaluation.vue'
 
 const routes = [
   {
@@ -40,6 +44,11 @@ const routes = [
     path: '/testpage',
     name: 'TestPage',
     component: TestPage,
+  },
+  {
+    path: '/testhistory',
+    name: 'TestHistory',
+    component: TestHistory,
   },
   {
     path: '/testanswer',
@@ -90,6 +99,21 @@ const routes = [
     path: '/classstudy',
     name: 'ClassStudy',
     component: ClassStudy,
+  },
+  {
+    path: '/coursehelper',
+    name: 'CourseHelper',
+    component: CourseHelper,
+  },
+  {
+    path: '/classtest',
+    name: 'ClassTest',
+    component: ClassTest,
+  },
+  {
+    path: '/classtestevaluation',
+    name: 'ClassTestEvaluation',
+    component: ClassTestEvaluation,
   },
 ];
 

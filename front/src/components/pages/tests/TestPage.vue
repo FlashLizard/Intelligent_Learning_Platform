@@ -280,9 +280,9 @@ export default {
         for (const tableName of tableNames) {
           await clearTable(db, tableName);
         }
-
         const transaction = db.transaction(tableNames, 'readwrite');
         for (const [key, value] of Object.entries(response.data)) {
+          console.log(key)
           if (key === 'knowledge_radar') {
             const store_dimension = transaction.objectStore('dimension');
             await Promise.all(value.dimension.map((dim, index) => store_dimension.put({ id: index + 1, dimension: dim })));

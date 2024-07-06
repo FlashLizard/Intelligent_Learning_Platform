@@ -67,7 +67,7 @@ export default {
       }
     },
     goBack() {
-      this.$router.back();
+      this.$router.push('/index');
     },
     viewQuestions() {
       this.$router.push('/testanswer');

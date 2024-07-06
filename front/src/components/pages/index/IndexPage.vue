@@ -21,7 +21,7 @@
         <div class="top-section">
           <h2 class="section-title">教师助手</h2>
           <div class="button-container">
-            <div class="button" @click="handleClick('/courserecord')">
+            <div class="button" @click="handleClick('/coursehelper')">
               <h3 class="button-title">课程记录</h3>
               <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
             </div>
@@ -131,7 +131,7 @@ export default {
       this.$router.push('/testhome');
     },
     viewHistory() {
-      this.$router.push('/evaluationpage');
+      this.$router.push('/testhistory');
     },
     logout() {
       this.$router.back();

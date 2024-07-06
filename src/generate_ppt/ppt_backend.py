@@ -15,7 +15,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # 定义路由，用于文件上传
-@app.route('/upload', methods=['POST', 'GET'])
+@app.route('/uploadppt', methods=['POST', 'GET'])
 def upload_file():
     # 检查是否有文件在请求内
     if 'file' not in request.files:
@@ -33,6 +33,7 @@ def upload_file():
         # 安全地获取文件名，并保存到服务器的 UPLOAD_FOLDER 目录下
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        print(filename,theme,is_card_note,type(is_card_note))
         generate_ppt(filename, theme, is_card_note)
         return 'File successfully uploaded'
 
