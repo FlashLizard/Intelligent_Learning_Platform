@@ -49,6 +49,8 @@ def get_database():
                 test_name VARCHAR(255) NOT NULL,
                 test_time DATETIME,
                 test_questions JSON,
+                test_score INT,
+                test_subjects JSON,
                 user_answers JSON,
                 test_result_analysis JSON,
                 FOREIGN KEY (user_id) REFERENCES users(id)
@@ -83,20 +85,20 @@ def create_user(username):
     return cursor.lastrowid
 
 # 增加测试数据
-def create_test(user_id, test_name, test_time, test_questions, user_answers, test_result_analysis):
+def create_test(user_id, test_name, test_time, test_questions, user_answers, test_result_analysis,test_score, test_subjects):
     cursor = get_database().cursor()
     query = """
-    INSERT INTO tests (user_id, test_name, test_time, test_questions, user_answers, test_result_analysis)
-    VALUES (%s, %s, %s, %s, %s, %s)
+    INSERT INTO tests (user_id, test_name, test_time, test_questions, user_answers, test_result_analysis, test_score, test_subjects)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (user_id, test_name, test_time, json.dumps(test_questions), json.dumps(user_answers), json.dumps(test_result_analysis)))
+    cursor.execute(query, (user_id, test_name, test_time, json.dumps(test_questions), json.dumps(user_answers), json.dumps(test_result_analysis), test_score, json.dumps(test_subjects)))
     get_database().commit()
     return cursor.lastrowid
 
 # 查询用户的所有测试数据
 def get_user_tests(user_id):
     cursor = get_database().cursor(dictionary=True)
-    query = "SELECT test_name,test_time FROM tests WHERE user_id = %s"
+    query = "SELECT test_name,test_time,id,test_score,test_subjects FROM tests WHERE user_id = %s"
     cursor.execute(query, (user_id,))
     return cursor.fetchall()
 
@@ -134,7 +136,7 @@ if __name__ == "__main__":
     user_id = create_user("JohnDoe")
     
     # 增加测试数据
-    test_id = create_test(user_id, "测试一", "2024-07-03 12:00:00", {"q1": "What is AI?"}, {"q1": "Artificial Intelligence"}, {"score": 100})
+    test_id = create_test(user_id, "测试一", "2024-07-03 12:00:00", {"q1": "What is AI?"}, {"q1": "Artificial Intelligence"}, {"score": 100},100,["math"])
     
     # 查询用户的所有测试数据
     tests = get_user_tests(user_id)
@@ -146,4 +148,5 @@ if __name__ == "__main__":
     
     # 删除测试数据
     delete_test(test_id)
+    delete_database()
     get_database().close()

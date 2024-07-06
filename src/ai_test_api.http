@@ -106,7 +106,9 @@ Content-Type: application/json
         "sugguest": "多练练求导"
     },
     "test_name": "物理电磁感应",
-    "user_id": 10
+    "test_subjects": ["物理","电磁感应"],
+    "test_score": 40,
+    "user_id": 2
 }
 
 ###
@@ -116,7 +118,7 @@ Content-Type: application/json
 
 {
     
-    "user_id":10
+    "user_id":2
 }
 
 
@@ -126,7 +128,7 @@ POST {{basePath}}/get_test HTTP/1.1
 Content-Type: application/json
 
 {
-    "test_id":6
+    "test_id":3
 }
 
 ###
@@ -144,7 +146,7 @@ POST {{basePath}}/create_user HTTP/1.1
 Content-Type: application/json
 
 {
-    "username":"zhangsan5"
+    "username":"zhangsan6"
 }
 
 ###

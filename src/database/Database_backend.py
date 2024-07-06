@@ -25,7 +25,7 @@ def save_test_handler():
     #获取当前系统时间
     test_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     test_id = create_test(content['user_id'], content['test_name'], test_time,
-                content['problems'],content['answers'], content['evaluation'])
+                content['problems'],content['answers'], content['evaluation'], content['test_score'], content['test_subjects'])
     return {
         "status": "success",
         "test_id": test_id
