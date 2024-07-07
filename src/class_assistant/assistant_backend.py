@@ -9,10 +9,10 @@ import sounddevice as sd
 import numpy as np
 from src.spark.SparkApi import SparkLLM
 from src.audio_to_txt.Ifasr_app import audio2txt_Api
-from utils import random_call, random_call_record, record_audio
+from utils1 import random_call, random_call_record, record_audio
 
 # 加载配置文件
-with open('config.json', encoding='utf-8') as f:
+with open('../../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 
 # 配置信息
