@@ -91,13 +91,16 @@ def record_audio(filename='tmp_question.wav', sample_rate=44100, channels=2):
     pause_recording = False  # 可以结束对课堂录音的暂停
 
 
-def random_call(class_name,course_name):
+def random_call(students):
 
-    students = []  #TODO 这里需要写一个从数据库中根据班级和课堂数据选择学生集合的函数
+    # students = []
     selected_student = random.choice(students)
     print(f"点到的学生是：{selected_student}")
-    record_audio()  # 开始录音
+    # record_audio()  # 开始录音
+    return selected_student
 
+
+"""
 def random_call_record(class_name, course_name, student_name):
     data = request.json
     valid = data.get('if_valid')  # 回答是否有效
@@ -106,6 +109,7 @@ def random_call_record(class_name, course_name, student_name):
         save_to_database('class_records',
                          {'class_name': class_name, 'student': student_name, 'course_name': course_name,
                           'score': score})
+"""
 
 
 

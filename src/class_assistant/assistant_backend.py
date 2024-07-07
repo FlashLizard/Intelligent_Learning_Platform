@@ -9,7 +9,7 @@ import sounddevice as sd
 import numpy as np
 from src.spark.SparkApi import SparkLLM
 from src.audio_to_txt.Ifasr_app import audio2txt_Api
-from utils1 import random_call, random_call_record, record_audio
+from utils1 import random_call
 
 # 加载配置文件
 with open('../../config.json', encoding='utf-8') as f:
@@ -48,14 +48,15 @@ def handle_start_class():
     global if_record, countdown_seconds, course_name, class_name, end_time_minutes
     data = request.json
     course_name = data.get('course_name')
-    class_name = data.get('class_name')
+    #class_name = data.get('class_name')
     end_time_minutes = int(data.get('end_time'))  # end_time 单位是分钟
-    class_material = data.get('class_material')  # 选择课件内容
+    #class_material = data.get('class_material')  # todo 前端课件内容,赋值给class_material
+    class_material = ""
     if_record = data.get('if_record', False)
 
     if if_record:
         filename = data.get('filename')
-        start_recording_thread(filename)
+        # start_recording_thread(filename)
 
     # 计算倒计时时间
     countdown_seconds = end_time_minutes * 60
@@ -68,7 +69,6 @@ def handle_start_class():
     return jsonify({
         "status": "Class started",
         "course_name": course_name,
-        "class_name": class_name,
         "countdown_seconds": countdown_seconds
     })
 
@@ -138,9 +138,10 @@ def random_call_route():
     """
     随机点名
     """
-
-    student = random_call(class_name, course_name)
-    random_call_record(class_name, course_name, student)
+    # TODO 将列表传到后端
+    student_list = []
+    student = random_call(student_list)
+    # random_call_record(class_name, course_name, student)
     return jsonify({"status": "Random call executed", "student": student})
 
 
@@ -150,11 +151,12 @@ def ai_answer_route():
     AI回答学生问题
     """
     data = request.json
-    audio = record_audio()
+    # audio = record_audio()
+    # TODO 前端录音，修改 tmp_question.wav 为产生的录音文件的路径
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
     audio2txt = audio2txt_Api(appid, secret_key, os.path.join(audio_tmp_folder, "tmp_question.wav"), "bot_ans")
     question = audio2txt.get_result(op=2)
-    ans = llm.query(question)
+    ans = llm.query("综合我的课件内容：“ " + class_material + "” 回答下面的问题：" + question)
     return jsonify({"status": "AI answered", "answer": ans})
 
 
@@ -202,38 +204,41 @@ def end_class():
     if_record = False
     countdown_seconds = 0
     countdown_event.set()
-
-    if if_record:  # 只要在本堂课内至少启动一次录音就可以
-        if_save_content = True
-        if if_save_content:
-            cnt = 1
-            for foldername, filenames in os.walk(audio_folder):
-                for filename in filenames:
-                    file_path = os.path.join(foldername, filename)
-                    audio2txt = audio2txt_Api(appid, secret_key, file_path, f"whole_class_part{cnt}")
-                    cnt += 1
-
-            audio_dir = '../audio_to_txt/res_context'
-            file_list = [
-                f for f in os.listdir(audio_dir)
-                if re.match(r'whole_class_part(\d+)\.txt', f)
-            ]
-            file_list.sort(key=lambda x: int(re.findall(r'(\d+)', x)[0]))
-
-            whole_class_content = ''
-            for file_name in file_list:
-                part_number = re.findall(r'(\d+)', file_name)[0]
-                with open(os.path.join(audio_dir, file_name), 'r') as file:
-                    content = file.read()
-                    whole_class_content += f"第{part_number}部分：\n{content}\n"
-                os.remove(os.path.join(audio_dir, file_name))
-
-            with open('../audio_to_txt/whole_class.txt', 'w') as file:
-                file.write(whole_class_content)
+    whole_class_content = ""
+    # TODO 把录音内容发给后端.赋值给whole_class_content
+    # if if_record:  # 只要在本堂课内至少启动一次录音就可以
+    #     if_save_content = True
+    #     if if_save_content:
+    #         cnt = 1
+    #         for foldername, filenames in os.walk(audio_folder):
+    #             for filename in filenames:
+    #                 file_path = os.path.join(foldername, filename)
+    #                 audio2txt = audio2txt_Api(appid, secret_key, file_path, f"whole_class_part{cnt}")
+    #                 cnt += 1
+    #
+    #         audio_dir = '../audio_to_txt/res_context'
+    #         file_list = [
+    #             f for f in os.listdir(audio_dir)
+    #             if re.match(r'whole_class_part(\d+)\.txt', f)
+    #         ]
+    #         file_list.sort(key=lambda x: int(re.findall(r'(\d+)', x)[0]))
+    #
+    #         whole_class_content = ''
+    #         for file_name in file_list:
+    #             part_number = re.findall(r'(\d+)', file_name)[0]
+    #             with open(os.path.join(audio_dir, file_name), 'r') as file:
+    #                 content = file.read()
+    #                 whole_class_content += f"第{part_number}部分：\n{content}\n"
+    #             os.remove(os.path.join(audio_dir, file_name))
+    #
+    #         with open('../audio_to_txt/whole_class.txt', 'w') as file:
+    #             file.write(whole_class_content)
 
     # 将本堂课的录音内容保存到../audio_to_txt/whole_class.txt
-
-    return
+    llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
+    Input = input("\n" + "这是一段课堂的录音文件，请根据这个录音文件，总结课堂的有用内容，不超过1000字：" + whole_class_content)
+    ans = llm.query(Input)  # 注意，这里是阻塞的
+    return jsonify({"ans":ans})   #  用某个形式将ans返回到前端
 
 
 if __name__ == '__main__':
