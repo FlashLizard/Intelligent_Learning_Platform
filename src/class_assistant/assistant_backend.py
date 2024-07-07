@@ -7,12 +7,12 @@ import re
 import time
 import sounddevice as sd
 import numpy as np
-from ..spark.SparkApi import SparkLLM
-from ..audio_to_txt.Ifasr_app import audio2txt_Api
+from src.spark.SparkApi import SparkLLM
+from src.audio_to_txt.Ifasr_app import audio2txt_Api
 from utils import random_call, random_call_record, record_audio
 
 # 加载配置文件
-with open('../config.json', encoding='utf-8') as f:
+with open('config.json', encoding='utf-8') as f:
     config = json5.load(f)
 
 # 配置信息
@@ -87,7 +87,7 @@ def record_audio_for_whole_class(filename='output.wav', sample_rate=44100, chann
     global is_recording, pause_recording
 
     def recording_thread():
-        nonlocal is_recording, pause_recording  # 存疑，nonlocal还是global
+       # nonlocal is_recording, pause_recording  # 存疑，nonlocal还是global
         print("开始录音…")
         # 使用sounddevice的InputStream实现实时录音
         with sd.InputStream(samplerate=sample_rate, channels=channels) as stream:
