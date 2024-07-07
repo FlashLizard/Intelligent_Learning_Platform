@@ -51,5 +51,5 @@ selenium~=4.20.0
 opencv-python~=4.9.0.80
 python-docx~=1.1.2
 mysql-connector-python
-regex
-flask_cors
+regex~=2023.10.3
+flask_cors~=3.0.10

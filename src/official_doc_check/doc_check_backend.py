@@ -26,7 +26,7 @@ def text_from_docx(file_path):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    file = request.files['file']
+    file = request.files['file']   # 接受前端传来的文件 可以是txt,doc,docx 格式
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -50,7 +50,7 @@ def upload_file():
             f.write(processed_content)
 
         # 返回结果文件给前端
-        return jsonify({'message': 'File processed successfully', 'filename': 'result.txt'}), 200
+        return jsonify({'message': 'File processed successfully', 'result': processed_content}), 200
     else:
         return 'No file uploaded or file type not allowed', 400
 
