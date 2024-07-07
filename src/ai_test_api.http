@@ -59,3 +59,101 @@ Content-Type: application/json
         ]
     }
 }
+
+###
+
+POST {{basePath}}/save_test HTTP/1.1
+Content-Type: application/json
+
+{
+    "problems": {
+        "problems": [
+            {
+                "type": "choice",
+                "problem": "1+1=( )",
+                "choices": ["1","2","3","4"],
+                "answer": [1],
+                "analysis": "一个很简单的数学题"
+            },
+            {
+                "type": "completion",
+                "problem": ["1+2=","4+5=","请回答"],
+                "answer": ["3", "9"],
+                "analysis": "可以化为2进制去计算"
+            },
+            {
+                "type": "judgement",
+                "problem": "6+7=11",
+                "answer": false,
+                "analysis": "可以按计算器"
+            }
+        ]
+    },
+    "answers": {
+        "answers": [
+            [1],
+            ["2","9"],
+            [false]
+        ]
+    },
+    "evaluation": {
+        "evaluation": "还不错, 但有一些马虎的错误, 还有十足的进步空间",
+        "knowledge_radar": {
+            "dimension": ["概念","计算","求导","积分","导数"],
+            "score": [100,80,0,10,10]
+        },
+        "shortcoming": "不会求导",
+        "sugguest": "多练练求导"
+    },
+    "test_name": "物理电磁感应",
+    "test_subjects": ["物理","电磁感应"],
+    "test_score": 40,
+    "user_id": 2
+}
+
+###
+
+POST {{basePath}}/get_user_tests HTTP/1.1
+Content-Type: application/json
+
+{
+    
+    "user_id":2
+}
+
+
+###
+
+POST {{basePath}}/get_test HTTP/1.1
+Content-Type: application/json
+
+{
+    "test_id":3
+}
+
+###
+
+POST {{basePath}}/get_user_id HTTP/1.1
+Content-Type: application/json
+
+{
+    "username":"zhangsan5"
+}
+
+###
+
+POST {{basePath}}/create_user HTTP/1.1
+Content-Type: application/json
+
+{
+    "username":"zhangsan6"
+}
+
+###
+
+POST {{basePath}}/delete_test HTTP/1.1
+Content-Type: application/json
+
+{
+    "test_id":2
+}

@@ -4,13 +4,14 @@ import regex
 import os
 import sys
 import random
-from ..utils import Logger
-from ..spark.SparkApi import SparkLLM
+from utils import Logger
+from spark.SparkApi import SparkLLM
+from App import app
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #print(sys.path)
 import json5
 
-with open('./config.json', encoding='utf-8') as f:
+with open('../config.json', encoding='utf-8') as f:
     config = json5.load(f)
 appid = config['appid']
 api_secret = config['api_secret']
@@ -19,9 +20,9 @@ api_key = config['api_key']
 domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
-# 创建服务器
-app = Flask(__name__)
-CORS(app)
+# # 创建服务器
+# app = Flask(__name__)
+# CORS(app)
 
 # 创建SparkLLM对象
 llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain, False)
