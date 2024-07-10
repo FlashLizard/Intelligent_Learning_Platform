@@ -1,17 +1,23 @@
 # 基于星火大模型的智能课程推荐
 import json
 
+from flask import jsonify
+
 from src.spark.SparkApi import SparkLLM
 import time
 import json5
 from reptile.from_coursera import reptile_from_coursera
 from reptile.from_edx import reptile_from_edx
 
-with open('../config.json', encoding='utf-8') as f:
-    config = json5.load(f)
-appid = config['appid']
-api_secret = config['api_secret']
-api_key = config['api_key']
+# with open('../config.json', encoding='utf-8') as f:
+#     config = json5.load(f)
+# appid = config['appid']
+# api_secret = config['api_secret']
+# api_key = config['api_key']
+appid = 'e76d7d8f'
+api_secret = 'Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl'
+api_key = '990e2770b030441fbcc126c691daf5cd'
+
 
 domain = "generalv3.5"  # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
@@ -50,19 +56,25 @@ def ai_recommend(limit: str, course_list: list):
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
 
     ans = llm.query(
-        "我的要求是：" + limit + "。请从下列课程中选择出最符合我要求的课程，注意，你只用回答一个数字，来表示python列表中的第几项：" + contents.__str__())
+        "我的要求是：" + limit + "。请从下列课程中选择出最符合我要求的课程，注意，你需要返回一个python列表，每一项都是一个整数来表示课程列表中的第几项：" + contents.__str__())
     print(ans)
+    string_list = ans.replace("'", '"')
 
-    x = int(ans) - 1
-
-    if 0 <= x < len(urls):
-        result = {
-            "url": urls[x],
-            "course": courses[x],
-            "star": stars[x],
-            "content": contents[x]
-        }
-        return json.dumps(result, indent=4)
-
-    else:
-        return "返回编号错误"
+    # 使用 json.loads 将字符串转换为列表
+    list = json.loads(string_list)
+    for a in list:
+        print(a)
+    x = [int(a)-1 for a in list]
+    results = []
+    for i in x:
+        if 0 <= i < len(urls):
+            result = {
+                "url": urls[i],
+                "course": courses[i],
+                "star": stars[i],
+                "content": contents[i]
+            }
+            results.append(result)
+    print('results:',results)
+    return jsonify(results)
+    # return json.dumps(result, indent=4)

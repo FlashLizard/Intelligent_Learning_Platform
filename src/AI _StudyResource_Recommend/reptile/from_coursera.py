@@ -25,7 +25,7 @@ def reptile_from_coursera(course_name):
 
         # 检查是否成功提取了URL
         if extracted_info:
-            selected_info = random.sample(extracted_info, min(10, len(extracted_info)))  # 随机选择
+            selected_info = random.sample(extracted_info, min(50, len(extracted_info)))  # 随机选择
 
             # 循环展示选中的内容
             for idx, (href, label) in enumerate(selected_info, start=1):
