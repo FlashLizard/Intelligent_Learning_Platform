@@ -343,6 +343,7 @@ export default {
             });
           }
           if (!db.objectStoreNames.contains('evaluation')) {
+            console.log("create evaluation")
             db.createObjectStore('evaluation', { keyPath: 'id', autoIncrement: true });
           }
           if (!db.objectStoreNames.contains('dimension')) {
@@ -355,6 +356,7 @@ export default {
             db.createObjectStore('shortcoming', { keyPath: 'id', autoIncrement: true });
           }
           if (!db.objectStoreNames.contains('suggestion')) {
+            console.log("create suggestion")
             db.createObjectStore('suggestion', { keyPath: 'id', autoIncrement: true });
           }
         },

@@ -1,7 +1,7 @@
 <template>
   <div class="course-selection" @click="hideDropdown">
     <header class="header">
-      <h1>学生选课</h1>
+      <h1>AI荐课</h1>
       <div class="tabs">
         <div
           v-for="tab in tabs"
@@ -9,44 +9,54 @@
           :class="['tab', { active: tab === selectedTab }]"
           @click="selectTab(tab)"
         >
-          {{ tab }}
+          <i class="fas fa-book"></i> {{ tab }}
         </div>
         <div
           class="tab"
           @mouseenter="showMoreMenu"
           @mouseleave="hideMoreMenu"
         >
-          更多
+          <i class="fas fa-ellipsis-h"></i> 更多
           <div class="more-menu" v-if="isMoreMenuVisible" @click.stop>
             <div class="more-items">
               <div v-for="(item, index) in moreTabs" :key="index" class="more-item" @click="selectTab(item)">
-                {{ item }}
+                <i class="fas fa-book-open"></i> {{ item }}
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="search-and-back">
-        <input type="text" placeholder="搜索课程" v-model="searchQuery" @input="filterCourses" />
-        <button class="back-button" @click="goBack">返回</button>
+        <input type="text" placeholder="搜索学科" v-model="searchQuery" @input="filterCourses" @keyup.enter="handleEnter" />
+        <input type="text" class="keyword-input" placeholder="搜索关键词" v-model="keywordQuery" @keyup.enter="handleEnter" />
+        <button class="back-button" @click="goBack">
+          <i class="fas fa-arrow-left"></i> 返回
+        </button>
       </div>
     </header>
-    <div class="course-list">
-      <div v-for="course in paginatedCourses" :key="course.id" class="course-item">
-        <h2>{{ course.name }}</h2>
-        <p>{{ course.description }}</p>
-        <button @click="selectCourse(course)">学习</button>
+
+    <!-- 加载中弹窗 -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-message">
+        <i class="fas fa-spinner fa-spin"></i> 课程加载中...
       </div>
     </div>
-    <div class="pagination">
-      <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
-      <span>第 {{ currentPage }} 页</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一页</button>
+    <div class="recommendations">
+      <h2>推荐课程</h2>
+      <!-- 这里是推荐课程列表的渲染 -->
+      <div v-for="(course, index) in recommendations" :key="index" class="recommended-course" @click="openUrl(course.url)">
+        <div class="recommended-content">
+          <p><strong><i class="fas fa-chalkboard"></i> 课程名称:</strong> {{ course.course }}</p>
+          <p><strong><i class="fas fa-info-circle"></i> 课程简介:</strong> {{ course.content }}</p>
+          <p><strong><i class="fas fa-star"></i> 课程评价:</strong> {{ course.star }}</p>
+          <p><strong><i class="fas fa-video"></i> 观看课程:</strong> <a :href="course.url" target="_blank">{{ course.url }}</a></p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -54,23 +64,14 @@ export default {
       selectedTab: '数学',
       tabs: ['数学', '英语', '计算机', '化学', '物理', '历史'],
       moreTabs: ['文学', '医学', '生物'],
-      courses: [
-        { id: 1, name: '数学课程1', description: '数学课程描述1' },
-        { id: 2, name: '物理课程1', description: '物理课程描述1' },
-        { id: 3, name: '化学课程1', description: '化学课程描述1' },
-        { id: 4, name: '数学课程2', description: '数学课程描述2' },
-        { id: 5, name: '物理课程2', description: '物理课程描述2' },
-        { id: 6, name: '化学课程2', description: '化学课程描述2' },
-        { id: 7, name: '数学课程3', description: '数学课程描述3' },
-        { id: 8, name: '物理课程3', description: '物理课程描述3' },
-        { id: 9, name: '化学课程3', description: '化学课程描述3' },
-        { id: 10, name: '医学课程1', description: '医学课程描述1' },
-        // 添加更多课程
-      ],
+      courses: [],
       filteredCourses: [],
+      recommendations: [{'url': 'https://www.coursera.org/learn/complex-analysis', 'course': 'Introduction to Complex Analysis free Course by Wesleyan University', 'star': '4.8 stars', 'content': 'by 1K reviews,  provide skills Algebra,  Calculus,  Mathematical Theory & Analysis etc... Intermediate level 1 - 3 Months'}, {'url': 'https://www.coursera.org/learn/basicmathematics', 'course': 'Basic Mathematics free Course by Birla Institute of Technology & Science', 'star': 'Pilani', 'content': '4.1 stars,  by 38 reviews,  provide skills Differential Equations,  Mathematics etc... Beginner level 1 - 3 Months'}, {'url': 'https://www.coursera.org/learn/logic-introduction', 'course': 'Introduction to Logic free Course by Stanford University', 'star': '4.4 stars', 'content': 'by 627 reviews,  provide skills Computational Logic,  Mathematics,  Problem Solving etc... Intermediate level 1 - 3 Months'}, {'url': 'https://www.coursera.org/specializations/mathematics-for-machine-learning-and-data-science', 'course': 'Mathematics for Machine Learning and Data Science Specialization by DeepLearning.AI', 'star': '4.6 stars', 'content': 'by 2K reviews,  provide skills Machine Learning,  Calculus,  Differential Equations etc... Intermediate level 1 - 3 Months'}, {'url': 'https://www.coursera.org/learn/mathematical-thinking', 'course': 'Introduction to Mathematical Thinking free Course by Stanford University', 'star': '4.8 stars', 'content': 'by 2.7K reviews,  provide skills Critical Thinking,  Mathematical Theory & Analysis,  Mathematics etc... Intermediate level 1 - 3 Months'}, {'url': 'https://www.coursera.org/specializations/mathematics-engineers', 'course': 'Mathematics for Engineers Specialization by The Hong Kong University of Science and Technology', 'star': '4.8 stars', 'content': 'by 7.1K reviews,  provide skills Mathematics,  Calculus,  Linear Algebra etc... Beginner level 3 - 6 Months'}, {'url': 'https://www.coursera.org/specializations/algebra-elementary-to-advanced', 'course': 'Algebra: Elementary to Advanced Specialization by Johns Hopkins University', 'star': '4.8 stars', 'content': 'by 561 reviews,  provide skills Algebra,  Mathematics,  Problem Solving etc... Beginner level 3 - 6 Months'}, {'url': 'https://www.coursera.org/learn/introduction-to-calculus', 'course': 'Introduction to Calculus free Course by The University of Sydney', 'star': '4.8 stars', 'content': 'by 3.6K reviews,  provide skills Algebra,  Calculus,  Mathematical Theory & Analysis etc... Intermediate level 1 - 3 Months'}, {'url': 'https://www.coursera.org/learn/stanford-statistics', 'course': 'Introduction to Statistics free Course by Stanford University', 'star': '4.6 stars', 'content': 'by 3.1K reviews,  provide skills General Statistics,  Probability & Statistics,  Statistical Analysis etc... Beginner level 1 - 3 Months'}, {'url': 'https://www.coursera.org/specializations/mathematics-machine-learning', 'course': 'Mathematics for Machine Learning Specialization by Imperial College London', 'star': '4.6 stars', 'content': 'by 14K reviews,  provide skills Algebra,  Linear Algebra,  Mathematics etc... Beginner level 3 - 6 Months'}],  
       isMoreMenuVisible: false,
       currentPage: 1,
       itemsPerPage: 6,
+      isLoading: false,  // 新增：用于加载状态
+      keywordQuery: ''  // 新增：用于搜索关键词输入框
     };
   },
   computed: {
@@ -84,29 +85,17 @@ export default {
     }
   },
   mounted() {
-    this.filterCourses();
+    // this.submitForm();
     document.addEventListener('click', this.handleClickOutside);
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
-    filterCourses() {
-      const searchRegex = new RegExp(this.searchQuery, 'i'); // 模糊搜索正则表达式，不区分大小写
-      this.filteredCourses = this.courses.filter(course =>
-        searchRegex.test(course.name) && course.name.includes(this.selectedTab)
-      );
-      this.currentPage = 1;
-    },
-    selectCourse(course) {
-      console.log(course.name);
-      // alert(`你已选择课程: ${course.name}`);
-      this.$router.push('/classstudy');
-    },
     selectTab(tab) {
       if (tab !== '更多') {
         this.selectedTab = tab;
-        this.filterCourses();
+        this.submitForm();
       }
     },
     showMoreMenu() {
@@ -123,29 +112,56 @@ export default {
     hideDropdown() {
       this.isMoreMenuVisible = false;
     },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
-    },
     goBack() {
       this.$router.back();
+    },
+    async submitForm() {
+      this.isLoading = true;  // 显示加载状态
+      try {
+        let request = {
+          course: this.selectedTab,
+          limit: `推荐不少于10门课，包含关键词: ${this.keywordQuery}`,
+        }
+        const response = await axios.post('http://localhost:5000/recommand', request);
+        let recommendation = response.data;
+        this.recommendations = recommendation;  // 更新推荐课程列表
+      } catch (error) {
+        console.error('Error fetching recommendation:', error);
+      } finally {
+        this.isLoading = false;  // 隐藏加载状态
+      }
+    },
+    async handleEnter() {
+      this.isLoading = true;  // 显示加载状态
+      try {
+        let courseQuery = this.searchQuery || this.selectedTab;
+        let request = {
+          course: courseQuery,
+          limit: `推荐不少于10门课，包含关键词: ${this.keywordQuery}`,
+        }
+        console.log('request:',request)
+        const response = await axios.post('http://localhost:5000/recommand', request);
+        let recommendation = response.data;
+        this.recommendations = recommendation;  // 更新推荐课程列表
+        console.log('recommendation:',recommendation)
+      } catch (error) {
+        console.error('Error fetching recommendation:', error);
+      } finally {
+        this.isLoading = false;  // 隐藏加载状态
+      }
+    },
+    openUrl(url) {
+      window.open(url, '_blank');
     }
   }
 };
 </script>
-
 <style lang="scss">
 .course-selection {
   padding: 20px;
   font-family: Arial, sans-serif;
-  position: relative; /* To ensure the pagination absolute positioning is relative to this container */
-  min-height: 92vh; /* Ensure the container takes full height */
+  position: relative;
+  min-height: 92vh;
 
   .header {
     display: flex;
@@ -155,6 +171,14 @@ export default {
 
     h1 {
       margin: 0;
+      font-size: 32px;
+      color: #333;
+      display: flex;
+      align-items: center;
+
+      i {
+        margin-right: 10px;
+      }
     }
 
     .tabs {
@@ -169,6 +193,8 @@ export default {
         border-radius: 5px;
         cursor: pointer;
         position: relative;
+        display: flex;
+        align-items: center;
 
         &.active {
           background-color: #584eec;
@@ -178,32 +204,41 @@ export default {
           background-color: #3399ff;
         }
 
+        i {
+          margin-right: 5px;
+        }
+
         .more-menu {
           position: absolute;
           top: 100%;
           left: 0;
           display: grid;
-          grid-template-columns: repeat(3, 1fr); // 每行显示3个按钮项
+          grid-template-columns: repeat(3, 1fr);
           background-color: #1199e2;
           border: 1px solid #ddd;
           border-radius: 5px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           padding: 10px;
           z-index: 1000;
-          width: auto; // 自动调整宽度
+          width: auto;
 
           .more-items {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(3, 1fr); // 每行显示3个按钮项
+            grid-template-columns: repeat(3, 1fr);
 
             .more-item {
               padding: 10px;
               cursor: pointer;
               display: flex;
-              align-items: center; // 垂直居中
-              justify-content: center; // 水平居中
-              white-space: nowrap; // 保持单行显示
+              align-items: center;
+              justify-content: center;
+              white-space: nowrap;
+
+              i {
+                margin-right: 5px;
+              }
+
               &:hover {
                 background-color: #2317c4;
               }
@@ -220,6 +255,15 @@ export default {
       input {
         padding: 5px;
         font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      .keyword-input {
+        padding: 5px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
       }
 
       .back-button {
@@ -229,45 +273,56 @@ export default {
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
 
         &:hover {
           background-color: #584eec;
+        }
+
+        i {
+          margin-right: 5px;
         }
       }
     }
   }
 
-  .course-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+  .recommendations {
+    margin-top: 20px;
 
-    .course-item {
-      padding: 20px;
-      border: 1px solid #ddd;
+    h2 {
+      margin-bottom: 10px;
+      font-size: 28px;
+      color: #333;
+    }
+
+    .recommended-course {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
       border-radius: 5px;
-      background-color: #f9f9f9;
-      text-align: center;
+      background-color: #c4e6f4;
+      cursor: pointer;
+      transition: background-color 0.3s;
 
-      h2 {
-        margin-top: 0;
+      &:hover {
+        background-color: #9ed2f3;
       }
 
-      p {
-        font-size: 14px;
-        color: #666;
-      }
+      .recommended-content {
+        p {
+          margin: 5px 0;
+          font-size: 16px;
+          color: #333;
+        }
 
-      button {
-        padding: 10px 20px;
-        background-color: #1a8dec;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
+        a {
+          color: #04477f;
+          text-decoration: none;
 
-        &:hover {
-          background-color: #584eec;
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
     }
@@ -294,6 +349,30 @@ export default {
       &:disabled {
         background-color: #ddd;
         cursor: not-allowed;
+      }
+    }
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+
+    .loading-message {
+      font-size: 24px;
+      color: #1a8dec;
+      display: flex;
+      align-items: center;
+
+      i {
+        margin-right: 10px;
       }
     }
   }

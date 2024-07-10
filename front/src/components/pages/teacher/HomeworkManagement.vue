@@ -2,7 +2,7 @@
   <div class="homework-management">
     <!-- Page Title -->
     <div class="page-title">
-      <h1>背诵管理</h1>
+      <h1><i class="fas fa-book-open"></i> 背诵管理</h1>
     </div>
 
     <!-- Return Button -->
@@ -26,14 +26,14 @@
         </div>
 
         <!-- Standard Answer Title -->
-        <h2 class="standard-answer-title">标准答案</h2>
+        <h2 class="standard-answer-title"><i class="fas fa-file-alt"></i> 标准答案</h2>
         <!-- Standard Answer Textarea -->
         <textarea class="standard-answer" v-model="standardAnswer" placeholder="标准答案"></textarea>
       </div>
 
       <!-- Right Section -->
       <div class="right-section">
-        <h2>批改结果</h2>
+        <h2><i class="fas fa-check-circle"></i> 批改结果</h2>
         <div class="upload-info">
           <div class="info-item">
             <span>上传作业数量：</span>
@@ -115,7 +115,7 @@ export default {
 
       // 发送给后端
       // const url = 'http://127.0.0.1:5000/uploadhomework';
-      const url = 'http://10.10.228.190:5000/uploadhomework';
+      const url = 'http://localhost:5000/uploadhomework';
       
       console.log('formData',formData)
       fetch(url, {
@@ -194,6 +194,10 @@ export default {
       font-size: 2.5rem;
       color: #333;
       margin: 0;
+
+      i {
+        margin-right: 10px;
+      }
     }
   }
 
@@ -281,6 +285,11 @@ export default {
         color: #444;
         text-align: center;
         margin-bottom: 10px; /* 缩小间距 */
+
+        i {
+          margin-right: 8px;
+          color: #3778e0;
+        }
       }
 
       .standard-answer {
@@ -304,6 +313,11 @@ export default {
         font-size: 1.5rem;
         color: #444;
         margin-bottom: 10px;
+
+        i {
+          margin-right: 8px;
+          color: #3778e0;
+        }
       }
 
       .upload-info {
@@ -318,6 +332,11 @@ export default {
           display: flex;
           align-items: center;
           margin-right: 30px;
+
+          i {
+            margin-right: 5px;
+            color: #3778e0;
+          }
         }
 
         .info-value {

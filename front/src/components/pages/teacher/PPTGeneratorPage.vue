@@ -120,7 +120,7 @@ export default {
       formData.append('is_card_note', this.notesOption);
 
       try {
-        const urlip = 'http://10.15.154.81:5000/uploadppt'
+        const urlip = 'http://localhost:5000/uploadppt'
         const response = await axios.post(urlip, formData, {
           responseType: 'blob',
           headers: {
