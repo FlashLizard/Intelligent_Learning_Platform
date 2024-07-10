@@ -2,9 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import random
 
-def reptile_from_coursera():
+def reptile_from_coursera(course_name):
     # 这是一个从coursera上随机爬取若干课程的爬虫
-    target_url = 'https://www.coursera.org/search?query=artificial%20intelligence'
+    search_res = []
+
+    target_url = 'https://www.coursera.org/search?query=' + course_name
     base_url = 'https://www.coursera.org'
 
     response = requests.get(target_url)
@@ -23,15 +25,17 @@ def reptile_from_coursera():
 
         # 检查是否成功提取了URL
         if extracted_info:
-            selected_info = random.sample(extracted_info, min(3, len(extracted_info)))  # 随机选择3个或者少于3个的元素
+            selected_info = random.sample(extracted_info, min(10, len(extracted_info)))  # 随机选择
 
             # 循环展示选中的内容
             for idx, (href, label) in enumerate(selected_info, start=1):
                 print(f"提取到的第{idx}个学习网址:", href)
                 print(f"介绍:", label)
                 data = {href, label}
-                #TODO data存进数据库
+                search_res.append(data)
+            return search_res
+
         else:
-            print("没有找到期望的信息。")
+            return "没有找到期望的信息。"
     else:
-        print("获取页面失败，状态码:", response.status_code)
+        return "获取页面失败，状态码:", response.status_code

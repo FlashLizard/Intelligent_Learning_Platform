@@ -1,25 +1,31 @@
 from flask_cors import CORS
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import os
 from spark_ai_recommend import ai_recommend  # 确保这个函数能够处理传入的文本和主题
+from .reptile.from_coursera import reptile_from_coursera
 
 # 创建服务器
 app = Flask(__name__)
 CORS(app)
 
 
-# 定义路由，用于接收文本并生成PPT
-@app.route('/generate_ppt', methods=['POST'])
+@app.route('/recommand', methods=['POST'])
 def generate_from_text():
-    # 获取POST请求中的文本和主题
+    # 获取POST请求中的文本
     data = request.get_json()
-    if not data or 'text' not in data:
-        return 'Missing text or theme or is_card_note in the request', 400
+    course = data['course']
+    limit = data['limit']  # TODO 前端传回两个量，表示课程名称（必须是一个英文单词）和查询要求（一段中文）
 
-    response = ai_recommend(data)
+    if not data or 'first_string' not in data or 'second_string' not in data:
+        return 'Missing first_string or second_string in the request', 400
 
-    # generate_ppt 应该返回生成的PPT的信息，或者一些指示信息
-    return response
+    # 使用第一个字符串调用reptile_from_coursera函数
+    course_data = reptile_from_coursera(course)  # 返回一个查找的列表
+
+    # 使用第二个字符串调用ai_recommend函数
+    recommend_result = ai_recommend(limit, course_data)
+
+    return recommend_result
 
 
 if __name__ == '__main__':
