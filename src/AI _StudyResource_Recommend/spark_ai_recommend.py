@@ -9,15 +9,9 @@ import json5
 from reptile.from_coursera import reptile_from_coursera
 from reptile.from_edx import reptile_from_edx
 
-# with open('../config.json', encoding='utf-8') as f:
-#     config = json5.load(f)
-# appid = config['appid']
-# api_secret = config['api_secret']
-# api_key = config['api_key']
 appid = 'e76d7d8f'
 api_secret = 'Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl'
 api_key = '990e2770b030441fbcc126c691daf5cd'
-
 
 domain = "generalv3.5"  # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
