@@ -94,7 +94,7 @@ class AIPPT():
 
     def get_result(self, theme='auto', is_card_note=0, selected_file_name=''):
         # 基于用户输入和文件内容组合文本
-        self.text = self.get_text_content(self.text, os.path.join('pre_text', selected_file_name))
+        self.text = self.get_text_content(self.text, os.path.join('generate_ppt','\pre_text', selected_file_name))
         if self.text is None:
             print("Error: The combined text length exceeds 8000 characters.")
             return None
@@ -114,7 +114,7 @@ class AIPPT():
     def download_file(self, url, file_name):
         response = requests.get(url)
         if response.status_code == 200:
-            output_folder = 'generate_ppt'
+            output_folder = os.path.join('generate_ppt','generate_ppt')
             # 确保输出文件夹存在
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder)

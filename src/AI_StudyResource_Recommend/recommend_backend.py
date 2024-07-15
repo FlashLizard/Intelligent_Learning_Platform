@@ -2,13 +2,12 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 import os
 import re
-from spark_ai_recommend import ai_recommend  # 确保这个函数能够处理传入的文本和主题
-from reptile.from_coursera import reptile_from_coursera
-from src.spark.SparkApi import SparkLLM
-
-# 创建服务器
-app = Flask(__name__)
-CORS(app)
+from .spark_ai_recommend import ai_recommend  # 确保这个函数能够处理传入的文本和主题
+from .reptile.from_coursera import reptile_from_coursera
+from spark.SparkApi import SparkLLM
+from App import app
+# app = Flask(__name__)
+# CORS(app)
 
 def remove_non_english_characters(en_course):
     # 使用正则表达式匹配所有非英文字符，并将它们替换为空字符串
@@ -28,7 +27,7 @@ def generate_from_text():
     Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
     en_course = llm.query(
-        "如果" + course + "不是英文，请返回它的英文。返回的结果例如“fish”")
+        "如果" + course + "不是英文，请返回"+course+"的英文（返回结果只有一个英文单词）。")
     print(en_course)
     cleaned_course = remove_non_english_characters(en_course)
     print(cleaned_course)

@@ -510,19 +510,23 @@ export default {
     async saveQuestionsToIndexedDB(problems) {
       const db = await openDB('ClassTestProblems', 1, {
         upgrade(db) {
+          console.log('upgrade')
           if (!db.objectStoreNames.contains('single_choice')) {
+            console.log("no single_choice")
             db.createObjectStore('single_choice', {
               keyPath: 'id',
               autoIncrement: true,
             });
           }
           if (!db.objectStoreNames.contains('judgement')) {
+            console.log("no judgement")
             db.createObjectStore('judgement', {
               keyPath: 'id',
               autoIncrement: true,
             });
           }
           if (!db.objectStoreNames.contains('fillin')) {
+            console.log("no fillin")
             db.createObjectStore('fillin', {
               keyPath: 'id',
               autoIncrement: true,

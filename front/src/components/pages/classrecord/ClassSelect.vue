@@ -53,8 +53,18 @@
         </div>
       </div>
     </div>
+
+    <!-- 新增：首次进入页面时弹出的提示弹窗 -->
+    <div v-if="showWelcomePopup" class="welcome-popup-overlay" @click="showWelcomePopup = false">
+      <div class="welcome-popup" @click.stop>
+        <h3>欢迎使用AI荐课</h3>
+        <p>AI荐课功能根据您指定的学科、关键词为您推荐各大平台上的课程，您可以通过本应用推荐的路径找到您感兴趣的课程。</p>
+        <button @click="showWelcomePopup = false">我知道了</button>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 export default {
@@ -71,7 +81,8 @@ export default {
       currentPage: 1,
       itemsPerPage: 6,
       isLoading: false,  // 新增：用于加载状态
-      keywordQuery: ''  // 新增：用于搜索关键词输入框
+      keywordQuery: '',  // 新增：用于搜索关键词输入框
+      showWelcomePopup: true  // 新增：用于控制欢迎弹窗显示
     };
   },
   computed: {
@@ -85,7 +96,6 @@ export default {
     }
   },
   mounted() {
-    // this.submitForm();
     document.addEventListener('click', this.handleClickOutside);
   },
   beforeUnmount() {
@@ -139,11 +149,9 @@ export default {
           course: courseQuery,
           limit: `推荐不少于10门课，包含关键词: ${this.keywordQuery}`,
         }
-        console.log('request:',request)
         const response = await axios.post('http://localhost:5000/recommand', request);
         let recommendation = response.data;
         this.recommendations = recommendation;  // 更新推荐课程列表
-        console.log('recommendation:',recommendation)
       } catch (error) {
         console.error('Error fetching recommendation:', error);
       } finally {
@@ -156,6 +164,7 @@ export default {
   }
 };
 </script>
+
 <style lang="scss">
 .course-selection {
   padding: 20px;
@@ -373,6 +382,53 @@ export default {
 
       i {
         margin-right: 10px;
+      }
+    }
+  }
+
+  .welcome-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+
+    .welcome-popup {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin-top: 0;
+        font-size: 24px;
+        color: #333;
+      }
+
+      p {
+        font-size: 18px;
+        color: #666;
+        margin: 10px 0;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #1a8dec;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+
+        &:hover {
+          background-color: #584eec;
+        }
       }
     }
   }

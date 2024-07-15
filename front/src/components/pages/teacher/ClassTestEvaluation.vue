@@ -67,7 +67,7 @@
         }
       },
       goBack() {
-        this.$router.push('/indexpage');
+        this.$router.push('/index');
       },
       viewQuestions() {
         this.$router.push('/testanswer');

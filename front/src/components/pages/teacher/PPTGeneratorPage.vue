@@ -71,7 +71,6 @@
 </template>
 <script>
 import axios from 'axios'; // 引入 axios 库
-import PptxGenJS from 'pptxgenjs';
 
 export default {
   data() {
@@ -128,22 +127,12 @@ export default {
           }
         });
         console.log("response",response)
-        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
-        const url = URL.createObjectURL(blob);
-
+        const blob = new Blob([response.data], { type: 'application/vnd.ms-powerpoint' });
         const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'generated_ppt.pptx');
-        document.body.appendChild(link);
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'generated_ppt.ppt';
         link.click();
-
-        // Use PptxGenJS to load the PPT and extract the first slide content
-        const pptx = new PptxGenJS();
-        await pptx.load(blob);
-        const firstSlide = pptx.getSlide(0);
-        this.pptContent = firstSlide ? firstSlide.text : "无法加载PPT内容";
-
-        URL.revokeObjectURL(url);
+      
       } catch (error) {
         console.error('文件上传失败', error);
         alert('文件上传失败');

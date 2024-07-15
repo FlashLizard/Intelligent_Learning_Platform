@@ -92,7 +92,7 @@ class img_2_words:
         self.url = 'https://api.xf-yun.com/v1/private/sf8e6aca1'
 
     def run(self):
-        image_folder_path = 'image'
+        image_folder_path = os.path.join('img_2_words','image')
         imageBytes = b''
         for filename in os.listdir(image_folder_path):
             # 构建文件的完整路径
@@ -156,8 +156,11 @@ class img_2_words:
                         words_content.append(word['content'])
 
         result_string = ' '.join(words_content)
-
-        with open('result/result.txt', 'w', encoding='utf-8') as f:
+        filename2 = "imageresult.txt"
+        save_dir = os.path.join('img_2_words','image2wordresult')
+        os.makedirs(save_dir, exist_ok=True)
+        filepath = os.path.join('img_2_words','image2wordresult',filename2)
+        with open(filepath, 'w', encoding='utf-8') as f:
             f.write(result_string)
 
         print("内容已保存。")

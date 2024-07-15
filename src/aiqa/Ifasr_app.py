@@ -34,16 +34,11 @@ api_get_result = '/getResult'
 domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
-# with open('../../config.json', encoding='utf-8') as f:
-#     config = json5.load(f)
-# appid = config['appid']
-# api_secret = config['api_secret']
-# secret_key = config['secret_key']
-# api_key = config['api_key']
-appid= "e76d7d8f"
-api_secret= "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"
-api_key= "990e2770b030441fbcc126c691daf5cd"
-secret_key= "3d354554a40d73e05331347dda9380c0"
+appid = 'e76d7d8f'
+secret_key = '3d354554a40d73e05331347dda9380c0'
+api_key = "990e2770b030441fbcc126c691daf5cd"
+api_secret = 'Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl'
+
 def extract_w_values(input_string):
     result = ''
     index = 0
@@ -57,7 +52,6 @@ def extract_w_values(input_string):
         result += input_string[start:end] + ' '  # 将找到的值加到结果字符串中
         index = end + 1
     return result.rstrip()  # 返回结果字符串，并移除末尾的空格
-
 
 class audio2txt_Api(object):
     def __init__(self, appid, secret_key, upload_file_path, eachname):
@@ -107,7 +101,7 @@ class audio2txt_Api(object):
         result = json.loads(response.text)
         print("upload resp:", result)
         return result
-
+    
     def get_result(self, op):
         """
         op = 0时，使用星火大模型优化
@@ -142,35 +136,25 @@ class audio2txt_Api(object):
         print("get_result resp:", result)
         result_context = extract_w_values(context)
         result_context = result_context.replace(" ", "")
-
         print("res:", result_context)
-        directory = AUDIO2CONTEXT
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        # directory = AUDIO2CONTEXT
+        # if not os.path.exists(directory):
+        #     os.makedirs(directory)
 
-        # 为用户提供提示并获取输入的文件名
-        file_name = self.eachname
+        # if op == 0:
+        #     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
+        #     Input = "请提炼这段文字，只保留其中与课堂内容相关的部分:+" + result_context
+        #     result_context = llm.query(Input)
 
-        # 用.txt扩展名完善文件名
-        file_name_with_extension = file_name + '.txt'
-
-        if op == 0:
-            llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-            Input = "请提炼这段文字，只保留其中与课堂内容相关的部分:+" + result_context
-            result_context = llm.query(Input)
-
-        if op == 2:
-            llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-            Input = "请提炼这段文字，使其成为对某个问题的回答:+" + result_context
-            result_context = llm.query(Input)
+        # if op == 2:
+        #     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
+        #     Input = "请提炼这段文字，使其成为对某个问题的回答:+" + result_context
+        #     result_context = llm.query(Input)
 
         # 保存字符串到指定文件
         string_to_save = result_context
         self.studentanswer_string = string_to_save
         print("音频解析结果：",string_to_save)
-        # with open(os.path.join(directory, file_name_with_extension), 'w') as file:
-        #     file.write(string_to_save)
-        # print(f"文件已保存在 {directory}{file_name_with_extension}")
         return result_context
 
 

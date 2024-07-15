@@ -80,7 +80,7 @@ def get_user_id_handler():
 @app.route('/create_user', methods=['POST'])
 def create_user_handler():
     content = request.json
-    Logger.info(request)
+    print(request)
     user_id = create_user(content['username'])
     if user_id is None:
         return {

@@ -7,7 +7,7 @@ from utils import Logger
 database = None
 
 # 连接到MySQL数据库
-def connect(host='localhost', user='root', password='12345678',database=None):
+def connect(host='localhost', user='root', password='111111',database=None):
     connection = None
     try:
         connection = mysql.connector.connect(

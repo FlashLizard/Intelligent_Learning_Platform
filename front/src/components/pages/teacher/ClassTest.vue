@@ -231,9 +231,9 @@
       async getIndexedDBData() {
         const db = await openDB('ClassTestProblems', 1);
         const data = {
-          single_choice_problems: await db.getAll('single_choice_problems'),
-          fillin_problems: await db.getAll('fillin_problems'),
-          judgement_problems: await db.getAll('judgement_problems')
+          single_choice_problems: await db.getAll('single_choice'),
+          fillin_problems: await db.getAll('fillin'),
+          judgement_problems: await db.getAll('judgement')
         };
         return data;
       },
@@ -264,6 +264,7 @@
           const db = await openDB('ClassTestProblems', 1);
           for (const section of this.sections) {
             const tableName = this.getTableName(section.name);
+            console.log(tableName)
             for (const question of section.questions) {
               const answer = section.answers[question.id - 1]; // Adjust index if necessary
               if (answer !== undefined) {
@@ -272,6 +273,7 @@
               }
             }
           }
+          console.log('存储完毕')
           const useranswer = await this.getIndexedDBData();
           const response = await axios.post('http://localhost:5000/submit_test', useranswer);
           console.log('response.data', response.data);
@@ -305,11 +307,11 @@
       getTableName(sectionName) {
         switch (sectionName) {
           case '选择':
-            return 'single_choice_problems';
+            return 'single_choice';
           case '填空':
-            return 'fillin_problems';
+            return 'fillin';
           case '判断':
-            return 'judgement_problems';
+            return 'judgement';
           default:
             throw new Error('Unknown section name: ' + sectionName);
         }

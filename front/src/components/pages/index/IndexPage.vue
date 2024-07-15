@@ -43,10 +43,10 @@
         <div class="middle-section">
           <h2 class="section-title">智能问答</h2>
           <div class="button-container">
-            <div class="button" @click="handleClick('/virtualteacher')">
+            <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">虚拟人</h3>
-              <p class="button-description">与虚拟人进行互动，获取实时帮助。</p>
+              <h3 class="button-title">中英翻译</h3>
+              <p class="button-description">随时为您提供翻译功能。</p>
             </div>
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
@@ -65,10 +65,11 @@
               <h3 class="button-title">教师录课</h3>
               <p class="button-description">录制教师的课程内容。</p>
             </div>
-            <div class="button" @click="handleClick('/classselect')">
-              <i class="fas fa-play-circle"></i>
-              <h3 class="button-title">课程观看</h3>
-              <p class="button-description">观看录制好的课程。</p>
+            <!-- 新增的试卷下载按钮 -->
+            <div class="button" @click="handleClick('/paperdownload')">
+              <i class="fas fa-download"></i>
+              <h3 class="button-title">AI出题</h3>
+              <p class="button-description">下载试卷以供学生练习。</p>
             </div>
           </div>
         </div>
@@ -92,19 +93,39 @@
             </button>
           </div>
         </div>
+
         <!-- Middle Section: Intelligent Q&A -->
         <div class="middle-section">
           <h2 class="section-title">智能问答</h2>
           <div class="button-container">
-            <div class="button" @click="handleClick('/virtualteacher')">
+            <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">虚拟人</h3>
-              <p class="button-description">与虚拟人进行互动，获取实时帮助。</p>
+              <h3 class="button-title">中英翻译</h3>
+              <p class="button-description">随时为您提供翻译功能。</p>
             </div>
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
               <h3 class="button-title">教育咨询</h3>
               <p class="button-description">获取教育相关的咨询和建议。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Learning Section -->
+        <!-- Course Learning Section -->
+        <div class="course-learning-section">
+          <h2 class="section-title">课程学习</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/classselect')">
+              <i class="fas fa-play-circle"></i>
+              <h3 class="button-title">课程观看</h3>
+              <p class="button-description">观看录制好的课程。</p>
+            </div>
+            <!-- 新增的试卷下载按钮 -->
+            <div class="button" @click="handleClick('/paperdownload')">
+              <i class="fas fa-download"></i>
+              <h3 class="button-title">试卷下载</h3>
+              <p class="button-description">下载试卷以供复习。</p>
             </div>
           </div>
         </div>
@@ -217,7 +238,8 @@ export default {
   .top-section,
   .middle-section,
   .bottom-section,
-  .course-management-section {
+  .course-management-section,
+  .course-learning-section {
     margin-bottom: 20px;
     padding: 20px;
     background: #fff;

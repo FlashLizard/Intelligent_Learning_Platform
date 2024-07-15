@@ -73,9 +73,80 @@ export default {
       this.$router.push('/testanswer');
       console.log('查看题目');
     },
-    saveResults() {
-      // 保存结果逻辑
-      console.log('保存结果');
+    async saveResults() {
+      try {
+        const problemsDB = await openDB('problemsDB', 1);
+        const userDB = await openDB('UserDatabase', 1);
+
+        const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
+        const fillinProblems = await problemsDB.getAll('fillin_problems');
+        const judgementProblems = await problemsDB.getAll('judgement_problems');
+
+        const evaluation = await problemsDB.get('evaluation', 1);
+        const scores = await problemsDB.getAll('score');
+        const user = await userDB.get('users', 'username');
+        console.log(user)
+        if (!user || !user.userId) {
+          throw new Error('User data is missing or does not contain userId');
+        }
+
+        const problems = [
+          ...singleChoiceProblems.map(p => ({
+            type: 'single_choice',
+            problem: p.problem,
+            choices: p.choices,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+          ...fillinProblems.map(p => ({
+            type: 'fillin',
+            problem: p.problem,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+          ...judgementProblems.map(p => ({
+            type: 'judgement',
+            problem: p.problem,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+        ];
+
+        const answers = [
+          ...singleChoiceProblems.map(p => p.doneanswer),
+          ...fillinProblems.map(p => p.doneanswer),
+          ...judgementProblems.map(p => p.doneanswer),
+        ];
+
+        const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
+        
+        const payload = {
+          user_id: user.userId,
+          test_name: '在线测试',
+          test_subjects: '在线测试',
+          problems,
+          answers,
+          evaluation: evaluation.content,
+          test_score: testScore,
+        };
+
+        const response = await fetch('/save_test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+          console.log('测试结果保存成功:', data.test_id);
+        } else {
+          console.error('测试结果保存失败');
+        }
+      } catch (error) {
+        console.error('保存结果失败:', error);
+      }
     },
   },
   async mounted() {

@@ -1,4 +1,4 @@
-from AIPPT_app import AIPPT
+from .AIPPT_app import AIPPT
 
 
 def generate_ppt(file_name, theme, is_card_note):
@@ -9,8 +9,8 @@ def generate_ppt(file_name, theme, is_card_note):
 
     is_card_note = is_card_note
 
-    APPId = "e76d7d8f"
-    APISecret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"
+    APPId = "4999c1d0"
+    APISecret = "YWVhOWE3MzQ3ODc1ZThhYTkxYjYxZGFl"
 
     # 创建AIPPT类的实例并处理PPT
     demo = AIPPT(APPId, APISecret, text)

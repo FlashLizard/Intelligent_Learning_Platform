@@ -105,10 +105,6 @@ export default {
             })
             .then((res) => {
               this.thinking = false;
-              // console.log(res.data)
-              // console.log(JSON.stringify(res.data))
-              // console.log(JSON.stringify(res.data.question))
-              // console.log(res.data['answer'])
               this.messages.push({ text: res.data['question'], isUser: true });
               this.messages.push({ text: res.data['answer'], isUser: false });
               this.questions.push(res.data.question);
@@ -127,6 +123,11 @@ export default {
       if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
         this.mediaRecorder.stop();
         this.isRecording = false;
+
+        // Stop all tracks from the media stream
+        if (this.stream) {
+          this.stream.getTracks().forEach(track => track.stop());
+        }
       }
     },
     goBack() {

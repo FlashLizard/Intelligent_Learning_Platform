@@ -5,10 +5,10 @@ import shutil
 from werkzeug.utils import secure_filename
 import time
 
-from src.audio_to_txt.audio_to_txt import run_the_assistant
-
-app = Flask(__name__)
-CORS(app)
+from audio_to_txt.audio_to_txt import run_the_assistant
+from App import app
+# app = Flask(__name__)
+# CORS(app)
 
 UPLOAD_FOLDER = 'standardanswer'
 AUDIO_FOLDER = 'audio'

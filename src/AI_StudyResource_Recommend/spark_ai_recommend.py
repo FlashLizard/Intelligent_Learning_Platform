@@ -3,11 +3,11 @@ import json
 
 from flask import jsonify
 
-from src.spark.SparkApi import SparkLLM
+from spark.SparkApi import SparkLLM
 import time
 import json5
-from reptile.from_coursera import reptile_from_coursera
-from reptile.from_edx import reptile_from_edx
+from .reptile.from_coursera import reptile_from_coursera
+from .reptile.from_edx import reptile_from_edx
 
 appid = 'e76d7d8f'
 api_secret = 'Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl'
@@ -51,7 +51,7 @@ def ai_recommend(limit: str, course_list: list):
 
     ans = llm.query(
         "我的要求是：" + limit + "。请从下列课程中选择出最符合我要求的课程，注意，你需要返回一个python列表，每一项都是一个整数来表示课程列表中的第几项：" + contents.__str__())
-    print(ans)
+    print('ans:',ans)
     string_list = ans.replace("'", '"')
 
     # 使用 json.loads 将字符串转换为列表
