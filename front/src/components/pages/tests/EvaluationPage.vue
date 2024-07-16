@@ -74,84 +74,92 @@ export default {
       console.log('查看题目');
     },
     async saveResults() {
-      try {
-        const problemsDB = await openDB('problemsDB', 1);
-        const userDB = await openDB('UserDatabase', 1);
+  try {
+    const problemsDB = await openDB('problemsDB', 1);
+    const db = await openDB('UserDatabase', 1);
+    const tx = db.transaction('users', 'readonly');
+    const store = tx.objectStore('users');
+    // Get all stored entries (assuming there's only one due to the clear operation)
+    const allUsers = await store.getAll();
+    await tx.done;
+    // Check if we have at least one user
+    const { userId } = allUsers[0]; // Get the first user's userId
+    console.log('Retrieved userId:', userId);
 
-        const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
-        const fillinProblems = await problemsDB.getAll('fillin_problems');
-        const judgementProblems = await problemsDB.getAll('judgement_problems');
+    const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
+    const fillinProblems = await problemsDB.getAll('fillin_problems');
+    const judgementProblems = await problemsDB.getAll('judgement_problems');
 
-        const evaluation = await problemsDB.get('evaluation', 1);
-        const scores = await problemsDB.getAll('score');
-        const user = await userDB.get('users', 'username');
-        console.log(user)
-        if (!user || !user.userId) {
-          throw new Error('User data is missing or does not contain userId');
-        }
+    const evaluation = await problemsDB.get('evaluation', 1);
+    const scores = await problemsDB.getAll('score');
 
-        const problems = [
-          ...singleChoiceProblems.map(p => ({
-            type: 'single_choice',
-            problem: p.problem,
-            choices: p.choices,
-            answer: p.answer,
-            analysis: p.analysis,
-          })),
-          ...fillinProblems.map(p => ({
-            type: 'fillin',
-            problem: p.problem,
-            answer: p.answer,
-            analysis: p.analysis,
-          })),
-          ...judgementProblems.map(p => ({
-            type: 'judgement',
-            problem: p.problem,
-            answer: p.answer,
-            analysis: p.analysis,
-          })),
-        ];
+    const subjects = await problemsDB.getAll('subjects');
+    const knowledgePoints = await problemsDB.getAll('knowledge_points');
 
-        const answers = [
-          ...singleChoiceProblems.map(p => p.doneanswer),
-          ...fillinProblems.map(p => p.doneanswer),
-          ...judgementProblems.map(p => p.doneanswer),
-        ];
+    const testName = subjects.map(subject => subject.name).join(', ');
+    const testSubjects = knowledgePoints.map(point => point.name).join(', ');
 
-        const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
-        
-        const payload = {
-          user_id: user.userId,
-          test_name: '在线测试',
-          test_subjects: '在线测试',
-          problems,
-          answers,
-          evaluation: evaluation.content,
-          test_score: testScore,
-        };
+    const problems = [
+      ...singleChoiceProblems.map(p => ({
+        type: 'single_choice',
+        problem: p.problem,
+        choices: p.choices,
+        answer: p.answer,
+        analysis: p.analysis,
+      })),
+      ...fillinProblems.map(p => ({
+        type: 'fillin',
+        problem: p.problem,
+        answer: p.answer,
+        analysis: p.analysis,
+      })),
+      ...judgementProblems.map(p => ({
+        type: 'judgement',
+        problem: p.problem,
+        answer: p.answer,
+        analysis: p.analysis,
+      })),
+    ];
 
-        const response = await fetch('/save_test', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
+    const answers = [
+      ...singleChoiceProblems.map(p => p.doneanswer),
+      ...fillinProblems.map(p => p.doneanswer),
+      ...judgementProblems.map(p => p.doneanswer),
+    ];
 
-        const data = await response.json();
-        if (data.status === 'success') {
-          console.log('测试结果保存成功:', data.test_id);
-        } else {
-          console.error('测试结果保存失败');
-        }
-      } catch (error) {
-        console.error('保存结果失败:', error);
-      }
-    },
+    const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
+
+    const payload = {
+      user_id: userId,
+      test_name: testName,
+      test_subjects: testSubjects,
+      problems,
+      answers,
+      evaluation: evaluation.content,
+      test_score: testScore,
+    };
+    console.log('payload:',payload)
+    const response = await fetch('http://localhost:5000/save_test', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (data.status === 'success') {
+      console.log('测试结果保存成功:', data.test_id);
+    } else {
+      console.error('测试结果保存失败');
+    }
+  } catch (error) {
+    console.error('保存结果失败:', error);
+  }
+},
   },
   async mounted() {
     await this.loadDataFromIndexedDB();
-    // 假设这里还需要加载用户能力数据到 userAbilities 和 userLabels
   },
 };
 </script>

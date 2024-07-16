@@ -43,16 +43,26 @@ def get_user_tests_handler():
 def get_test_handler():
     content = request.json
     result = get_test_by_id(content['test_id'])
+    print(result,type(result))
     if result is None:
-        return {
+        return jsonify({
             "status": "failed",
             "msg": "test not exists"
-        }
-    t = {
-        "status":"success",    
-        "test": result
+        })
+    
+    response = {
+        "status": "success",
+        "id": result['id'],
+        "user_id": result['user_id'],
+        "test_name": result['test_name'],
+        "test_time": result['test_time'].isoformat(),
+        "test_questions": json5.loads(result['test_questions']),
+        "test_score": result['test_score'],
+        "test_subjects": result['test_subjects'],
+        "user_answers": result['user_answers'],
+        "test_result_analysis": result['test_result_analysis']
     }
-    return json5.dumps(t, ensure_ascii=False, default=datetime_serializer)
+    return jsonify(response)
 
 @app.route('/delete_test', methods=['POST'])
 def delete_test_handler():

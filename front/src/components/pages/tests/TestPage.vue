@@ -8,7 +8,7 @@
       <aside class="sidebar">
         <div class="timer-container">
           <div class="time">考试时间：{{ formattedMinutes }}:{{ formattedSeconds }}</div>
-          <button @click="submitTest" class="submit-button">交卷</button>
+          <button @click="submitTest" class="submit-button"><i class="fas fa-paper-plane"></i> 交卷</button>
         </div>
         <div class="section" v-for="section in sections" :key="section.name">
           <div class="section-title">{{ section.name }}</div>
@@ -368,6 +368,37 @@ export default {
       background-color: #f0f0f0;
       border-right: 1px solid #ddd;
       overflow-y: auto;
+
+      .timer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px; /* 增加间距 */
+        .time {
+          margin-bottom: 10px; /* 增加时间显示和按钮之间的间距 */
+          font-weight: bold;
+        }
+
+        .submit-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 20px;
+          font-size: 1em;
+          cursor: pointer;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          transition: background-color 0.3s ease;
+          i {
+            margin-right: 5px; /* 图标和文字之间的间距 */
+          }
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
 
       .section-title {
         font-weight: bold;

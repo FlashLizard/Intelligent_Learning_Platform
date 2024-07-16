@@ -16,6 +16,13 @@
           <button @click="register" class="animated-button register-button">注册</button>
         </div>
       </form>
+      <!-- 自定义弹窗 -->
+      <div v-if="dialogVisible" class="dialog-overlay">
+        <div class="dialog-content">
+          <h2>{{ dialogMessage }}</h2>
+          <button @click="handleDialogClose">确定</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -23,11 +30,15 @@
 <script>
 import axios from 'axios';
 import { openDB } from 'idb';
+
 export default {
   data() {
     return {
       username: '',
       password: '',
+      dialogMessage: '',
+      dialogVisible: false,
+      loading: false,
     };
   },
   methods: {
@@ -48,39 +59,40 @@ export default {
           await this.saveUserToIndexedDB(this.username, userId);
           this.$router.push('/index');
         } else {
-          alert('用户不存在，请先注册');
+          this.dialogMessage = '用户不存在，请先注册';
+          this.dialogVisible = true;
         }
       } catch (error) {
         console.error('登录失败:', error);
       }
     },
     async register() {
-      // 注册逻辑
       console.log('注册用户名:', this.username);
       console.log('注册密码:', this.password);
 
-      // 发送 POST 请求到后端注册接口
       try {
+        this.loading = true;
         const response = await axios.post('http://localhost:5000/create_user', {
           username: this.username,
-          password: this.password, // 假设后端也需要密码
+          password: this.password,
         });
 
+        this.loading = false;
+
         if (response.data.status === 'success') {
-          alert('注册成功');
+          this.dialogMessage = '注册成功';
           const userId = response.data.user_id;
-
-          // 将用户名和 user_id 保存在 IndexedDB 中
           await this.saveUserToIndexedDB(this.username, userId);
-
-          // 跳转到登录页面或其他页面
-          // this.$router.push('/index');
+          this.dialogVisible = true;
         } else {
-          alert('注册失败: ' + response.data.msg);
+          this.dialogMessage = '注册失败: ' + response.data.msg;
+          this.dialogVisible = true;
         }
       } catch (error) {
+        this.loading = false;
         console.error('注册请求失败:', error);
-        alert('注册请求失败');
+        this.dialogMessage = '注册请求失败';
+        this.dialogVisible = true;
       }
     },
     async saveUserToIndexedDB(username, userId) {
@@ -97,15 +109,14 @@ export default {
 
       const tx = db.transaction('users', 'readwrite');
       const store = tx.objectStore('users');
-      
-      // 清空现有数据
       await store.clear();
-      
-      // 存储新数据
       await store.put({ username, userId });
       await tx.done;
       console.log('用户数据已保存到 IndexedDB');
     },
+    handleDialogClose() {
+      this.dialogVisible = false;
+    }
   },
 };
 </script>
@@ -296,5 +307,60 @@ button:hover {
     bottom: 100%;
     background-size: 100% 0%;
   }
+}
+
+.loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4facfe;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2e83df;
 }
 </style>

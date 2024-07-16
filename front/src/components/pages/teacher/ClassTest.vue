@@ -8,7 +8,7 @@
         <aside class="sidebar">
           <div class="timer-container">
             <div class="time">考试时间：{{ formattedMinutes }}:{{ formattedSeconds }}</div>
-            <button @click="submitTest" class="submit-button">交卷</button>
+            <button @click="submitTest" class="submit-button"><i class="fas fa-paper-plane"></i>交卷</button>
           </div>
           <div class="section" v-for="section in sections" :key="section.name">
             <div class="section-title">{{ section.name }}</div>
@@ -329,171 +329,201 @@
   </script>
   
   <style lang="scss" scoped>
-  .test-page {
+.test-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  header {
     display: flex;
-    flex-direction: column;
-    height: 100vh;
-  
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      background-color: #f8f8f8;
-      border-bottom: 1px solid #ddd;
-  
-      .title {
-        flex: 1;
-        text-align: center;
-        font-size: 2em;
-        font-weight: bolder;
-      }
-  
-      .return-button {
-        padding: 10px 10px;
-        font-size: 1em;
-        cursor: pointer;
-        background-color: #1d8ade;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-      }
-    }
-  
-    main {
-      display: flex;
-      flex: 1;
-  
-      .sidebar {
-        width: 20%;
-        padding: 20px;
-        background-color: #f0f0f0;
-        border-right: 1px solid #ddd;
-        overflow-y: auto;
-  
-        .section-title {
-          font-weight: bold;
-          margin-bottom: 10px;
-        }
-  
-        .question-status-container {
-          display: flex;
-          flex-wrap: wrap;
-        }
-  
-        .question-status {
-          margin: 5px;
-          padding: 5px;
-          cursor: pointer;
-          border: 1px solid #ccc;
-          background-color: #fff;
-          width: 30px;
-          height: 30px;
-          text-align: center;
-          line-height: 30px;
-  
-          &.done {
-            background-color: green;
-            color: white;
-          }
-  
-          &.not-done {
-            background-color: rgb(157, 154, 154);
-            color: white;
-          }
-        }
-      }
-  
-      .content {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-  
-        h2 {
-          font-size: 1.5em;
-          margin-bottom: 20px;
-        }
-  
-        .question-content {
-          font-size: 1.2em;
-          margin-bottom: 10px;
-        }
-  
-        .options {
-          display: flex;
-          flex-direction: column;
-  
-          .option {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 5px;
-  
-            .circle {
-              width: 20px;
-              height: 20px;
-              border: 1px solid #ccc;
-              border-radius: 50%;
-              margin-right: 10px;
-            }
-  
-            .circle.selected {
-              background-color: #1d8ade;
-              border: 1px solid #168cac;
-            }
-          }
-        }
-  
-        .input-box {
-          width: 100%;
-          height: 40px;
-          padding: 5px;
-          font-size: 1em;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          margin-bottom: 10px;
-        }
-  
-        .buttons {
-          margin-top: 20px;
-  
-          .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-          }
-  
-          button {
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #1d8ade;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-          }
-        }
-      }
-    }
-  }
-  
-  .grading-dialog {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    z-index: 999;
-  
-    .grading-content {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+
+    .title {
+      flex: 1;
       text-align: center;
+      font-size: 2em;
+      font-weight: bolder;
+    }
+
+    .return-button {
+      padding: 10px 10px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #1d8ade;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
     }
   }
-  </style>
-  
+
+  main {
+    display: flex;
+    flex: 1;
+
+    .sidebar {
+      width: 20%;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+
+      .timer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px; /* 增加间距 */
+        .time {
+          margin-bottom: 10px; /* 增加时间显示和按钮之间的间距 */
+          font-weight: bold;
+        }
+
+        .submit-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 20px;
+          font-size: 1em;
+          cursor: pointer;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          transition: background-color 0.3s ease;
+          i {
+            margin-right: 5px; /* 图标和文字之间的间距 */
+          }
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+
+      .section-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .question-status-container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .question-status {
+        margin: 5px;
+        padding: 5px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+
+        &.done {
+          background-color: green;
+          color: white;
+        }
+
+        &.not-done {
+          background-color: rgb(157, 154, 154);
+          color: white;
+        }
+      }
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+
+      h2 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+      }
+
+      .question-content {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+      }
+
+      .options {
+        display: flex;
+        flex-direction: column;
+
+        .option {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          margin-bottom: 5px;
+
+          .circle {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+          }
+
+          .circle.selected {
+            background-color: #1d8ade;
+            border: 1px solid #168cac;
+          }
+        }
+      }
+
+      .input-box {
+        width: 100%;
+        height: 40px;
+        padding: 5px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      .buttons {
+        margin-top: 20px;
+
+        .navigation-buttons {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        button {
+          padding: 10px 20px;
+          font-size: 1em;
+          cursor: pointer;
+          background-color: #1d8ade;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
+}
+
+.grading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+
+  .grading-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+}
+</style>

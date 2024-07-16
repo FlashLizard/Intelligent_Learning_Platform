@@ -1,5 +1,22 @@
 <template>
   <div class="container">
+    <!-- 加载中弹窗 -->
+  <div v-if="recordloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 课堂总结生成中...</h2>
+    </div>
+  </div>
+  <div v-if="classtext" class="class-dialog">
+    <div class="class-content summary-container">
+      <button class="close-button" @click="closeClassSummary">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3>课堂概述</h3>
+      <div class="summary-content">
+        <p v-for="line in classtext.split('\n')" :key="line">{{ line }}</p>
+      </div>
+    </div>
+  </div>
     <!-- 头部 -->
     <header class="header">
       <h1>课堂助手</h1>
@@ -23,16 +40,6 @@
 
           <!-- 加载动画 -->
           <div v-if="isLoading" class="loading-spinner"></div>
-          
-          <!-- 视屏进度条 -->
-          <div class="progress-container">
-              <span class="progress-text">{{ progressText }}</span>
-              <div class="progress-bar">
-                  <div class="progress-fill" :style="{ width: `${progress}%` }">
-                      <div class="playhead" :style="{ left: `${progress}%` }"></div>
-                  </div>
-              </div>
-          </div>
 
         </div>
         
@@ -44,7 +51,6 @@
               <div class="button-container">
                 <button @click="selectUploadFile">上传学生名单</button>
                 <button @click="randomSelectStudent">随机抽取学生</button>
-                <!-- <button @click="selectDDFile">随机抽取学生</button> -->
               </div>
               
               <!-- 隐藏的文件输入框 -->
@@ -197,7 +203,7 @@ export default {
       questionRequirements: {
         subject: '',
         topic: '',
-        other: '',
+        other: '无',
         useClassContent: false
       },
       loading: false, // 增加loading控制生成题目弹窗
@@ -210,7 +216,9 @@ export default {
       students: [], // 存储学生名字的数组
       showDDModal: false, // 控制点答模态框显示
       selectedStudentIndex: 0,
-      showDDAlertModal: false // 控制警告模态框显示
+      showDDAlertModal: false, // 控制警告模态框显示
+      classtext: null,
+      recordloading:false,
     };
   },
   computed: {
@@ -291,15 +299,18 @@ export default {
         
         this.mediaRecorder.ondataavailable = (e) => {
           if (e.data.size > 0) {
-            if (e.data.type.includes('video')) {
-              this.videoChunks.push(e.data);
-            } else {
-              this.audioChunks.push(e.data);
-            }
+            console.log('this.audioChunks.push(e.data);')
+            this.audioChunks.push(e.data);
+            console.log(this.audioChunks)
+            this.saveAudioToServer();
+            // if (e.data.type.includes('video')) {
+            //   this.videoChunks.push(e.data);
+            // } else {
+            //   this.audioChunks.push(e.data);
+            // }
           }
         };
-
-        this.mediaRecorder.onstop = this.saveRecording;
+        this.mediaRecorder.onstop = this.saveAudioToServer;
         this.mediaRecorder.start();
 
         const videoElement = document.createElement('video');
@@ -326,9 +337,36 @@ export default {
             track.stop();
           });
         }
-
         this.mediaRecorder.onstop = null; // Reset onstop handler
         this.mediaRecorder = null; // Reset MediaRecorder object
+      }
+    },
+    async saveAudioToServer() {
+      console.log(this.audioChunks)
+      const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+      this.audioChunks = [];
+
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'class_audio.wav');
+      this.recordloading = true;
+      try {
+        const response = await axios.post('http://localhost:5000/get_classaudio', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        this.recordloading = false;
+        if (response.status === 200) {
+          // 处理保存成功后的逻辑
+          this.classtext = response.data.classtext;
+          console.log(this.classtext)
+          console.log('音频保存成功');
+        } else {
+          // 处理保存失败的逻辑
+          console.error('保存音频时出现错误');
+        }
+      } catch (error) {
+        console.error('保存音频时出现错误', error);
       }
     },
     drawVideoFrame(videoElement) {
@@ -344,43 +382,6 @@ export default {
         requestAnimationFrame(draw);
       };
       draw();
-    },
-    saveRecording() {
-      const videoBlob = new Blob(this.videoChunks, { type: 'video/webm' });
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-
-      // Use IndexedDB to store the recordings
-      const dbRequest = indexedDB.open('classroomRecordings', 1);
-
-      dbRequest.onupgradeneeded = function(event) {
-        const db = event.target.result;
-        db.createObjectStore('videos', { autoIncrement: true });
-        db.createObjectStore('audios', { autoIncrement: true });
-      };
-
-      dbRequest.onsuccess = function(event) {
-        const db = event.target.result;
-        const videoTransaction = db.transaction('videos', 'readwrite');
-        const audioTransaction = db.transaction('audios', 'readwrite');
-
-        const videoStore = videoTransaction.objectStore('videos');
-        const audioStore = audioTransaction.objectStore('audios');
-
-        videoStore.add(videoBlob);
-        audioStore.add(audioBlob);
-
-        videoTransaction.oncomplete = function() {
-          console.log('Video saved to IndexedDB');
-        };
-
-        audioTransaction.oncomplete = function() {
-          console.log('Audio saved to IndexedDB');
-        };
-      };
-
-      dbRequest.onerror = function(event) {
-        console.error('Error opening IndexedDB', event.target.errorCode);
-      };
     },
     selectTime(time) {
       this.countdownTime = time;
@@ -492,7 +493,7 @@ export default {
         min_difficulty: 3,
         max_difficulty: 8,
         type: ["single_choice", "judgement",'fillin'],
-        others: this.questionRequirements.other
+        others: this.questionRequirements.other || '无'
       };
       console.log("requestData:",requestData);
       axios.post('http://localhost:5000/get_ClassTestProblems', requestData)
@@ -589,10 +590,6 @@ export default {
       // 触发文件输入框点击事件
       this.$refs.fileInput.click();
     },
-    // selectDDFile() {
-    //   // 触发文件输入框点击事件
-    //   this.$refs.fileInput.click();
-    // },
     handleDDFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -645,13 +642,12 @@ export default {
     closeDDAlertModal() {
       this.showDDAlertModal = false;
     },
+    closeClassSummary() {
+        this.classtext = null;
+    },
   },
   mounted() {
     this.startTime = Date.now();
-    this.timer = setInterval(() => {
-      this.$forceUpdate(); // 强制Vue重新渲染
-      console.log('this.$forceUpdate();')
-    }, 1000);
   },
   beforeUnmount() {
     if (this.timer) {
@@ -665,6 +661,24 @@ export default {
 </script>
 
 <style scoped>
+.loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 .container {
   display: flex;
   flex-direction: column;
@@ -748,8 +762,8 @@ export default {
   }
 
   canvas.video-canvas {
-    width: 50%;
-    height: 60%;
+    width: 70%;
+    height: 80%;
     border: 1px solid #000;
     display: block;
     z-index: 0;
@@ -1145,4 +1159,55 @@ export default {
   .alert-modal-content button:hover {
     background-color: #0056b3;
   }
+
+  .class-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.class-content {
+  position: relative; /* Ensure relative positioning for child elements */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 600px; /* Limit the width of the content */
+  width: 90%; /* Ensure content is responsive */
+}
+
+.summary-container {
+  max-height: 400px; /* Adjust the height as needed */
+  overflow-y: auto; /* Add vertical scrolling */
+}
+
+.summary-content p {
+  margin: 0;
+  padding: 5px 0;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.close-button i {
+  color: #000;
+}
+
+.close-button:hover i {
+  color: #f00;
+}
 </style>

@@ -42,6 +42,8 @@ def run_the_assistant(inputans1,filename_list):
         api = audio2txt_Api(appid=appid, secret_key=secret_key, upload_file_path=to_judge_file_path, eachname=eachname)
         # 获取学生背诵结果字符串result
         result = api.get_result(op=1)
+        result = remove_duplicate_content(result)
+        print('音频解析结果',result)
         os.remove(to_judge_file_path)  # 每次调用后删除上传的文件，避免服务器上文件堆积
 
         results.append(result)  # 改动：将每个文件的结果添加到结果列表中
@@ -56,6 +58,18 @@ def run_the_assistant(inputans1,filename_list):
     print('accuracy_response:', accuracy_response)
     return accuracy_response
 
+def remove_duplicate_content(result_context):
+    """
+    Remove duplicate content from result_context if it consists of two identical parts.
+    """
+    half_length = len(result_context) // 2
+    first_half = result_context[:half_length]
+    second_half = result_context[half_length:]
+
+    if first_half == second_half:
+        return first_half
+    else:
+        return result_context
 
 def run_the_assistant_send_context_to_starfire():
     """

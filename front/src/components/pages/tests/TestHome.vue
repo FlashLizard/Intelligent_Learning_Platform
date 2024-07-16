@@ -1,9 +1,12 @@
 <template>
   <div class="online-test">
-    <h1>在线测试</h1>
+    <h1><i class="fas fa-pen"></i> 在线测试</h1>
 
     <div class="block">
-      <div class="block-title">科目</div>
+      <div class="block-title">
+        科目
+        <i class="fas fa-book"></i>
+      </div>
       <div class="block-content flex-container">
         <!-- 学科 -->
         <div class="subject-section bordered-container flex-child">
@@ -25,7 +28,7 @@
               :class="{ selected: subject.name === selectedSubject }"
               class="bordered"
             >
-              {{ subject.name }}
+              <i class="fas fa-chevron-right"></i> {{ subject.name }}
             </button>
             <!-- 动态渲染用户输入的学科按钮 -->
             <button
@@ -34,65 +37,65 @@
               :class="{ selected: customSubject === selectedSubject }"
               class="bordered"
             >
-              {{ customSubject }}
+              <i class="fas fa-plus"></i> {{ customSubject }}
             </button>
           </div>
         </div>
         <!-- 已选 -->
         <div class="selected-section bordered-container flex-child">
-    <div class="section-title">
-      已选知识点
-      <input
-        type="text"
-        v-model="knowledgeSearch"
-        class="text-box bordered"
-        placeholder="自定义知识点"
-        @keyup.enter="addCustomKnowledge"
-      />
-    </div>
-    <div class="selected-group">
-      <div v-if="selectedSubjects.length === 0 && customKnowledges.length === 0" class="placeholder">
-        请选择学科知识点
-      </div>
-      <button v-if="selectedSubjects.length === 0 && customKnowledges.length === 0" class="custom-subject-button" @click="getRecommendedSubjects">
-        AI推荐知识点
-      </button>
-      <div
-        v-for="selectedSubject in selectedSubjects"
-        :key="selectedSubject"
-        class="selected-item"
-      >
-        {{ selectedSubject }}
-        <span
-          class="delete-button"
-          @click="removeSelectedSubject(selectedSubject)"
-        >×</span>
-      </div>
-      <div
-        v-for="knowledge in customKnowledges"
-        :key="knowledge"
-        class="selected-item"
-      >
-        {{ knowledge }}
-        <span
-          class="delete-button"
-          @click="removeCustomKnowledge(knowledge)"
-        >×</span>
-      </div>
-      <button v-if="selectedSubjects.length > 0 || customKnowledges.length > 0" class="custom-subject-button" @click="getRecommendedSubjects">
-        AI推荐知识点
-      </button>
-    </div>
-  </div>
+          <div class="section-title">
+            已选知识点
+            <input
+              type="text"
+              v-model="knowledgeSearch"
+              class="text-box bordered"
+              placeholder="自定义知识点"
+              @keyup.enter="addCustomKnowledge"
+            />
+          </div>
+          <div class="selected-group">
+            <div v-if="selectedSubjects.length === 0 && customKnowledges.length === 0" class="placeholder">
+              请选择学科知识点
+            </div>
+            <button v-if="selectedSubjects.length === 0 && customKnowledges.length === 0" class="custom-subject-button" @click="getRecommendedSubjects">
+              <i class="fas fa-lightbulb"></i> AI推荐知识点
+            </button>
+            <div
+              v-for="selectedSubject in selectedSubjects"
+              :key="selectedSubject"
+              class="selected-item"
+            >
+              {{ selectedSubject }}
+              <span
+                class="delete-button"
+                @click="removeSelectedSubject(selectedSubject)"
+              ><i class="fas fa-times"></i></span>
+            </div>
+            <div
+              v-for="knowledge in customKnowledges"
+              :key="knowledge"
+              class="selected-item"
+            >
+              {{ knowledge }}
+              <span
+                class="delete-button"
+                @click="removeCustomKnowledge(knowledge)"
+              ><i class="fas fa-times"></i></span>
+            </div>
+            <button v-if="selectedSubjects.length > 0 || customKnowledges.length > 0" class="custom-subject-button" @click="getRecommendedSubjects">
+              <i class="fas fa-lightbulb"></i> AI推荐知识点
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 弹窗组件 -->
     <div v-if="isBranchesDialogOpen" class="dialog">
       <div class="dialog-content">
-        <h2 class="dialog-title"
-          >选择学科知识点
-          <button class="close-button" @click="closeBranchesDialog">X</button>
+        <h2 class="dialog-title">
+          选择学科知识点
+          <button class="close-button" @click="closeBranchesDialog"><i class="fas fa-times"></i></button>
         </h2>
         <div class="button-group">
           <button
@@ -100,7 +103,7 @@
             :key="branch"
             @click="addToSelected(branch)"
           >
-            {{ branch }}
+            <i class="fas fa-check"></i> {{ branch }}
           </button>
         </div>
       </div>
@@ -108,15 +111,8 @@
 
     <div class="block">
       <div class="block-title">
-        时间(0~120min)
-        <input
-          type="number"
-          v-model.number="timeValue"
-          min="0"
-          max="120"
-          step="5"
-          class="input-box"
-        />
+        时间 (0~120min)
+        <i class="far fa-clock"></i>
       </div>
       <div class="block-content">
         <input
@@ -127,20 +123,21 @@
           class="slider"
           step="5"
         />
+        <input
+          type="number"
+          v-model.number="timeValue"
+          min="0"
+          max="120"
+          step="5"
+          class="input-box"
+        />
       </div>
     </div>
 
     <div class="block">
       <div class="block-title">
-        难度(0~10)
-        <input
-          type="number"
-          v-model.number="difficultyValue"
-          min="0"
-          max="10"
-          step="1"
-          class="input-box"
-        />
+        难度 (0~10)
+        <i class="fas fa-signal"></i>
       </div>
       <div class="block-content">
         <input
@@ -151,44 +148,64 @@
           class="slider"
           step="1"
         />
+        <input
+          type="number"
+          v-model.number="difficultyValue"
+          min="0"
+          max="10"
+          step="1"
+          class="input-box"
+        />
       </div>
     </div>
 
     <div class="block">
-      <div class="block-title">其他要求</div>
+      <div class="block-title">
+        其他要求
+        <i class="fas fa-comment"></i>
+      </div>
       <div class="block-content">
         <textarea class="text-input" v-model="otherInput"></textarea>
       </div>
     </div>
 
-    <button class="start-button" @click="goTestPage">开始测试</button>
-    <button class="back-button" @click="goBack">返回</button>
+    <button class="start-button" @click="goTestPage">
+      <i class="fas fa-play"></i> 开始测试
+    </button>
+    <button class="back-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button>
   </div>
+  
   <div v-if="isRecommendedDialogOpen" class="dialog">
-      <div class="dialog-content">
-        <h2 class="dialog-title">
-          推荐知识点
-          <button class="close-button" @click="closeRecommendedDialog">关闭</button>
-        </h2>
-        <div class="recommended-list">
-          <div class="recommended-column">
-            <label v-for="(subject) in recommendedSubjects" :key="subject" class="recommended-item">
-              <input type="checkbox" v-model="selectedRecommendedSubjects" :value="subject">
-              {{ subject }}
-            </label>
-          </div>
+    <div class="dialog-content">
+      <h2 class="dialog-title">
+        推荐知识点
+        <button class="close-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
+      </h2>
+      <div class="recommended-list">
+        <div class="recommended-column">
+          <label v-for="(subject) in recommendedSubjects" :key="subject" class="recommended-item">
+            <input type="checkbox" v-model="selectedRecommendedSubjects" :value="subject">
+            {{ subject }}
+          </label>
         </div>
-        <button @click="addSelectedRecommendedSubjects" class="finish-selection-button">完成知识点选择</button>
       </div>
+      <button @click="addSelectedRecommendedSubjects" class="finish-selection-button">
+        <i class="fas fa-check"></i> 完成知识点选择
+      </button>
     </div>
+  </div>
 
-    <!-- 加载中弹窗 -->
-    <div v-if="loading" class="loading-dialog">
-      <div class="loading-content">
-        <h2>题目生成中...</h2>
-      </div>
+  <!-- 加载中弹窗 -->
+  <div v-if="loading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
     </div>
+  </div>
 </template>
+
+
 <script>
 import axios from 'axios';
 import { openDB } from 'idb';
@@ -286,6 +303,7 @@ export default {
     },
     addCustomSubject() {
       this.customSubject = this.subjectSearch;
+      this.selectedSubject = this.customSubject;
       this.subjectSearch = '';
     },
     closeRecommendedDialog() {
@@ -359,15 +377,29 @@ export default {
             console.log("create suggestion")
             db.createObjectStore('suggestion', { keyPath: 'id', autoIncrement: true });
           }
+          if (!db.objectStoreNames.contains('subjects')) {
+            db.createObjectStore('subjects', {
+              keyPath: 'id',
+              autoIncrement: true,
+            });
+          }
+          if (!db.objectStoreNames.contains('knowledge_points')) {
+            db.createObjectStore('knowledge_points', {
+              keyPath: 'id',
+              autoIncrement: true,
+            });
+          }
         },
       });
 
       // 开始新的事务，先清空所有存储的数据
-      const tx = db.transaction(['single_choice_problems', 'judgement_problems', 'fillin_problems'], 'readwrite');
+      const tx = db.transaction(['single_choice_problems', 'judgement_problems', 'fillin_problems','subjects','knowledge_points'], 'readwrite');
       await Promise.all([
         tx.objectStore('single_choice_problems').clear(),
         tx.objectStore('judgement_problems').clear(),
         tx.objectStore('fillin_problems').clear(),
+        tx.objectStore('subjects').clear(),
+        tx.objectStore('knowledge_points').clear(),
       ]);
       await tx.done;
 
@@ -388,6 +420,17 @@ export default {
         }
       });
       await txNew.done;
+      const txSubjects = db.transaction(['subjects', 'knowledge_points'], 'readwrite');
+      console.log('学科：',this.selectedSubject)
+      console.log('this.selectedSubjects:',this.selectedSubjects)
+      let selectedsubject = [this.selectedSubject]
+      selectedsubject.forEach((subject) => {
+        txSubjects.objectStore('subjects').put({ name: subject });
+      });
+      this.selectedSubjects.forEach((knowledge) => {
+        txSubjects.objectStore('knowledge_points').put({ name: knowledge });
+      });
+      await txSubjects.done;
     },
     async goTestPage() {
       this.loading = true;
@@ -421,11 +464,14 @@ export default {
 <style scoped>
 .online-test {
   padding: 20px;
+  background-color: #d0eefe;
+  color: #333;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 20px;
+  color: #007bff;
 }
 
 .block {
@@ -433,6 +479,8 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .block-title {
@@ -441,6 +489,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #007bff;
 }
 
 .block-content {
@@ -462,6 +511,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #007bff;
 }
 
 .button-group {
@@ -475,6 +525,18 @@ h1 {
 .button-group button {
   position: relative;
   padding-right: 20px; /* 增加右侧内边距给小圆圈留空间 */
+  background-color: #1a86df;
+  color: #fefefe;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  font-weight: bold;
+}
+
+.button-group button:hover {
+  background-color: #2da1fa;
+  color: #fff;
 }
 
 .button-group button::after {
@@ -486,17 +548,17 @@ h1 {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1px solid black; /* 设置边框样式 */
+  border: 1px solid #f9f7f7; /* 设置边框样式 */
   background-color: transparent; /* 设置背景色为透明 */
 }
 
 .selected {
-  background-color: #28a745; /* Green color when selected */
-  color: white; /* White text color when selected */
+  background-color: #28a745 !important; /* Green color when selected */
+  color: white !important; /* White text color when selected */
 }
 
 .selected::after {
-  background-color: white; /* White color for the circle when selected */
+  background-color: white !important; /* White color for the circle when selected */
 }
 
 .selected-group {
@@ -537,10 +599,12 @@ h1 {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dialog .dialog-title {
   position: relative;
+  color: #007bff;
 }
 
 .dialog button.close-button {
@@ -561,8 +625,9 @@ h1 {
 
 .placeholder {
   padding: 8px 16px;
-  background-color: #ffffff;
+  background-color: #f5f5f5;
   border-radius: 4px;
+  color: #606060;
 }
 
 .slider {
@@ -573,12 +638,15 @@ h1 {
   width: 60px;
   margin-left: 10px;
   text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
 }
 
 .text-box {
-  width: 50px;
-  margin-left: 10px;
-  padding: 5px;
+  width: 20%;
+  padding: 8px;
+  margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
@@ -614,23 +682,24 @@ h1 {
   top: 50px;
   right: 50px;
   padding: 8px 16px;
-  background-color: #ccc;
-  color: #333;
+  background-color: #007bff;
+  color: #f7f6f6;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .bordered {
-  border: 1px solid black;
+  border: 1px solid #ccc;
   padding: 5px;
   border-radius: 4px;
 }
 
 .bordered-container {
-  border: 1px solid black;
+  border: 1px solid #ccc;
   padding: 10px;
   border-radius: 8px;
+  background-color: #e3fbfd;
 }
 
 .loading-dialog {
@@ -649,6 +718,12 @@ h1 {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  margin-top: 10px;
+  text-align: center;
 }
 
 .dialog {
@@ -664,19 +739,12 @@ h1 {
   z-index: 1000;
 }
 
-.dialog-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 100%;
-}
-
 .dialog-title {
   font-size: 20px;
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
+  color: #007bff;
 }
 
 .text-box {
@@ -713,4 +781,21 @@ h1 {
   flex-direction: column;
 }
 
+.custom-subject-button {
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  padding: 8px 16px;
+  font-weight: bold;
+  letter-spacing: 0.8px; 
+}
+
+.custom-subject-button:hover {
+  background-color: #e68900;
+  color: #fff;
+  font-weight: bold;
+}
 </style>

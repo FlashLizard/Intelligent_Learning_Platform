@@ -47,7 +47,7 @@ def get_chatvoiceanswer_handler():
     audio_file = request.files['audio']
 
     # Ensure the question_audio directory exists
-    save_dir = 'D:\\CodeField\\xunfei\\Intelligent_Learning_Platform\\src\\aiqa\\question_audio'
+    save_dir = os.path.join('aiqa','question_audio')
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'tmp_question.wav')
 
@@ -57,7 +57,7 @@ def get_chatvoiceanswer_handler():
     # 配置信息
     appid = 'e76d7d8f'
     secret_key = '3d354554a40d73e05331347dda9380c0'
-    audio2txt = audio2txt_Api(appid, secret_key, 'D:\\CodeField\\xunfei\\Intelligent_Learning_Platform\\src\\aiqa\\question_audio\\tmp_question.wav', "bot_ans")
+    audio2txt = audio2txt_Api(appid, secret_key, save_path, "bot_ans")
     question = audio2txt.get_result(op=2)
     question = remove_duplicate_content(question)
     print('question',question)
@@ -67,6 +67,36 @@ def get_chatvoiceanswer_handler():
     response = {
         'question': question,
         'answer': ans
+    }
+    return jsonify(response)
+
+@app.route('/get_classaudio', methods=['POST'])
+def get_classaudio_handler():
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    audio_file = request.files['audio']
+
+    # Ensure the question_audio directory exists
+    save_dir = os.path.join('aiqa','class_audio')
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, 'tmp_classaudio.wav')
+    audio_file.save(save_path)
+
+    # 配置信息
+    appid = 'e76d7d8f'
+    secret_key = '3d354554a40d73e05331347dda9380c0'
+    audio2txt = audio2txt_Api(appid, secret_key, save_path, "bot_ans")
+    classtext = audio2txt.get_result(op=2)
+    classtext = remove_duplicate_content(classtext)
+    print('classtext', classtext)
+    question = '请用100字总结下述这段文字：'+classtext
+    print('question',question)
+    ans = llm.query(question)
+    print('ans',ans)
+
+    response = {
+        'classtext': ans,
     }
     return jsonify(response)
 
@@ -137,7 +167,7 @@ def get_audiotranslation_handler():
     if file.filename == '':
         return "No selected file", 400
 
-    save_dir = 'D:\\CodeField\\xunfei\\Intelligent_Learning_Platform\\src\\aiqa\\question_audio'
+    save_dir = os.path.join('aiqa','question_audio')
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'audiotranslation.wav')
     file.save(save_path)
@@ -164,7 +194,7 @@ def get_speechtranslation_handler():
         return jsonify({'error': 'No selected file'}), 400
 
     # Save the uploaded audio file
-    save_dir = 'D:\\CodeField\\xunfei\\Intelligent_Learning_Platform\\src\\aiqa\\question_audio'
+    save_dir = os.path.join('aiqa','question_audio')
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'audiotranslation.wav')
     file.save(save_path)
