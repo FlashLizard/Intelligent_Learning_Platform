@@ -48,6 +48,20 @@ def get_chatvoiceanswer_handler():
 
     # Ensure the question_audio directory exists
     save_dir = os.path.join('aiqa','question_audio')
+    # 确保目录存在
+    if os.path.exists(save_dir):
+        # 遍历目录中的所有文件和子目录
+        for filename in os.listdir(save_dir):
+            file_path = os.path.join(save_dir, filename)
+            try:
+                # 如果是文件，则删除文件
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                # 如果是目录，则删除目录及其内容
+                elif os.path.isdir(file_path):
+                    os.rmdir(file_path)
+            except Exception as e:
+                print(f'Failed to delete {file_path}. Reason: {e}')
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'tmp_question.wav')
 
@@ -79,6 +93,20 @@ def get_classaudio_handler():
 
     # Ensure the question_audio directory exists
     save_dir = os.path.join('aiqa','class_audio')
+    # 确保目录存在
+    if os.path.exists(save_dir):
+        # 遍历目录中的所有文件和子目录
+        for filename in os.listdir(save_dir):
+            file_path = os.path.join(save_dir, filename)
+            try:
+                # 如果是文件，则删除文件
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                # 如果是目录，则删除目录及其内容
+                elif os.path.isdir(file_path):
+                    os.rmdir(file_path)
+            except Exception as e:
+                print(f'Failed to delete {file_path}. Reason: {e}')
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'tmp_classaudio.wav')
     audio_file.save(save_path)
@@ -157,6 +185,17 @@ def get_imagetranslation_handler():
         with open(filepath, 'rb') as f:  # 使用二进制模式读取文件
             content = f.read().decode('utf-8')  # 解码为字符串
         print('content:',content)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"File {filepath} has been deleted.")
+        else:
+            print(f"File {filepath} does not exist.")
+        filepath = os.path.join('img_2_words','image', filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"File {filepath} has been deleted.")
+        else:
+            print(f"File {filepath} does not exist.")
         return jsonify({"word": content})
 
 @app.route('/get_audiotranslation', methods=['POST'])

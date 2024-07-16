@@ -321,48 +321,48 @@
         }
       },
       async getDownloadProblems() {
-      const formData = {
-        subjects: this.selectedSubjects,
-        time: this.timeValue,
-        min_difficulty: this.difficultyValue,
-        max_difficulty: this.difficultyValue,
-        others: this.otherInput,
-        type: ["single_choice", "judgement", "fillin"]
-      };
+        const formData = {
+          subjects: this.selectedSubjects,
+          time: this.timeValue,
+          min_difficulty: this.difficultyValue,
+          max_difficulty: this.difficultyValue,
+          others: this.otherInput,
+          type: ["single_choice", "judgement", "fillin"]
+        };
 
-      try {
-        this.loading = true;
+        try {
+          this.loading = true;
 
-        // 发送 POST 请求到后端获取试题文本
-        const response = await axios.post('http://localhost:5000/get_downloadproblems', formData, {
-          responseType: 'blob' // 响应类型为 Blob
-        });
+          // 发送 POST 请求到后端获取试题文本
+          const response = await axios.post('http://localhost:5000/get_downloadproblems', formData, {
+            responseType: 'blob' // 响应类型为 Blob
+          });
 
-        // 从响应中获取 Blob 数据
-        const blob = new Blob([response.data], { type: 'text/plain' });
+          // 从响应中获取 Blob 数据
+          const blob = new Blob([response.data], { type: 'text/plain' });
 
-        // 创建一个 URL 对象，用于创建下载链接
-        const url = window.URL.createObjectURL(blob);
+          // 创建一个 URL 对象，用于创建下载链接
+          const url = window.URL.createObjectURL(blob);
 
-        // 创建一个 <a> 标签，设置下载链接并自动触发下载
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'problems.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+          // 创建一个 <a> 标签，设置下载链接并自动触发下载
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'problems.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
 
-        // 清理 URL 对象
-        window.URL.revokeObjectURL(url);
+          // 清理 URL 对象
+          window.URL.revokeObjectURL(url);
 
-        // 完成下载后，隐藏加载动画
-        this.loading = false;
-      } catch (error) {
-        console.error('Error:', error);
-        // 处理错误情况
-        this.loading = false;
-      }
-    },
+          // 完成下载后，隐藏加载动画
+          this.loading = false;
+        } catch (error) {
+          console.error('Error:', error);
+          // 处理错误情况
+          this.loading = false;
+        }
+      },
     },
   };
   </script>

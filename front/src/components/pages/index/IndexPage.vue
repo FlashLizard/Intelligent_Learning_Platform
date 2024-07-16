@@ -62,8 +62,8 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/teacherrecording')">
               <i class="fas fa-video"></i>
-              <h3 class="button-title">教师录课</h3>
-              <p class="button-description">录制教师的课程内容。</p>
+              <h3 class="button-title">教师备课</h3>
+              <p class="button-description">帮助教师轻松备课的AI助手。</p>
             </div>
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">

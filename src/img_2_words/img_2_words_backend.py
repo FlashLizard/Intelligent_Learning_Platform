@@ -53,6 +53,20 @@ def upload_imagefile():
         # 安全地获取文件名，并保存到服务器的 UPLOAD_FOLDER 目录下
         filename = secure_filename(file.filename)
         save_dir = os.path.join('img_2_words','image')
+        # 确保目录存在
+        if os.path.exists(save_dir):
+            # 遍历目录中的所有文件和子目录
+            for filename in os.listdir(save_dir):
+                file_path = os.path.join(save_dir, filename)
+                try:
+                    # 如果是文件，则删除文件
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    # 如果是目录，则删除目录及其内容
+                    elif os.path.isdir(file_path):
+                        os.rmdir(file_path)
+                except Exception as e:
+                    print(f'Failed to delete {file_path}. Reason: {e}')
         os.makedirs(save_dir, exist_ok=True)
         file.save(os.path.join('img_2_words','image', filename))
         img_2_words_run()
