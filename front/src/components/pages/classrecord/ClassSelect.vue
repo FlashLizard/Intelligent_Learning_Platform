@@ -132,7 +132,7 @@ export default {
           course: this.selectedTab,
           limit: `推荐不少于10门课，包含关键词: ${this.keywordQuery}`,
         }
-        const response = await axios.post('http://localhost:5000/recommand', request);
+        const response = await axios.post('/recommand', request);
         let recommendation = response.data;
         this.recommendations = recommendation;  // 更新推荐课程列表
       } catch (error) {
@@ -149,7 +149,7 @@ export default {
           course: courseQuery,
           limit: `推荐不少于10门课，包含关键词: ${this.keywordQuery}`,
         }
-        const response = await axios.post('http://localhost:5000/recommand', request);
+        const response = await axios.post('/recommand', request);
         let recommendation = response.data;
         this.recommendations = recommendation;  // 更新推荐课程列表
       } catch (error) {

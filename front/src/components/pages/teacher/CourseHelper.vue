@@ -350,7 +350,7 @@ export default {
       formData.append('audio', audioBlob, 'class_audio.wav');
       this.recordloading = true;
       try {
-        const response = await axios.post('http://localhost:5000/get_classaudio', formData, {
+        const response = await axios.post('/get_classaudio', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -405,7 +405,7 @@ export default {
       this.thinking = true;
 
       // 向后端发送请求
-      axios.post('http://localhost:5000/get_chatanswer', {
+      axios.post('/get_chatanswer', {
         message: userMessage
       })
       .then((res) => {
@@ -452,7 +452,7 @@ export default {
           this.thinking = true;
 
           // 向后端发送请求
-          axios.post('http://localhost:5000/get_chatvoiceanswer', formData, {
+          axios.post('/get_chatvoiceanswer', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
@@ -496,7 +496,7 @@ export default {
         others: this.questionRequirements.other || '无'
       };
       console.log("requestData:",requestData);
-      axios.post('http://localhost:5000/get_ClassTestProblems', requestData)
+      axios.post('/get_ClassTestProblems', requestData)
         .then((res) => {
           console.log("res.data['problems']:",(res.data)['problems']);
           // Save the received questions to IndexedDB

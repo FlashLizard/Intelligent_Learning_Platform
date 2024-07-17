@@ -33,7 +33,6 @@
 
 <script>
 import axios from 'axios';
-
 export default {
   data() {
     return {
@@ -58,9 +57,8 @@ export default {
 
       // Display thinking message
       this.thinking = true;
-
       // 向后端发送请求
-      axios.post('http://localhost:5000/get_chatanswer', {
+      axios.post('/get_chatanswer', {
         message: userMessage
       })
       .then((res) => {
@@ -98,7 +96,7 @@ export default {
             this.thinking = true;
 
             // 向后端发送请求
-            axios.post('http://localhost:5000/get_chatvoiceanswer', formData, {
+            axios.post('/get_chatvoiceanswer', formData, {
               headers: {
                 'Content-Type': 'multipart/form-data'
               }

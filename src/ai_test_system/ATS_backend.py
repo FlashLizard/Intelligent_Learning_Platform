@@ -172,7 +172,7 @@ def get_problems_handler():
    }
     """
     subjects = content['subjects']
-    time = content['time']
+    time = int(content['time'])
     types = content['type']
     str_types = ['"'+x+'"' for x in types]
     cnt = max(len(subjects), int(time / 3))

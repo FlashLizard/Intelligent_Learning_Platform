@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { openDB } from 'idb';
 
 export default {
@@ -59,15 +60,13 @@ export default {
         console.log('Retrieved userId:', userId);
 
         // Fetch user tests from the backend
-        const response = await fetch('http://localhost:5000/get_user_tests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ user_id: userId }),
+        const response = await axios.post('/get_user_tests', 
+          { user_id: userId }
+        ).then((response) => {
+          return response;
         });
 
-        const data = await response.json();
+        const data = response.data;
         if (data.status === 'success') {
           this.history = data.tests;
           console.log('this.history:', this.history);
@@ -95,15 +94,11 @@ export default {
     async fetchTestDetail(testId) {
   try {
     // Fetch test details from the backend
-    const response = await fetch('http://localhost:5000/get_test', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ test_id: testId }),
+    const response = await axios.post('/get_test', { test_id: testId }).then((response) => {
+      return response;
     });
 
-    const data = await response.json();
+    const data = response.data;
     console.log('Received response:', data);
 
     if (data['status'] === 'success') {

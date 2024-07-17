@@ -150,7 +150,7 @@
         };
         try {
           console.log(message);
-          const response = await axios.post('http://localhost:5000/get_texttranslation', message);
+          const response = await axios.post('/get_texttranslation', message);
           this.translationResult = response.data;
           console.log(response.data);
         } catch (error) {
@@ -168,10 +168,10 @@
           let endpoint;
           switch (this.activeTab) {
             case '翻译图片':
-              endpoint = 'http://localhost:5000/get_imagetranslation';
+              endpoint = '/get_imagetranslation';
               break;
             case '翻译音频':
-              endpoint = 'http://localhost:5000/get_audiotranslation';
+              endpoint = '/get_audiotranslation';
               break;
             // Add more cases if needed
             default:
@@ -250,7 +250,7 @@
               this.mediaStream.getTracks().forEach(track => track.stop());
 
               // Send audio to the backend
-              axios.post('http://localhost:5000/get_speechtranslation', formData, {
+              axios.post('/get_speechtranslation', formData, {
                 headers: {
                   'Content-Type': 'multipart/form-data'
                 }

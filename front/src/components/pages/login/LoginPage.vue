@@ -44,15 +44,11 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await fetch('http://localhost:5000/get_user_id', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username: this.username }),
+        const response = await axios.post('/get_user_id', { username: this.username }).then((res) => {
+          return res;
         });
 
-        const data = await response.json();
+        const data = response.data;
 
         if (data.status === 'success') {
           const userId = data.user_id;
@@ -72,7 +68,7 @@ export default {
 
       try {
         this.loading = true;
-        const response = await axios.post('http://localhost:5000/create_user', {
+        const response = await axios.post('create_user', {
           username: this.username,
           password: this.password,
         });

@@ -435,21 +435,17 @@ export default {
     async goTestPage() {
       this.loading = true;
       try {
-        const response = await fetch('http://localhost:5000/get_problems', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        const response = await axios.post('/get_problems', {
             subjects: this.selectedSubjects,
             time: this.timeValue,
             min_difficulty: 0,
             max_difficulty: this.difficultyValue,
             type: ['single_choice', 'judgement', 'fillin'],
             others: this.otherInput,
-          }),
-        });
-        const data = await response.json();
+          }).then((response) => {
+            return response;
+          });
+        const data = response.data;
         await this.storeProblems(data.problems);
       } catch (error) {
         console.error('Error starting test:', error);

@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'HomeworkManagement',
   data() {
@@ -115,14 +116,11 @@ export default {
 
       // 发送给后端
       // const url = 'http://127.0.0.1:5000/uploadhomework';
-      const url = 'http://localhost:5000/uploadhomework';
+      const url = '/uploadhomework';
       
       console.log('formData',formData)
-      fetch(url, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
+      axios.post(url, formData)
+      .then(response => response.data)
       .then(data => {
         // 处理后端返回的 accuracy_results
         console.log('accuracy_results:', data);

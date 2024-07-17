@@ -166,3 +166,4 @@ cython_debug/
 
 # local config
 config.json
+front/config.json

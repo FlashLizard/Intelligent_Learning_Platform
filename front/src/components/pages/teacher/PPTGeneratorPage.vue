@@ -195,7 +195,7 @@
         };
 
         // 发起 POST 请求
-        axios.post('http://localhost:5000/conclude_text', requestData)
+        axios.post('/conclude_text', requestData)
           .then(response => {
             // 处理后端返回的数据
             console.log('后端返回的结果:', response.data);
@@ -218,13 +218,13 @@
           let endpoint;
           switch (this.activeTab) {
             case '图片生成':
-              endpoint = 'http://localhost:5000/get_imageppt';
+              endpoint = '/get_imageppt';
               break;
             case '音频生成':
-              endpoint = 'http://localhost:5000/get_audioppt';
+              endpoint = '/get_audioppt';
               break;
             case '文件生成':
-              endpoint = 'http://localhost:5000/get_fileppt';
+              endpoint = '/get_fileppt';
               break;
             // Add more cases if needed
             default:
@@ -258,7 +258,7 @@
 
         try {
           // 发送请求
-          const response = await axios.post('http://localhost:5000/downloadppt', requestData, {
+          const response = await axios.post('/downloadppt', requestData, {
             responseType: 'blob' // 设置响应类型为 Blob
           });
 
@@ -320,7 +320,7 @@
               this.mediaStream.getTracks().forEach(track => track.stop());
 
               // Send audio to the backend
-              axios.post('http://localhost:5000/get_speechppt', formData, {
+              axios.post('/get_speechppt', formData, {
                 headers: {
                   'Content-Type': 'multipart/form-data'
                 }

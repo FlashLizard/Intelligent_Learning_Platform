@@ -33,6 +33,7 @@
 <script>
 import { openDB } from 'idb';
 import HexagonChart from '../../component/HexagonChart.vue';
+import axios from 'axios';
 
 export default {
   components: {
@@ -139,15 +140,11 @@ export default {
       test_score: testScore,
     };
     console.log('payload:',payload)
-    const response = await fetch('http://localhost:5000/save_test', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    const response = await axios.post('/save_test', payload).then((res) => {
+      return res
     });
 
-    const data = await response.json();
+    const data = response.data;
     if (data.status === 'success') {
       console.log('测试结果保存成功:', data.test_id);
     } else {

@@ -146,7 +146,7 @@ export default {
       this.thinking = true;
 
       // 向后端发送请求
-      axios.post('http://localhost:5000/get_chatanswer', {
+      axios.post('/get_chatanswer', {
         message: userMessage
       })
       .then((res) => {
@@ -184,7 +184,7 @@ export default {
             this.thinking = true;
 
             // 向后端发送请求
-            axios.post('http://localhost:5000/get_chatvoiceanswer', formData, {
+            axios.post('/get_chatvoiceanswer', formData, {
               headers: {
                 'Content-Type': 'multipart/form-data'
               }
@@ -234,11 +234,11 @@ export default {
 
       let url = '';
       if (this.fileType === 'txt') {
-        url = 'http://localhost:5000/get_fileppt';
+        url = '/get_fileppt';
       } else if (this.fileType === 'image') {
-        url = 'http://localhost:5000/get_imageppt';
+        url = '/get_imageppt';
       } else if (this.fileType === 'audio') {
-        url = 'http://localhost:5000/get_audioppt';
+        url = '/get_audioppt';
       }
 
       axios.post(url, formData, {
@@ -273,7 +273,7 @@ export default {
           this.loading = true;
 
           // 发送 POST 请求到后端获取试题文本
-          const response = await axios.post('http://localhost:5000/get_downloadproblems', formData, {
+          const response = await axios.post('/get_downloadproblems', formData, {
             responseType: 'blob' // 响应类型为 Blob
           });
 
@@ -318,7 +318,7 @@ export default {
 
         try {
           // 发送请求
-          const response = await axios.post('http://localhost:5000/downloadppt', requestData, {
+          const response = await axios.post('/downloadppt', requestData, {
             responseType: 'blob' // 设置响应类型为 Blob
           });
 

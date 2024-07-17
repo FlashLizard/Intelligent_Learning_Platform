@@ -273,7 +273,7 @@ export default {
           }
         }
         const useranswer = await this.getIndexedDBData();
-        const response = await axios.post('http://localhost:5000/submit_test', useranswer);
+        const response = await axios.post('/submit_test', useranswer);
         console.log('response.data', response.data);
 
         const tableNames = ['evaluation', 'dimension', 'score', 'shortcoming', 'suggestion'];
