@@ -1,24 +1,39 @@
 import mysql.connector
 from mysql.connector import Error
 import json
+import json5
 from utils import Logger
 
 
 database = None
+mysql_password = '111111'
+mysql_port = 3306
+try:
+    with open("../config.json") as f:
+        f_json = json5.load(f)
+        mysql_password = f_json["mysql_password"]
+        mysql_port = f_json["mysql_port"]
+except Exception as e:
+    Logger.error(f"Load config.json failed, use default")
+    mysql_password = '111111'
+    mysql_port = 3306
+
 
 # 连接到MySQL数据库
-def connect(host='localhost', user='root', password='111111',database=None):
+def connect(host='localhost', user='root', database=None):
     connection = None
     try:
         connection = mysql.connector.connect(
             host=host,
             user=user,
-            password=password,
-            database=database
+            password=mysql_password,
+            database=database,
+            port = mysql_port
         ) if database is not None else mysql.connector.connect(
             host=host,
             user=user,
-            password=password
+            password=mysql_password,
+            port = mysql_port
         )
         Logger.info("Connected to MySQL")
     except Error as e:

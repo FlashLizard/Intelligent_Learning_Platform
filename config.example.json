@@ -3,5 +3,7 @@
     //can get from https://console.xfyun.cn/services/bm35
    "appid": "",
    "api_secret": "",
-   "api_key": ""
+   "api_key": "",
+   "mysql_password": "111111",
+   "mysql_port": 3306
 }
