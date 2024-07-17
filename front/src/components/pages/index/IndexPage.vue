@@ -23,13 +23,13 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/coursehelper')">
               <i class="fas fa-book-open"></i>
-              <h3 class="button-title">课程记录</h3>
-              <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
+              <h3 class="button-title">随堂助手</h3>
+              <p class="button-description">提供教师在课堂中生成随堂测验、智能问答等功能。</p>
             </div>
             <div class="button" @click="handleClick('/homeworkmanagement')">
               <i class="fas fa-tasks"></i>
-              <h3 class="button-title">背诵批改</h3>
-              <p class="button-description">管理学生的背诵作业，包括布置、查看和反馈。</p>
+              <h3 class="button-title">背诵检查</h3>
+              <p class="button-description">由AI自动比对学生背诵音频与标答，给出背诵作业正确率。</p>
             </div>
             <div class="button" @click="handleClick('/pptgenerator')">
               <i class="fas fa-chalkboard-teacher"></i>
@@ -45,12 +45,12 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">中英翻译</h3>
+              <h3 class="button-title">即时翻译</h3>
               <p class="button-description">随时为您提供翻译功能。</p>
             </div>
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
-              <h3 class="button-title">教育咨询</h3>
+              <h3 class="button-title">智教问答</h3>
               <p class="button-description">获取教育相关的咨询和建议。</p>
             </div>
           </div>
@@ -68,8 +68,8 @@
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">
               <i class="fas fa-download"></i>
-              <h3 class="button-title">AI出题</h3>
-              <p class="button-description">下载试卷以供学生练习。</p>
+              <h3 class="button-title">智教出卷</h3>
+              <p class="button-description">讯飞智教生成符合教师需求的试卷以供下载出卷。</p>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@
           <div class="button-container">
             <button class="button" @click="startTest" title="进入选择不同测试">
               <i class="fas fa-pencil-alt"></i>
-              <h3 class="button-title">开始测试</h3>
+              <h3 class="button-title">在线自测</h3>
               <p class="button-description">选择不同的测试方式以开始测试。</p>
             </button>
             <button class="button" @click="viewHistory" title="回顾最近的测试情况">
@@ -100,13 +100,13 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">中英翻译</h3>
+              <h3 class="button-title">即时翻译</h3>
               <p class="button-description">随时为您提供翻译功能。</p>
             </div>
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
-              <h3 class="button-title">教育咨询</h3>
-              <p class="button-description">获取教育相关的咨询和建议。</p>
+              <h3 class="button-title">智教答疑</h3>
+              <p class="button-description">讯飞智教为学生答疑解惑。</p>
             </div>
           </div>
         </div>
@@ -118,14 +118,14 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/classselect')">
               <i class="fas fa-play-circle"></i>
-              <h3 class="button-title">课程观看</h3>
-              <p class="button-description">观看录制好的课程。</p>
+              <h3 class="button-title">环球网课</h3>
+              <p class="button-description">讯飞智教在全球检索符合用户需求的网课。</p>
             </div>
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">
               <i class="fas fa-download"></i>
-              <h3 class="button-title">试卷下载</h3>
-              <p class="button-description">下载试卷以供复习。</p>
+              <h3 class="button-title">量身密卷</h3>
+              <p class="button-description">讯飞智教生成符合学生需求的试卷以供练习。</p>
             </div>
           </div>
         </div>

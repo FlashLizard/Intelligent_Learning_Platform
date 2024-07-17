@@ -32,7 +32,7 @@
               <div class="question-content">{{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}</div>
               <div class="options">
                 <div v-for="(option, index) in currentQuestion.choices" :key="index" class="option" @click="selectOption(index)">
-                  <span>{{ index }}. {{ option }}</span>
+                  <span>{{ letterlist[index] }}. {{ option }}</span>
                   <span class="circle" :class="{ selected: this.selectedOption === index }"></span>
                 </div>
               </div>
@@ -92,6 +92,7 @@
         selectedOption: null,
         filledAnswer: '',
         questionContents: {},
+        letterlist: ['A','B','C','D'],
         grading: false // 新增属性，控制“AI正在阅卷中...”弹窗显示
       };
     },
@@ -466,11 +467,13 @@
             border: 1px solid #ccc;
             border-radius: 50%;
             margin-right: 10px;
+            margin-left: 20px;
           }
 
           .circle.selected {
             background-color: #1d8ade;
             border: 1px solid #168cac;
+            margin-left: 20px;
           }
         }
       }

@@ -22,7 +22,7 @@
         <div class="right-panel">
           <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
           <div class="button-container">
-            <button @click="viewQuestions">查看题目</button>
+            <!-- <button @click="viewQuestions">查看题目</button> -->
             <button @click="saveResults">保存结果</button>
           </div>
         </div>

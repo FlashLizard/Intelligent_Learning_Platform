@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="sidebar-content">
-          <h2 class="sidebar-title">智能出题</h2>
+          <h2 class="sidebar-title">快捷备题</h2>
           <div class="button-group small-button">
             <button @click="isModalVisible=true">AI生成题目</button>
           </div>
@@ -98,7 +98,7 @@
     <div class="input-container">
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
       <button class="send-button" @click="sendMessage">发送</button>
-      <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
+      <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 语音提问</button>
       <button v-else class="voice-button" @click="stopVoiceRecognition">🛑 结束录音</button>
     </div>
   </div>
@@ -407,12 +407,13 @@ export default {
 }
 
 .sidebar-content {
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 .sidebar-title {
   font-weight: bold;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .button-group {

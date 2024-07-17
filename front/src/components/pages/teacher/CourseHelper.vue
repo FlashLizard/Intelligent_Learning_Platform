@@ -1,25 +1,25 @@
 <template>
   <div class="container">
     <!-- 加载中弹窗 -->
-  <div v-if="recordloading" class="loading-dialog">
-    <div class="loading-content">
-      <h2><i class="fas fa-spinner fa-spin"></i> 课堂总结生成中...</h2>
-    </div>
-  </div>
-  <div v-if="classtext" class="class-dialog">
-    <div class="class-content summary-container">
-      <button class="close-button" @click="closeClassSummary">
-        <i class="fas fa-times"></i>
-      </button>
-      <h3>课堂概述</h3>
-      <div class="summary-content">
-        <p v-for="line in classtext.split('\n')" :key="line">{{ line }}</p>
+    <div v-if="recordloading" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-spinner fa-spin"></i> 课堂总结生成中...</h2>
       </div>
     </div>
-  </div>
+    <div v-if="classtext" class="class-dialog">
+      <div class="class-content summary-container">
+        <button class="close-button" @click="closeClassSummary">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3>课堂概述</h3>
+        <div class="summary-content">
+          <p v-for="line in classtext.split('\n')" :key="line">{{ line }}</p>
+        </div>
+      </div>
+    </div>
     <!-- 头部 -->
     <header class="header">
-      <h1>课堂助手</h1>
+      <h1>随堂助手</h1>
       <button class="back-button" @click="goBack">返回</button>
     </header>
 
@@ -94,7 +94,7 @@
             <h2>AI教育辅导</h2>
             <div class="chat-box" ref="chatBox">
               <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-                <p>{{ message.text }}</p>
+                <p :class="{'user-message-bubble': message.isUser, 'assistant-message-bubble': !message.isUser}">{{ message.text }}</p>
               </div>
             </div>
             <div class="input-container">
@@ -116,7 +116,7 @@
         </button>
         
         <!-- 设置题目要求 -->
-        <h3>设置题目要求</h3>
+        <h3>设置测试要求</h3>
         <div class="input-group">
           <label>学科：</label>
           <input type="text" v-model="questionRequirements.subject" />
@@ -129,14 +129,7 @@
           <label>其他要求：</label>
           <input type="text" v-model="questionRequirements.other" />
         </div>
-        <div class="input-group">
-          <label>是否依据课件生成题目：</label>
-          <div>
-            <button @click="selectOption(true)" :class="{ selected: questionRequirements.useClassContent === true }">是</button>
-            <button @click="selectOption(false)" :class="{ selected: questionRequirements.useClassContent === false }">否</button>
-          </div>
-        </div>
-        <button @click="generateQuestions">生成题目</button>
+        <button @click="generateQuestions">生成测试</button>
       </div>
     </div>
     <!-- 加载中弹窗 -->
@@ -686,6 +679,7 @@ export default {
 }
 
 .header {
+  text-align: center;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -694,6 +688,7 @@ export default {
   border-bottom: 1px solid #ddd;
 
   h1 {
+    text-align: center;
     margin: 0;
   }
 
@@ -1210,4 +1205,23 @@ export default {
 .close-button:hover i {
   color: #f00;
 }
+  .user-message-bubble {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    align-self: flex-start;
+  }
+
+  .assistant-message-bubble {
+    background-color: #e0f7fa;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    align-self: flex-end;
+  }
 </style>
