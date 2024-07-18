@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-container">
-      <h1>智能教育系统</h1>
+      <h1>讯飞智教</h1>
       <form @submit.prevent="login">
         <div class="form-group">
           <label for="username">用户名</label>
