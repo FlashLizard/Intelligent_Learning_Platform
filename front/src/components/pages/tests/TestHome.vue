@@ -311,7 +311,7 @@ export default {
     },
     async getRecommendedSubjects() {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/get_subjects', {
+        const response = await axios.post('/get_subjects', {
           parent_subjects: [this.selectedSubject],
           already_subjects: this.selectedSubjects,
         });
@@ -328,7 +328,7 @@ export default {
     },
     async openCustomSubjectDialog() {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/get_subjects', {
+        const response = await axios.post('/get_subjects', {
           parent_subjects: [this.customSubject],
           already_subjects: this.selectedSubjects,
         });
