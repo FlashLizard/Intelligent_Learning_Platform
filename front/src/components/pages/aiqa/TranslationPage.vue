@@ -23,10 +23,6 @@
     </button>
   </div>
   <div class="translation-container">
-    <!-- <button class="back-button" @click="goBack">
-      <i class="fas fa-arrow-left"></i> 返回
-    </button>
-    <h1><i class="fas fa-book-open"></i>AI翻译助手</h1> -->
     <div class="switch-tabs">
       <div
         v-for="tab in tabs"
@@ -51,8 +47,14 @@
         </button>
       </div>
       <div v-else-if="isTranslateSpeechTab" class="upload-translate-group">
-        <button @click="toggleRecording" class="upload-button" :class="{'orange-button': recording}">
+        <!-- <button @click="toggleRecording" class="upload-button" :class="{'orange-button': recording}">
           <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '录音' }}
+        </button> -->
+        <button v-if="!recording" class="upload-button" onclick="startVoiceRecognition()">
+          <i id="startIcon" class="fas fa-microphone"></i> 录音
+        </button>
+        <button v-else-if="recording" class="upload-button orange-button" onclick="stopVoiceRecognition()">
+          <i id="stopIcon" class="fas fa-stop"></i> 结束录音
         </button>
         <button @click="translateText" class="translate-button">
           <i class="fas fa-language"></i> 翻译
@@ -250,68 +252,62 @@
         this.showTargetLanguageMenu = false;
         this.sourceLanguage = language === '中文' ? '英文' : '中文';
       },
-      toggleRecording() {
-        this.recording = !this.recording;
-        if (this.recording) {
-          // Start recording logic
-          console.log('开始录音');
-          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert('您的浏览器不支持语音识别功能。');
-            return;
-          }
+      startVoiceRecognition() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('您的浏览器不支持语音识别功能。');
+          return;
+        }
 
-          this.audioChunks = []; // Initialize audio chunks array
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.mediaRecorder.start();
+            this.isRecording = true;
 
-          navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-              this.mediaStream = stream; // Store the media stream for later use
-              this.mediaRecorder = new MediaRecorder(stream);
-              this.mediaRecorder.start();
-              this.isRecording = true;
+            this.mediaRecorder.ondataavailable = event => {
+              this.audioChunks.push(event.data);
+            };
 
-              this.mediaRecorder.ondataavailable = event => {
-                this.audioChunks.push(event.data);
-              };
-            })
-            .catch(error => {
-              console.error('getUserMedia error:', error);
-            });
-        } else {
-          // Stop recording logic
-          if (this.mediaRecorder && this.isRecording) {
-            this.mediaRecorder.stop();
-            this.isRecording = false;
-            console.log('结束录音');
-            this.yinpining = true;
             this.mediaRecorder.onstop = () => {
               const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
               this.audioChunks = [];
               const formData = new FormData();
               formData.append('audio', audioBlob, 'voice.wav');
 
-              // Stop all tracks of the media stream
-              this.mediaStream.getTracks().forEach(track => track.stop());
+              // Display thinking message
+              this.yinpining = true;
 
-              // Send audio to the backend
+              // 向后端发送请求
               axios.post('/get_speechtranslation', formData, {
                 headers: {
                   'Content-Type': 'multipart/form-data'
                 }
               })
               .then((res) => {
-                this.yinpining = false;
-                console.log(res.data);
+                this.yinpining= false;
                 this.textToTranslate = res.data.word; // Assuming the response contains translated text
-                this.translationResult = res.data.translation;
               })
               .catch((err) => {
                 this.yinpining = false;
                 console.error(err);
               });
             };
+          })
+          .catch(error => {
+            console.error('getUserMedia error:', error);
+          });
+      },
+      stopVoiceRecognition() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+          this.mediaRecorder.stop();
+          this.isRecording = false;
+
+          // Stop all tracks from the media stream
+          if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
           }
         }
-      }
+      },
     },
   };
   </script>
