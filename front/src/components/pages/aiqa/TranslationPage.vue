@@ -229,6 +229,8 @@
           this.$forceUpdate();
           console.log(this.textToTranslate);
         } catch (error) {
+          this.imageloading = false;
+          this.yinpining = false;
           console.error('Error uploading file:', error);
         }
       },
@@ -303,6 +305,7 @@
                 this.translationResult = res.data.translation;
               })
               .catch((err) => {
+                this.yinpining = false;
                 console.error(err);
               });
             };
