@@ -1,4 +1,14 @@
 <template>
+  <div v-if="textloading" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-spinner fa-spin"></i> 文件解析中...</h2>
+      </div>
+    </div>
+  <div v-if="imageloading" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-spinner fa-spin"></i> 图片解析中...</h2>
+      </div>
+    </div>
   <!-- Loading Dialog -->
   <div v-if="loading" class="loading-dialog">
       <div class="loading-content">
@@ -170,6 +180,8 @@
         notesOption: 1, // 默认选择的备注选项
         loading: false,
         yinpining:false,
+        imageloading:false,
+        textloading:false,
       };
     },
     computed: {
@@ -232,12 +244,15 @@
           let endpoint;
           switch (this.activeTab) {
             case '图片生成':
+              this.imageloading=true;
               endpoint = '/get_imageppt';
               break;
             case '音频生成':
+              this.yinpining = true;
               endpoint = '/get_audioppt';
               break;
             case '文件生成':
+              this.textloading = true;
               endpoint = '/get_fileppt';
               break;
             // Add more cases if needed
@@ -255,7 +270,13 @@
           this.tmptext = (response.data)['ans'];
           this.$forceUpdate();
           console.log(this.textToTranslate);
+          this.imageloading = false;
+          this.textloading = false;
+          this.yinpining = false;
         } catch (error) {
+          this.imageloading = false;
+          this.textloading = false;
+          this.yinpining = false;
           console.error('Error uploading file:', error);
         }
       },

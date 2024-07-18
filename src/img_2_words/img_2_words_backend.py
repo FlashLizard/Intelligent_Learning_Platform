@@ -39,12 +39,13 @@ Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 # 定义路由，用于文件上传
 @app.route('/uploadimage', methods=['POST', 'GET'])
 def upload_imagefile():
+    print('upload_imagefile')
     # 检查是否有文件在请求内
     if 'file' not in request.files:
         return 'No file part in the request'
 
     file = request.files['file']
-
+    print('上传的文件名：',file.filename)
     # 如果用户没有选择文件，浏览器也会提交一个空的文件无文件名
     if file.filename == '':
         return 'No selected file'
@@ -57,6 +58,7 @@ def upload_imagefile():
         if os.path.exists(save_dir):
             # 遍历目录中的所有文件和子目录
             for filename in os.listdir(save_dir):
+                print('待删除文件名',filename)
                 file_path = os.path.join(save_dir, filename)
                 try:
                     # 如果是文件，则删除文件
@@ -75,21 +77,6 @@ def upload_imagefile():
         filepath = os.path.join(txtdir,filename2)
         with open(filepath, "r") as f:
             content = f.read()
-        # # TODO 前端询问，是否进行下一步操作：(将图片识别出的文字转化为ppt & 进行AI提炼 & 转化为音频)
-        # opt = request.json.get('option')
-        # opt = int(opt)
-        # if opt == 1:   # 转化为 ppt
-        #     # TODO   前端跳转到生成ppt界面，并默认输入文件是filename文件
-        #     pass
-        # elif opt == 2:   # 进行AI提炼
-        #     words = "请提炼这段文字中的有效信息：" + content
-        #     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-        #     ans = llm.query(words)  # 注意，这里是阻塞的
-        #     print(ans)
-        #     return jsonify({"valid_message": ans})
-        # elif opt == 3:   # 转化为音频
-        #     # TODO   前端跳转到生成转音频界面，并默认输入文件是filename文件
-        #     pass
         print('content:',content)
         return jsonify({"content": content})
 
