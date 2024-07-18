@@ -281,14 +281,26 @@ export default {
     previousQuestion() {
       if (this.currentQuestion > 1) {
         this.currentQuestion--;
-        this.restoreAnswer();
+      } else {
+        const currentSectionIndex = this.sections.indexOf(this.currentSection);
+        if (currentSectionIndex > 0) {
+          this.currentSection = this.sections[currentSectionIndex - 1];
+          this.currentQuestion = this.currentSection.questions.length ;
+        }
       }
+      this.restoreAnswer();
     },
     nextQuestion() {
-      if (this.currentQuestion < this.currentSection.questions.length) {
+      if (this.currentSection && this.currentQuestion < this.currentSection.questions.length) {
         this.currentQuestion++;
-        this.restoreAnswer();
+      } else {
+        const currentSectionIndex = this.sections.indexOf(this.currentSection);
+        if (currentSectionIndex < this.sections.length - 1) {
+          this.currentSection = this.sections[currentSectionIndex + 1];
+          this.currentQuestion = 1;
+        }
       }
+      this.restoreAnswer();
     }
   },
   async mounted() {

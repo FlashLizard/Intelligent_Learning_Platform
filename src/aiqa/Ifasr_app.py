@@ -137,19 +137,6 @@ class audio2txt_Api(object):
         result_context = extract_w_values(context)
         result_context = result_context.replace(" ", "")
         print("res:", result_context)
-        # directory = AUDIO2CONTEXT
-        # if not os.path.exists(directory):
-        #     os.makedirs(directory)
-
-        # if op == 0:
-        #     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-        #     Input = "请提炼这段文字，只保留其中与课堂内容相关的部分:+" + result_context
-        #     result_context = llm.query(Input)
-
-        # if op == 2:
-        #     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-        #     Input = "请提炼这段文字，使其成为对某个问题的回答:+" + result_context
-        #     result_context = llm.query(Input)
 
         # 保存字符串到指定文件
         string_to_save = result_context
