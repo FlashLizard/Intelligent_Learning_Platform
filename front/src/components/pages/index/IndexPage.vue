@@ -166,7 +166,7 @@ export default {
       this.$router.push('/testhistory');
     },
     logout() {
-      this.$router.back();
+      this.$router.push('/');
     },
     switchTab(tab) {
       this.activeTab = tab;
