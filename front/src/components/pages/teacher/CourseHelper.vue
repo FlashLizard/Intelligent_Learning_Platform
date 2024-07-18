@@ -150,13 +150,13 @@
     <button class="ktclose-button" @click="closeStartClassModal">
       <i class="fas fa-times"></i>
     </button>
-    <h3>课堂信息</h3>
+    <h3><i class="fas fa-file-powerpoint"></i><span class="blue-text"> 课堂信息</span></h3>
     <div class="ktinput-group">
-      <label>学科：</label>
+      <label><i class="fas fa-book"></i><span class="blue-text"> 学科：</span></label>
       <input type="text" v-model="questionRequirements.subject" />
     </div>
     <div class="ktinput-group">
-      <label>课堂时间：</label>
+      <label><i class="far fa-clock"></i><span class="blue-text">课堂时间</span> </label>
       <div class="kttime-options">
         <button @click="selectTime(30)" :class="{ selected: questionRequirements.classTime === 30 }">30分钟</button>
         <button @click="selectTime(45)" :class="{ selected: questionRequirements.classTime === 45 }">45分钟</button>
@@ -164,7 +164,7 @@
         <button @click="selectTime(120)" :class="{ selected: questionRequirements.classTime === 120 }">120分钟</button>
       </div>
     </div>
-    <ktbutton @click="confirmstartClass">开始上课</ktbutton>
+    <ktbutton @click="confirmstartClass"><i class="fas fa-check-circle"></i> 开始上课</ktbutton>
   </div>
 </div>
 </template>
@@ -720,6 +720,7 @@ export default {
   padding: 0.5rem 1rem;
 
   button {
+    margin-right:5rem; 
     padding: 0.5rem 1rem;
     background-color: #007bff;
     color: white;
@@ -729,7 +730,7 @@ export default {
   }
 
   span {
-    color:#1a50f3;
+    color:#0659ff;
     font-size: 1.2rem;
     font-weight: bold;
   }
@@ -1238,7 +1239,9 @@ export default {
   text-align: center;
   position: relative; /* Ensure relative positioning for child elements */
 }
-
+.blue-text {
+    color: #066dce;
+  }
 .ktclose-button {
   position: absolute;
   top: 10px;
@@ -1270,6 +1273,12 @@ export default {
 }
 
 .kttime-options button {
+  margin-top: 10px;
+  margin-right: 10px; /* Adjust spacing between buttons */
+  background-color: #80bcf5;
+}
+.kttime-options button:hover {
+  background-color: #1890ff;
   margin-right: 10px; /* Adjust spacing between buttons */
 }
 
