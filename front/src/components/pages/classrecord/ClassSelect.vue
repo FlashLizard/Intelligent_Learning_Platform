@@ -38,7 +38,13 @@
     <!-- 加载中弹窗 -->
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-message">
-        <i class="fas fa-spinner fa-spin"></i> 课程加载中...
+        <i class="fas fa-spinner fa-spin"></i> 星火大模型正在筛选最适合您的课程...
+      </div>
+    </div>
+    <!-- 报错弹窗 -->
+    <div v-if="iswrong" class="loading-overlay">
+      <div class="loading-message">
+        <i class="fas fa-spinner fa-spin"></i> 网络出错了，请您重新检索...
       </div>
     </div>
     <div class="recommendations">
@@ -58,7 +64,7 @@
     <div v-if="showWelcomePopup" class="welcome-popup-overlay" @click="showWelcomePopup = false">
       <div class="welcome-popup" @click.stop>
         <h3>欢迎使用AI荐课</h3>
-        <p>AI荐课功能根据您指定的学科、关键词为您推荐各大平台上的课程，您可以通过本应用推荐的路径找到您感兴趣的课程。</p>
+        <p>AI荐课功能根据您指定的学科和关键词为您推荐各大平台上的课程，您可以通过本应用推荐的路径找到您感兴趣的课程。</p>
         <button @click="showWelcomePopup = false">我知道了</button>
       </div>
     </div>
@@ -82,7 +88,8 @@ export default {
       itemsPerPage: 6,
       isLoading: false,  // 新增：用于加载状态
       keywordQuery: '',  // 新增：用于搜索关键词输入框
-      showWelcomePopup: true  // 新增：用于控制欢迎弹窗显示
+      showWelcomePopup: true,  // 新增：用于控制欢迎弹窗显示
+      iswrong:false,
     };
   },
   computed: {
@@ -153,6 +160,7 @@ export default {
         let recommendation = response.data;
         this.recommendations = recommendation;  // 更新推荐课程列表
       } catch (error) {
+        this.isLoading = false;
         console.error('Error fetching recommendation:', error);
       } finally {
         this.isLoading = false;  // 隐藏加载状态
@@ -171,7 +179,7 @@ export default {
   font-family: Arial, sans-serif;
   position: relative;
   min-height: 92vh;
-
+  
   .header {
     display: flex;
     justify-content: space-between;

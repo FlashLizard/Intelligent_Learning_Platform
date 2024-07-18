@@ -70,6 +70,11 @@
       </div>
     </div>
   </div>
+  <div v-if="loading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 背诵作业批改中...</h2>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -81,7 +86,8 @@ export default {
       standardAnswer: '',
       uploadResults: [],
       uploadButtonText: '批量上传作业',
-      initialRows: 15
+      initialRows: 15,
+      loading:false,
     };
   },
   computed: {
@@ -104,7 +110,7 @@ export default {
       const standardAnswerFile = new File([this.standardAnswer], 'standardanswer.txt', {
         type: 'text/plain'
       });
-
+      this.loading = true;
       // 将标准答案文件添加到 FormData 对象中
       formData.append('answer', standardAnswerFile);
 
@@ -127,8 +133,10 @@ export default {
         this.uploadResults.push(...Object.entries(data).map(([filename, accuracy]) => ({ filename, accuracy })));
         console.log(this.uploadResults)
         this.uploadButtonText = '继续上传作业';
+        this.loading = false;
       })
       .catch(error => {
+        this.loading = false;
         console.error('Error:', error);
       });
     },
@@ -175,22 +183,50 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  margin-top: 10px;
+  text-align: center;
+}
+
 .homework-management {
   text-align: center;
-  padding: 10px;
+  // padding: 10px;
   background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   color: #333;
   font-family: 'Arial, sans-serif';
   position: relative;
-
+  
   .page-title {
-    margin-bottom: 20px;
-
+    // margin-bottom: 20p
+    padding:20px;
+    background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+    background-size: cover; /* 让背景图片充满容器 */
+    background-position: center; /* 居中显示背景图片 */
+    background-repeat: no-repeat; /* 禁止背景图片重复 */
     h1 {
       font-size: 2.5rem;
-      color: #333;
+      color: #0474de;
       margin: 0;
 
       i {
@@ -225,7 +261,7 @@ export default {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    margin-top: 20px;
+    // margin-top: 20px;
     height: 85vh;
 
     .left-section,

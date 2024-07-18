@@ -68,7 +68,7 @@ export default {
 <style scoped>
 .hexagon {
   fill: none;
-  stroke: black;
+  stroke: rgb(12, 12, 12);
   stroke-width: 0.03;
 }
 .data {
@@ -77,11 +77,13 @@ export default {
   stroke-width: 0.03;
 }
 .hexagon-line {
-  stroke: rgb(10, 9, 9);
+  stroke: rgb(53, 53, 53);
   stroke-width: 0.01;
 }
 .hexagon-label {
   font-size: 0.005em;
+  font-weight: bold;
   text-anchor: middle;
+  fill: rgb(21, 21, 21);
 }
 </style>

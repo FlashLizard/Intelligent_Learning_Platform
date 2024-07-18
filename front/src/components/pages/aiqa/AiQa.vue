@@ -1,13 +1,22 @@
 <template>
   <div class="container">
     <div class="header">
-      <h1 class="title">AI教育辅导</h1>
+      <h1 class="title"><i class="fas fa-book-open"></i>AI教育辅导</h1>
       <div class="back-button" @click="goBack">返回</div>
     </div>
     <div class="content">
       <div class="chat-box" ref="chatBox">
         <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-          <p>{{ message.text }}</p>
+          <p>
+            <span v-if="message.isUser">
+              <!-- User message with user icon -->
+              <i class="fas fa-user"></i> {{ message.text }}
+            </span>
+            <span v-else>
+              <!-- AI message with robot icon -->
+              <i class="fas fa-robot"></i> {{ message.text }}
+            </span>
+          </p>
         </div>
         <div v-if="thinking" class="message ai-thinking">
           <p>AI正在思考...</p>
@@ -23,6 +32,7 @@
       </div>
     </div>
     <div class="input-container">
+      <i class="fas fa-comment fa-lg"></i>
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
       <button class="send-button" @click="sendMessage">发送</button>
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
@@ -150,17 +160,22 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  height: 60px;
   padding: 10px;
   background-color: #aaffff;
   border-bottom: 1px solid #ccc;
   position: relative;
-  margin-top: 10px; /* 调整标题距离顶部的距离 */
+  margin-top: 0px; /* 调整标题距离顶部的距离 */
+  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+    background-size: cover; /* 让背景图片充满容器 */
+    background-position: center; /* 居中显示背景图片 */
+    background-repeat: no-repeat; /* 禁止背景图片重复 */
 }
 
 .title {
   font-size: 26px;
   font-weight: bold;
+  color: #0474de;
 }
 
 .back-button {
@@ -170,16 +185,16 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #080b0d;
+  color: #0474de;
   padding: 8px 12px; /* 添加内边距 */
-  border: 1px solid #080b0d; /* 添加边框 */
+  border: 1px solid #0474de; /* 添加边框 */
   border-radius: 5px; /* 添加圆角 */
   background-color: transparent; /* 使背景透明 */
   transition: all 0.3s ease; /* 添加过渡效果 */
 }
 
 .back-button:hover {
-  background-color: #080b0d; /* 鼠标悬停时改变背景颜色 */
+  background-color: #0474de; /* 鼠标悬停时改变背景颜色 */
   color: #fff; /* 鼠标悬停时改变文字颜色 */
 }
 
@@ -222,7 +237,7 @@ export default {
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 5px;
-  background-color: #fff;
+  background-color: #9be08f;
   max-width: 70%;
 }
 
@@ -250,6 +265,7 @@ export default {
 }
 
 .input-box {
+  margin-left: 2px;
   flex: 1;
   height: 40px;
   border: 1px solid #ccc;

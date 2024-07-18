@@ -22,8 +22,6 @@
         <div class="right-panel">
           <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
           <div class="button-container">
-            <button @click="viewQuestions">查看题目</button>
-            <button @click="saveResults">保存结果</button>
           </div>
         </div>
       </div>
@@ -40,8 +38,8 @@
     },
     data() {
       return {
-        userAbilities: [],
-        userLabels: [],
+        userAbilities: [50,50,50,50,50,50],
+        userLabels: ['分析','使用','思维','理论','计算','综合'],
         evaluationContent: '',
         shortcomingContent: '',
         suggestionContent: '',
@@ -58,7 +56,10 @@
           const scores = await db.getAll('score');
           
           this.userLabels = dimensions.map(dim => dim.dimension);
-          this.userAbilities = scores.map(score => score.score);        
+          // this.userAbilities = scores.map(score => score.score);        
+          this.userAbilities = scores.map(score => {
+            return score.score < 10 ? 10 : score.score;
+          });       
           if (evaluation) this.evaluationContent = evaluation.content;
           if (shortcoming) this.shortcomingContent = shortcoming.content;
           if (suggestion) this.suggestionContent = suggestion.content;
@@ -86,6 +87,29 @@
   </script>
   
   <style lang="scss">
+  .loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  margin-top: 10px;
+  text-align: center;
+}
   .evaluation-page {
     padding: 20px;
   

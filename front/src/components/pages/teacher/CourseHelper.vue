@@ -8,7 +8,7 @@
   </div>
   <div v-if="classtext" class="class-dialog">
     <div class="class-content summary-container">
-      <button class="close-button" @click="closeClassSummary">
+      <button class="sumclose-button" @click="closeClassSummary">
         <i class="fas fa-times"></i>
       </button>
       <h3>课堂概述</h3>
@@ -17,11 +17,12 @@
       </div>
     </div>
   </div>
-    <!-- 头部 -->
-    <header class="header">
-      <h1>课堂助手</h1>
-      <button class="back-button" @click="goBack">返回</button>
-    </header>
+    <div class="header-container">
+      <header class="header">
+        <h1><i class="fas fa-book-open"></i> 随堂助手</h1>
+        <button class="back-button" @click="goBack"><i class="fas fa-arrow-left"></i>返回</button>
+      </header>
+    </div>
 
     <!-- 主内容 -->
     <div class="content">
@@ -49,8 +50,8 @@
             <div class="section">
               <h2>点答器</h2>
               <div class="button-container">
-                <button @click="selectUploadFile">上传学生名单</button>
-                <button @click="randomSelectStudent">随机抽取学生</button>
+                <button @click="selectUploadFile"><i class="fas fa-file-upload"></i>上传学生名单</button>
+                <button @click="randomSelectStudent"><i class="fas fa-random"></i>随机抽取学生</button>
               </div>
               
               <!-- 隐藏的文件输入框 -->
@@ -62,11 +63,11 @@
                   <span class="DDclose" @click="closeDDModal">
                     <i class="fas fa-times"></i>
                   </span>
-                  <h2>学生名单</h2>
+                  <h2><i class="fas fa-book-open"></i> 学生名单</h2>
                   <ul class="student-list">
                     <li v-for="(student, index) in students" :key="index" :class="{ selected: index === selectedStudentIndex }">{{ student }}</li>
                   </ul>
-                  <button @click="startSelection">抽取学生</button>
+                  <button @click="startSelection" class="extract-button" ><i class="fas fa-check"></i>抽取学生</button>
                 </div>
               </div>
               <!-- 警告模态框 -->
@@ -76,7 +77,7 @@
                     <i class="fas fa-times"></i>
                   </span>
                   <p>学生名单为空，请先上传学生名单。</p>
-                  <button @click="closeDDAlertModal">确定</button>
+                  <button @click="closeDDAlertModal"><i class="fas fa-check"></i>确定</button>
                 </div>
               </div>
             </div>
@@ -84,7 +85,7 @@
             <div class="section">
               <h2>随堂测试</h2>
               <div class="button-container">
-                <button @click="openModal">AI生成题目</button>
+                <button @click="openModal"><i class="fas fa-pencil-alt"></i>AI生成题目</button>
               </div>
             </div>
           </div>
@@ -94,7 +95,14 @@
             <h2>AI教育辅导</h2>
             <div class="chat-box" ref="chatBox">
               <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-                <p>{{ message.text }}</p>
+                <p><span v-if="message.isUser">
+                    <!-- User message with user icon -->
+                    <i class="fas fa-user"></i> {{ message.text }}
+                  </span>
+                  <span v-else>
+                    <!-- AI message with robot icon -->
+                    <i class="fas fa-robot"></i> {{ message.text }}
+                  </span></p>
               </div>
             </div>
             <div class="input-container">
@@ -110,72 +118,55 @@
     <!-- 弹窗 -->
     <div class="modal" v-show="isModalVisible">
       <div class="modal-content">
-        <!-- 关闭按钮 -->
-        <button class="close-button" @click="closeModal">
-          <i class="fas fa-times"></i> <!-- 使用 Font Awesome 的关闭图标 -->
-        </button>
-        
-        <!-- 设置题目要求 -->
+        <button class="tmclose-button" @click="closeModal"><i class="fas fa-times"></i></button>
         <h3>设置题目要求</h3>
         <div class="input-group">
           <label>学科：</label>
-          <input type="text" v-model="questionRequirements.subject" />
+          <input type="text" class="input-field" v-model="questionRequirements.subject" />
         </div>
         <div class="input-group">
           <label>知识点：</label>
-          <input type="text" v-model="questionRequirements.topic" />
+          <input type="text" class="input-field" v-model="questionRequirements.topic" />
         </div>
         <div class="input-group">
           <label>其他要求：</label>
-          <input type="text" v-model="questionRequirements.other" />
+          <input type="text" class="input-field" v-model="questionRequirements.other" />
         </div>
-        <div class="input-group">
-          <label>是否依据课件生成题目：</label>
-          <div>
-            <button @click="selectOption(true)" :class="{ selected: questionRequirements.useClassContent === true }">是</button>
-            <button @click="selectOption(false)" :class="{ selected: questionRequirements.useClassContent === false }">否</button>
-          </div>
-        </div>
-        <button @click="generateQuestions">生成题目</button>
+        <button class="generate-button" @click="generateQuestions">生成题目</button>
       </div>
     </div>
     <!-- 加载中弹窗 -->
     <div v-if="loading" class="loading-dialog">
       <div class="loading-content">
-        <h2>题目生成中...</h2>
+        <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中,请稍等...</h2>
       </div>
     </div>
   </div>
+  
   <!-- 开始课堂 -->
-  <div class="modal" v-show="isStartClassModalVisible">
-    <div class="modal-content">
-      <button class="close-button" @click="closeStartClassModal">
-        <i class="fas fa-times"></i> <!-- 使用 Font Awesome 的关闭图标 -->
-      </button>
-      <h3>课堂信息</h3>
-      <div class="input-group">
-        <label>学科：</label>
-        <input type="text" v-model="questionRequirements.subject" />
-      </div>
-      <div class="input-group">
-        <label>课堂时间：</label>
-        <div class="time-options">
-          <button @click="selectTime(1)" :class="{ selected: questionRequirements.classTime === 30 }">30分钟</button>
-          <button @click="selectTime(45)" :class="{ selected: questionRequirements.classTime === 45 }">45分钟</button>
-          <button @click="selectTime(60)" :class="{ selected: questionRequirements.classTime === 60 }">60分钟</button>
-          <button @click="selectTime(120)" :class="{ selected: questionRequirements.classTime === 120 }">120分钟</button>
-        </div>
-      </div>
-      <div class="input-group">
-        <label>是否录音以生成课堂总结</label>
-        <div>
-          <button @click="selectOption(true)" :class="{ selected: questionRequirements.useClassContent === true }">是</button>
-          <button @click="selectOption(false)" :class="{ selected: questionRequirements.useClassContent === false }">否</button>
-        </div>
-      </div>
-      <button @click="confirmstartClass">开始上课</button>
+<div class="modal" v-show="isStartClassModalVisible">
+  <div class="ktmodal-content">
+    <!-- 关闭按钮 -->
+    <button class="ktclose-button" @click="closeStartClassModal">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3>课堂信息</h3>
+    <div class="ktinput-group">
+      <label>学科：</label>
+      <input type="text" v-model="questionRequirements.subject" />
     </div>
+    <div class="ktinput-group">
+      <label>课堂时间：</label>
+      <div class="kttime-options">
+        <button @click="selectTime(30)" :class="{ selected: questionRequirements.classTime === 30 }">30分钟</button>
+        <button @click="selectTime(45)" :class="{ selected: questionRequirements.classTime === 45 }">45分钟</button>
+        <button @click="selectTime(60)" :class="{ selected: questionRequirements.classTime === 60 }">60分钟</button>
+        <button @click="selectTime(120)" :class="{ selected: questionRequirements.classTime === 120 }">120分钟</button>
+      </div>
+    </div>
+    <ktbutton @click="confirmstartClass">开始上课</ktbutton>
   </div>
+</div>
 </template>
 
 <script>
@@ -499,7 +490,6 @@ export default {
       axios.post('/get_ClassTestProblems', requestData)
         .then((res) => {
           console.log("res.data['problems']:",(res.data)['problems']);
-          // Save the received questions to IndexedDB
           this.saveQuestionsToIndexedDB((res.data)['problems']);
           this.closeModal(); // Close modal after successful operation
         })
@@ -685,7 +675,15 @@ export default {
   height: 97vh;
 }
 
+.header-container {
+  width: 100%;
+  text-align: center; /* Center the content horizontally */
+}
 .header {
+  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -694,7 +692,10 @@ export default {
   border-bottom: 1px solid #ddd;
 
   h1 {
-    margin: 0;
+    text-align: center;
+    color: #0c78dc;
+    margin: 0px;
+    margin-left: 600px;
   }
 
   .back-button {
@@ -717,12 +718,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ffffff;
 
   button {
     padding: 0.5rem 1rem;
-    background-color: #28a745;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
@@ -730,6 +729,7 @@ export default {
   }
 
   span {
+    color:#1a50f3;
     font-size: 1.2rem;
     font-weight: bold;
   }
@@ -751,6 +751,11 @@ export default {
   margin: 10px;
   padding: 10px;
   position: relative;
+  background-color: #eaf0f6;
+  background-image: url('../../../assets/1.jpg'); /* 背景图片的路径 */
+    background-size: cover; /* 让背景图片充满容器 */
+    background-position: center; /* 居中显示背景图片 */
+    background-repeat: no-repeat; /* 禁止背景图片重复 */
 
   .loading-spinner {
     width: 50px;
@@ -762,8 +767,8 @@ export default {
   }
 
   canvas.video-canvas {
-    width: 70%;
-    height: 80%;
+    width: 90%;
+    height: 70%;
     border: 1px solid #000;
     display: block;
     z-index: 0;
@@ -900,7 +905,7 @@ export default {
       margin-bottom: 10px;
       padding: 10px;
       border-radius: 5px;
-      background-color: #fff;
+      background-color: #9be08f;
       max-width: 70%;
     }
 
@@ -934,7 +939,7 @@ export default {
   position: relative; /* Ensure relative positioning for child elements */
 }
 
-.close-button {
+.tmclose-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -1078,16 +1083,28 @@ export default {
   .student-list li {
     padding: 10px; /* 增加内边距 */
     text-align: center;
-    background-color: #f9f9f9; /* 修改背景颜色 */
+    background-color: #7596ea; /* 修改背景颜色 */
     border: 1px solid #ddd;
     border-radius: 5px; /* 增加圆角 */
     transition: background-color 0.3s ease; /* 添加过渡效果 */
   }
 
   .student-list li.selected {
-    background-color: #ffd700; /* 选择后的背景颜色，可以根据需要进行调整 */
+    background-color: #ebef10; /* 选择后的背景颜色，可以根据需要进行调整 */
+    color:#000
+  }
+  .extract-button {
+    background-color: #007bff; /* 设置按钮背景颜色 */
+    color: white; /* 设置按钮文字颜色 */
+    border: none; /* 去掉按钮边框 */
+    padding: 10px 20px; /* 设置按钮内边距 */
+    cursor: pointer; /* 设置鼠标悬停样式为手型 */
+    transition: background-color 0.3s ease; /* 添加过渡效果 */
   }
 
+  .extract-button:hover {
+    background-color: #0056b3; /* 设置鼠标悬停时的背景颜色 */
+  }
   .select-button {
     padding: 10px 20px;
     background-color: #007bff;
@@ -1193,7 +1210,7 @@ export default {
   padding: 5px 0;
 }
 
-.close-button {
+.sumclose-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -1203,11 +1220,73 @@ export default {
   cursor: pointer;
 }
 
-.close-button i {
-  color: #000;
+.sumclose-button i {
+  color: #f53030;
 }
 
 .close-button:hover i {
   color: #f00;
+}
+
+/* 开始课堂弹窗样式 */
+.ktmodal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  position: relative; /* Ensure relative positioning for child elements */
+}
+
+.ktclose-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ktclose-button i {
+  font-size: 1.2rem;
+}
+
+.ktinput-group {
+  margin-bottom: 1rem;
+}
+
+.ktinput-group label {
+  margin-right: 10px;
+}
+
+.ktinput-group input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.kttime-options button {
+  margin-right: 10px; /* Adjust spacing between buttons */
+}
+
+.kttime-options button:last-child {
+  margin-right: 0; /* Remove right margin from the last button */
+}
+
+ktbutton {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+ktbutton:hover {
+  background-color: #0056b3;
 }
 </style>

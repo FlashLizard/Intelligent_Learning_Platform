@@ -1,4 +1,20 @@
 <template>
+  
+  <div v-if="loading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 课件分析中...</h2>
+    </div>
+  </div>
+  <div v-if="pptloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> PPT生成中...</h2>
+    </div>
+  </div>
+  <div v-if="quesloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
+    </div>
+  </div>
   <!-- PPT生成弹窗 -->
   <div class="modal" v-show="isUploadModalVisible">
     <div class="modal-content">
@@ -23,7 +39,7 @@
       </button>
 
       <!-- 设置题目要求 -->
-      <h3>设置题目要求</h3>
+      <h3><i class="fas fa-book-open"></i> 设置题目要求</h3>
       <div class="input-group">
         <label>学科：</label>
         <input type="text" v-model="questionRequirements.subject" />
@@ -36,33 +52,26 @@
         <label>其他要求：</label>
         <input type="text" v-model="questionRequirements.other" />
       </div>
-      <div class="input-group">
-        <label>是否依据课件生成题目：</label>
-        <div>
-          <button @click="selectOption(true)" :class="{ selected: questionRequirements.useClassContent === true }">是</button>
-          <button @click="selectOption(false)" :class="{ selected: questionRequirements.useClassContent === false }">否</button>
-        </div>
-      </div>
-      <button @click="getDownloadProblems">下载试卷</button>
-    </div>
-  </div>
-
-  <!-- 加载中弹窗 -->
-  <div v-if="loading" class="loading-dialog">
-    <div class="loading-content">
-      <h2>AI思考中...</h2>
+      <button @click="getDownloadProblems"><i class="fas fa-book-open"></i> 下载试卷</button>
     </div>
   </div>
 
   <div class="container">
     <div class="header">
-      <h1 class="title">备课助手</h1>
-      <div class="back-button" @click="goBack">返回</div>
+      <h1 class="title"><i class="fas fa-chalkboard-teacher"></i>  备课助手</h1>
+      <div class="back-button" @click="goBack"> <i class="fas fa-arrow-left"></i></div>
     </div>
     <div class="content">
       <div class="chat-box" ref="chatBox">
         <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-          <p>{{ message.text }}</p>
+          <p><span v-if="message.isUser">
+              <!-- User message with user icon -->
+              <i class="fas fa-user"></i> {{ message.text }}
+            </span>
+            <span v-else>
+              <!-- AI message with robot icon -->
+              <i class="fas fa-robot"></i> {{ message.text }}
+            </span></p>
         </div>
         <div v-if="thinking" class="message ai-thinking">
           <p>AI正在思考...</p>
@@ -73,16 +82,16 @@
           <h2 class="sidebar-title">课件分析</h2>
           <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload" />
           <div class="button-group">
-            <button @click="isUploadModalVisible=true">上传课件</button>
-            <button @click="generatePPT">课件转PPT</button>
+            <button @click="isUploadModalVisible=true"><i class="fas fa-upload"></i>上传课件</button>
+            <button @click="generatePPT"><i class="fas fa-file-powerpoint"></i>课件转PPT</button>
           </div>
           <div class="file-analysis">
-            <h3>课件预览:</h3>
+            <h3><i class="fas fa-book-open"></i> 课件预览:</h3>
             <textarea v-if="fileContent" class="file-result" v-model="fileContent" readonly></textarea>
             <textarea v-else class="file-result" placeholder="课件预览" readonly></textarea>
           </div>
           <div class="file-analysis">
-            <h3>课件总结:</h3>
+            <h3><i class="fas fa-book-open"></i> 课件总结:</h3>
             <textarea v-if="fileSummary" class="file-result" v-model="fileSummary" readonly></textarea>
             <textarea v-else class="file-result" placeholder="课件总结" readonly></textarea>
           </div>
@@ -90,12 +99,13 @@
         <div class="sidebar-content">
           <h2 class="sidebar-title">智能出题</h2>
           <div class="button-group small-button">
-            <button @click="isModalVisible=true">AI生成题目</button>
+            <button @click="isModalVisible=true"><i class="fas fa-lightbulb"></i> AI生成题目</button>
           </div>
         </div>
       </div>
     </div>
     <div class="input-container">
+      <i class="fas fa-comment fa-lg"></i>
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
       <button class="send-button" @click="sendMessage">发送</button>
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
@@ -132,9 +142,20 @@ export default {
         useClassContent: false
       },
       loading: false, // 增加loading控制生成题目弹窗
+      quesloading:false,
+      pptloading:false,
     };
   },
   methods: {
+    selectOption(kejian) {
+      if(kejian == true){
+        if(this.fileSummary==''){
+          alert('请在“课件分析”中先上传课件');
+        }else{
+          this.questionRequirements.other = this.fileSummary;
+        }
+      }
+    },
     sendMessage() {
       if (this.inputValue.trim() === '') return;
       this.messages.push({ text: this.inputValue, isUser: true });
@@ -270,8 +291,8 @@ export default {
         };
         console.log(formData)
         try {
-          this.loading = true;
-
+          this.quesloading = true;
+          
           // 发送 POST 请求到后端获取试题文本
           const response = await axios.post('/get_downloadproblems', formData, {
             responseType: 'blob' // 响应类型为 Blob
@@ -295,11 +316,11 @@ export default {
           window.URL.revokeObjectURL(url);
 
           // 完成下载后，隐藏加载动画
-          this.loading = false;
+          this.quesloading = false;
         } catch (error) {
           console.error('Error:', error);
           // 处理错误情况
-          this.loading = false;
+          this.quesloading = false;
         }
       },
       async generatePPT() {
@@ -307,7 +328,7 @@ export default {
           alert("请先上传课件")
         }else{
         // 设置 loading 为 true，显示加载弹窗
-        this.loading = true;
+        this.pptloading = true;
 
         // 构建请求数据
         const requestData = {
@@ -332,10 +353,10 @@ export default {
           document.body.removeChild(link);
 
           // 下载完毕，设置 loading 为 false，隐藏加载弹窗
-          this.loading = false;
+          this.pptloading = false;
         } catch (error) {
           console.error('Error generating PPT:', error);
-          this.loading = false;
+          this.pptloading = false;
         }}
       },
   }
@@ -354,17 +375,22 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  height: 80px;
   padding: 10px;
-  background-color: #aaffff;
+  background-color: #f6f8f8;
   border-bottom: 1px solid #ccc;
   position: relative;
   margin-top: 10px;
+  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+    background-size: cover; /* 让背景图片充满容器 */
+    background-position: center; /* 居中显示背景图片 */
+    background-repeat: no-repeat; /* 禁止背景图片重复 */
 }
 
 .title {
   font-size: 26px;
   font-weight: bold;
+  color: #0474de;
 }
 
 .back-button {
@@ -374,16 +400,16 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #080b0d;
+  color: #f2f2f3;
   padding: 8px 12px;
-  border: 1px solid #080b0d;
+  border: 1px solid #1980c5;
   border-radius: 5px;
-  background-color: transparent;
+  background-color:  #007bff;
   transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  background-color: #080b0d;
+  background-color: #0056b3;
   color: #fff;
 }
 
@@ -397,6 +423,7 @@ export default {
   flex: 3;
   padding: 10px;
   overflow-y: scroll;
+  background-color: #eef8fa;
 }
 
 .sidebar {
@@ -418,6 +445,7 @@ export default {
 .button-group {
   display: flex;
   justify-content: space-between;
+  font-weight: bold;
 }
 
 .button-group.small-button {
@@ -451,6 +479,7 @@ export default {
 .file-analysis h3 {
   margin-bottom: 5px;
   font-size: 0.8em;
+  font-weight: bold;
 }
 
 .file-result {
@@ -466,7 +495,7 @@ export default {
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 5px;
-  background-color: #fff;
+  background-color: #9be08f;
   max-width: 70%;
 }
 
@@ -499,6 +528,7 @@ export default {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 5px;
+  margin-left: 2px;
 }
 
 .send-button {
@@ -594,6 +624,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
 .loading-content {

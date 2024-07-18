@@ -1,108 +1,140 @@
 <template>
-    <div class="translation-container">
-      <button class="back-button" @click="goBack">
-        <i class="fas fa-arrow-left"></i> 返回
-      </button>
-      <h1>AI翻译助手</h1>
-      <div class="switch-tabs">
-        <div
-          v-for="tab in tabs"
-          :key="tab"
-          :class="['tab', { active: activeTab === tab }]"
-          @click="setActiveTab(tab)"
-        >
-          {{ tab }}
-        </div>
+  <div v-if="imageloading" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-spinner fa-spin"></i> 图片解析中...</h2>
       </div>
-      <div class="button-container">
-        <button v-if="isTranslateTextTab" @click="translateText" class="translate-button">
-          <i class="fas fa-language"></i> 翻译
-        </button>
-        <label v-else-if="isTranslateImageTab || isTranslateAudioTab" class="upload-button">
+    </div>
+  <!-- Loading Dialog -->
+  <div v-if="loading" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-spinner fa-spin"></i> 翻译生成中...</h2>
+      </div>
+    </div>
+    <!-- Loading Dialog -->
+  <div v-if="yinpining" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-wave-square"></i> 音频解析中...</h2>
+      </div>
+    </div>
+    <div class="top-background">
+    <h1><i class="fas fa-book-open"></i> 即时翻译</h1>
+    <button class="back-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button>
+  </div>
+  <div class="translation-container">
+    <!-- <button class="back-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button>
+    <h1><i class="fas fa-book-open"></i>AI翻译助手</h1> -->
+    <div class="switch-tabs">
+      <div
+        v-for="tab in tabs"
+        :key="tab"
+        :class="['tab', { active: activeTab === tab }]"
+        @click="setActiveTab(tab)"
+      >
+        {{ tab }}
+      </div>
+    </div>
+    <div class="button-container">
+      <button v-if="isTranslateTextTab" @click="translateText" class="translate-button">
+        <i class="fas fa-language"></i> 翻译
+      </button>
+      <div v-else-if="isTranslateImageTab || isTranslateAudioTab" class="upload-translate-group">
+        <label class="upload-button">
           <i class="fas fa-upload"></i> 上传
           <input type="file" @change="uploadFile" class="file-input" />
         </label>
-        <button v-else-if="isTranslateSpeechTab" @click="toggleRecording" class="upload-button">
-          <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '录音' }}
+        <button @click="translateText" class="translate-button">
+          <i class="fas fa-language"></i> 翻译
         </button>
       </div>
-      <div class="translation-content">
-        <div v-if="isTranslateTextTab" class="left-pane">
-          <div class="input-container">
-            <div class="language-selector">
-              <button @click="toggleSourceLanguageMenu" class="language-button">
-                <i class="fas fa-globe"></i> {{ sourceLanguage }}
-              </button>
-              <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
-                <li @click="setSourceLanguage('中文')">中文</li>
-                <li @click="setSourceLanguage('英文')">英文</li>
-              </ul>
-            </div>
-            <textarea
-              v-model="textToTranslate"
-              placeholder="键入文本"
-              @keyup.enter="translateText"
-            ></textarea>
+      <div v-else-if="isTranslateSpeechTab" class="upload-translate-group">
+        <button @click="toggleRecording" class="upload-button" :class="{'orange-button': recording}">
+          <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '录音' }}
+        </button>
+        <button @click="translateText" class="translate-button">
+          <i class="fas fa-language"></i> 翻译
+        </button>
+      </div>
+    </div>
+    <div class="translation-content">
+      <div v-if="isTranslateTextTab" class="left-pane">
+        <div class="input-container">
+          <div class="language-selector">
+            <button @click="toggleSourceLanguageMenu" class="language-button">
+              <i class="fas fa-globe"></i> {{ sourceLanguage }}
+            </button>
+            <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
+              <li @click="setSourceLanguage('中文')">中文</li>
+              <li @click="setSourceLanguage('英文')">英文</li>
+            </ul>
           </div>
+          <textarea
+            v-model="textToTranslate"
+            placeholder="键入文本"
+            @keyup.enter="translateText"
+          ></textarea>
         </div>
-        <div v-else-if="isTranslateImageTab || isTranslateAudioTab" class="left-pane">
-          <div class="input-container">
-            <div class="language-selector">
-              <button @click="toggleSourceLanguageMenu" class="language-button">
-                <i class="fas fa-globe"></i> {{ sourceLanguage }}
-              </button>
-              <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
-                <li @click="setSourceLanguage('中文')">中文</li>
-                <li @click="setSourceLanguage('英文')">英文</li>
-              </ul>
-            </div>
-            <textarea
-              v-model="textToTranslate"
-              placeholder="请点击上传文件"
-              @keyup.enter="translateText"
-            ></textarea>
+      </div>
+      <div v-else-if="isTranslateImageTab || isTranslateAudioTab" class="left-pane">
+        <div class="input-container">
+          <div class="language-selector">
+            <button @click="toggleSourceLanguageMenu" class="language-button">
+              <i class="fas fa-globe"></i> {{ sourceLanguage }}
+            </button>
+            <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
+              <li @click="setSourceLanguage('中文')">中文</li>
+              <li @click="setSourceLanguage('英文')">英文</li>
+            </ul>
           </div>
+          <textarea
+            v-model="textToTranslate"
+            placeholder="请点击上传文件"
+            @keyup.enter="translateText"
+          ></textarea>
         </div>
-        <div v-else-if="isTranslateSpeechTab" class="left-pane">
-          <div class="input-container">
-            <div class="language-selector">
-              <button @click="toggleSourceLanguageMenu" class="language-button">
-                <i class="fas fa-globe"></i> {{ sourceLanguage }}
-              </button>
-              <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
-                <li @click="setSourceLanguage('中文')">中文</li>
-                <li @click="setSourceLanguage('英文')">英文</li>
-              </ul>
-            </div>
-            <textarea
-              v-model="textToTranslate"
-              placeholder="请点击录入语音"
-              @keyup.enter="translateText"
-            ></textarea>
+      </div>
+      <div v-else-if="isTranslateSpeechTab" class="left-pane">
+        <div class="input-container">
+          <div class="language-selector">
+            <button @click="toggleSourceLanguageMenu" class="language-button">
+              <i class="fas fa-globe"></i> {{ sourceLanguage }}
+            </button>
+            <ul v-if="showSourceLanguageMenu" class="dropdown-menu">
+              <li @click="setSourceLanguage('中文')">中文</li>
+              <li @click="setSourceLanguage('英文')">英文</li>
+            </ul>
           </div>
+          <textarea
+            v-model="textToTranslate"
+            placeholder="请点击录入语音"
+            @keyup.enter="translateText"
+          ></textarea>
         </div>
-        <div class="right-pane">
-          <div class="input-container">
-            <div class="language-selector">
-              <button @click="toggleTargetLanguageMenu" class="language-button">
-                <i class="fas fa-flag"></i> {{ targetLanguage }}
-              </button>
-              <ul v-if="showTargetLanguageMenu" class="dropdown-menu">
-                <li @click="setTargetLanguage('中文')">中文</li>
-                <li @click="setTargetLanguage('英文')">英文</li>
-              </ul>
-            </div>
-            <textarea
-              v-model="translationResult"
-              placeholder="翻译后"
-              readonly
-            ></textarea>
+      </div>
+      <div class="right-pane">
+        <div class="input-container">
+          <div class="language-selector">
+            <button @click="toggleTargetLanguageMenu" class="language-button">
+              <i class="fas fa-flag"></i> {{ targetLanguage }}
+            </button>
+            <ul v-if="showTargetLanguageMenu" class="dropdown-menu">
+              <li @click="setTargetLanguage('中文')">中文</li>
+              <li @click="setTargetLanguage('英文')">英文</li>
+            </ul>
           </div>
+          <textarea
+            v-model="translationResult"
+            placeholder="翻译后"
+            readonly
+          ></textarea>
         </div>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
   <script>
   import axios from 'axios';
   
@@ -119,6 +151,9 @@
         showSourceLanguageMenu: false,
         showTargetLanguageMenu: false,
         recording: false, // 新增录音状态
+        yinpining:false,
+        loading:false,
+        imageloading:false,
       };
     },
     computed: {
@@ -150,8 +185,10 @@
         };
         try {
           console.log(message);
+          this.loading = true;
           const response = await axios.post('/get_texttranslation', message);
           this.translationResult = response.data;
+          this.loading = false;
           console.log(response.data);
         } catch (error) {
           console.error('Error translating text:', error);
@@ -169,9 +206,11 @@
           switch (this.activeTab) {
             case '翻译图片':
               endpoint = '/get_imagetranslation';
+              this.imageloading = true;
               break;
             case '翻译音频':
               endpoint = '/get_audiotranslation';
+              this.yinpining = true;
               break;
             // Add more cases if needed
             default:
@@ -185,6 +224,8 @@
             }
           });
           this.textToTranslate = (response.data)['word'];
+          this.imageloading = false;
+          this.yinpining = false;
           this.$forceUpdate();
           console.log(this.textToTranslate);
         } catch (error) {
@@ -239,7 +280,7 @@
             this.mediaRecorder.stop();
             this.isRecording = false;
             console.log('结束录音');
-
+            this.yinpining = true;
             this.mediaRecorder.onstop = () => {
               const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
               this.audioChunks = [];
@@ -256,6 +297,7 @@
                 }
               })
               .then((res) => {
+                this.yinpining = false;
                 console.log(res.data);
                 this.textToTranslate = res.data.word; // Assuming the response contains translated text
                 this.translationResult = res.data.translation;
@@ -272,12 +314,27 @@
   </script>
   
   <style scoped>
+  .top-background {
+  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
+  height: 120px; /* 设置背景高度，根据需要调整 */
+  text-align: center;
+  padding-top: 20px;
+  h1 
+{
+      margin-top: 0;
+      padding: 10px;
+      color: #0474de; /* 将颜色设置为白色 */
+    }
+}
   .translation-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: 100vh;
+    height: 80vh;
     padding: 20px;
     background: #ffffff;
     text-align: center;
@@ -285,20 +342,20 @@
   }
   
   .back-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background: #007bff;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
+  position: absolute;
+  margin-top:20px;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
   .back-button:hover {
     background: #0056b3;
   }
@@ -434,7 +491,11 @@
     width: 100%;
     margin-bottom: 20px;
   }
-  
+  .upload-translate-group {
+    display: flex;
+    align-items: center;
+  }
+
   .translate-button,
   .upload-button {
     padding: 10px 20px;
@@ -448,7 +509,9 @@
     justify-content: center;
     gap: 10px;
     font-size: 1rem;
+    margin-left: 10px;
     transition: background 0.3s, transform 0.3s;
+
   }
   
   .translate-button:hover,
@@ -462,7 +525,45 @@
     transform: translateY(0);
   }
   
+  .orange-button {
+    background-color: orange;
+    color: white; 
+  }
+
   .file-input {
     display: none;
   }
+
+  .loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: waveAnimation 1s infinite linear; 
+}
+@keyframes waveAnimation {
+  0% {
+    transform: translateY(0); /* 初始位置 */
+  }
+  50% {
+    transform: translateY(-5px); /* 波动上升 */
+  }
+  100% {
+    transform: translateY(0); /* 回到初始位置 */
+  }
+}
   </style>

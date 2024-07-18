@@ -71,7 +71,8 @@ def upload_imagefile():
         file.save(os.path.join('img_2_words','image', filename))
         img_2_words_run()
         filename2 = "imageresult.txt"
-        filepath = os.path.join('img_2_words','image',filename2)
+        txtdir = os.path.join('img_2_words','image2wordresult')
+        filepath = os.path.join(txtdir,filename2)
         with open(filepath, "r") as f:
             content = f.read()
         # # TODO 前端询问，是否进行下一步操作：(将图片识别出的文字转化为ppt & 进行AI提炼 & 转化为音频)

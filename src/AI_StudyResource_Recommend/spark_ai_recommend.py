@@ -2,7 +2,7 @@
 import json
 
 from flask import jsonify
-
+import re
 from spark.SparkApi import SparkLLM
 import time
 import json5
@@ -50,15 +50,21 @@ def ai_recommend(limit: str, course_list: list):
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
 
     ans = llm.query(
-        "我的要求是：" + limit + "。请从下列课程中选择出最符合我要求的课程，注意，你需要返回一个python列表，每一项都是一个整数来表示课程列表中的第几项：" + contents.__str__())
-    print('ans:',ans)
-    string_list = ans.replace("'", '"')
+        "我的要求是：" + limit + "。请从下列课程中选择出最符合我要求的课程，注意，你需要返回一个python的列表，每一项都是一个整数来表示课程列表中的第几项：" + contents.__str__())
+    print('ans:',ans,type(ans))
+    # string_list = ans.replace("'", '"')
+    extracted_list_str = ans.split('[', 1)[-1].rsplit(']', 1)[0]
 
+    # 2. 将字符串分割为列表
+    split_result = extracted_list_str.split(', ')
+
+    # 3. 转换列表中的元素为整数
+    numresult_list = list(map(int, split_result))
     # 使用 json.loads 将字符串转换为列表
-    list = json.loads(string_list)
-    for a in list:
+    # list = json.loads(string_list)
+    for a in numresult_list:
         print(a)
-    x = [int(a)-1 for a in list]
+    x = numresult_list
     results = []
     for i in x:
         if 0 <= i < len(urls):

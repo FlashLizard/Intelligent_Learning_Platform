@@ -11,7 +11,6 @@ import TestHistory from '@/components/pages/tests/TestHistory.vue';
 import HexagonChart from '@/components/component/HexagonChart.vue';
 import SidebarMenu from '@/components/component/SidebarMenu.vue';
 import AiQa from '@/components/pages/aiqa/AiQa.vue';
-import VirtualTeacher from '@/components/pages/aiqa/VirtualTeacher.vue';
 import TeacherRecording from '@/components/pages/classrecord/TeacherRecording.vue';
 import ClassSelect from '@/components/pages/classrecord/ClassSelect.vue'
 import CourseHelper from '@/components/pages/teacher/CourseHelper.vue';
@@ -81,11 +80,6 @@ const routes = [
     path: '/aiqa',
     name: 'AiQa',
     component: AiQa,
-  },
-  {
-    path: '/virtualteacher',
-    name: 'VirtualTeacher',
-    component: VirtualTeacher,
   },
   {
     path: '/teacherrecording',

@@ -1,28 +1,78 @@
 <template>
   <div class="sidebar-menu">
-    <div class="app-title">智慧书苑</div>
+    <div class="app-title">讯飞智教</div>
     <ul>
-      <li @click="toggleMenu('home')">首页</li>
       
       <!-- 教师应用 -->
       <li>
-        <div @click="toggleMenu('teacherApplication')">教师应用</div>
+        <div @click="toggleMenu('teacherApplication')">
+          <i class="fas fa-chalkboard-teacher"></i> 教师应用
+        </div>
         <ul v-if="isActiveMenu('teacherApplication')" class="submenu">
-          <li @click="navigate('/pptgenerator')">PPT生成</li>
-          <li @click="navigate('/homeworkmanagement')">作业管理</li>
-          <li @click="navigate('/teacherrecording')">教师录课</li>
-          <li @click="navigate('/classselect')">课程观看</li>
+          <li>
+            <div @click="toggleMenu('teachingAssistant')">
+              <i :class="isActiveMenu('teachingAssistant') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 教学助手
+            </div>
+            <ul v-if="isActiveMenu('teachingAssistant')" class="submenu">
+              <li @click="navigate('/coursehelper')"><i class="fas fa-chalkboard"></i> 随堂助手</li>
+              <li @click="navigate('/homeworkmanagement')"><i class="fas fa-check-circle"></i> 背诵批改</li>
+              <li @click="navigate('/pptgenerator')"><i class="fas fa-file-powerpoint"></i> PPT生成</li>
+            </ul>
+          </li>
+          <li>
+            <div @click="toggleMenu('rapidPreparation')">
+              <i :class="isActiveMenu('rapidPreparation') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 迅捷备课
+            </div>
+            <ul v-if="isActiveMenu('rapidPreparation')" class="submenu">
+              <li @click="navigate('/teacherrecording')"><i class="fas fa-book-open"></i> 教师备课</li>
+              <li @click="navigate('/paperdownload')"><i class="fas fa-file-alt"></i> 智教出卷</li>
+            </ul>
+          </li>
+          <li>
+            <div @click="toggleMenu('smartQandA')">
+              <i :class="isActiveMenu('smartQandA') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 智能问答
+            </div>
+            <ul v-if="isActiveMenu('smartQandA')" class="submenu">
+              <li @click="navigate('/translationpage')"><i class="fas fa-language"></i> 即时翻译</li>
+              <li @click="navigate('/aiqa')"><i class="fas fa-info-circle"></i> 问答咨询</li>
+            </ul>
+          </li>
         </ul>
       </li>
 
       <!-- 学生应用 -->
       <li>
-        <div @click="toggleMenu('studentApplication')">学生应用</div>
+        <div @click="toggleMenu('studentApplication')">
+          <i class="fas fa-user-graduate"></i>学生应用
+        </div>
         <ul v-if="isActiveMenu('studentApplication')" class="submenu">
-          <li @click="navigate('/virtualperson')">虚拟人</li>
-          <li @click="navigate('/educationalconsulting')">教育咨询</li>
-          <li @click="navigate('/testhome')">开始测试</li>
-          <li @click="navigate('/evaluationpage')">测试历史</li>
+          <li>
+            <div @click="toggleMenu('onlineSelfTest')">
+              <i :class="isActiveMenu('onlineSelfTest') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 在线自测
+            </div>
+            <ul v-if="isActiveMenu('onlineSelfTest')" class="submenu">
+              <li @click="navigate('/testhome')"><i class="fas fa-play-circle"></i> 开始测试</li>
+              <li @click="navigate('/testhistory')"><i class="fas fa-history"></i> 测试历史</li>
+            </ul>
+          </li>
+          <li>
+            <div @click="toggleMenu('smartResources')">
+              <i :class="isActiveMenu('smartResources') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 智学资源
+            </div>
+            <ul v-if="isActiveMenu('smartResources')" class="submenu">
+              <li @click="navigate('/classselect')"><i class="fas fa-globe"></i> 环球网课</li>
+              <li @click="navigate('/paperdownload')"><i class="fas fa-file-alt"></i> 量身密卷</li>
+            </ul>
+          </li>
+          <li>
+            <div @click="toggleMenu('smartQandAStudent')">
+              <i :class="isActiveMenu('smartQandAStudent') ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i> 智能问答
+            </div>
+            <ul v-if="isActiveMenu('smartQandAStudent')" class="submenu">
+              <li @click="navigate('/translationpage')"><i class="fas fa-language"></i> 即时翻译</li>
+              <li @click="navigate('/aiqa')"><i class="fas fa-question-circle"></i> 智教解惑</li>
+            </ul>
+          </li>
         </ul>
       </li>
     </ul>
@@ -56,9 +106,9 @@ export default {
 
 <style scoped lang="scss">
 .sidebar-menu {
-  width: 200px;
-  background-color: #1a8dec;
-  color: white;
+  width: 250px;
+  background-color: #2c3e50;
+  color: #ecf0f1;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -69,7 +119,7 @@ export default {
     font-weight: bold;
     margin-bottom: 20px;
     text-align: center;
-    color: #fff;
+    color: #ecf0f1;
   }
 
   ul {
@@ -80,13 +130,13 @@ export default {
       padding: 10px 15px;
       margin: 5px 0;
       cursor: pointer;
-      background-color: #2a9df4;
+      background-color: #34495e;
       border-radius: 5px;
       transition: background-color 0.3s, color 0.3s, transform 0.3s;
       position: relative;
 
       &:hover {
-        background-color: #0056b3;
+        background-color: #3498db;
         color: #fff;
         transform: translateY(-2px);
       }
@@ -95,11 +145,11 @@ export default {
         margin-top: 10px;
 
         li {
-          background-color: #4fa3f7;
+          background-color: #2980b9;
           border-radius: 5px;
 
           &:hover {
-            background-color: #0056b3;
+            background-color: #3498db;
           }
         }
       }

@@ -177,21 +177,21 @@
     </button>
   </div>
   
-  <div v-if="isRecommendedDialogOpen" class="dialog">
-    <div class="dialog-content">
-      <h2 class="dialog-title">
+  <div v-if="isRecommendedDialogOpen" class="recdialog">
+    <div class="recdialog-content">
+      <h2 class="recdialog-title">
         推荐知识点
-        <button class="close-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
+        <button class="recclose-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
       </h2>
-      <div class="recommended-list">
-        <div class="recommended-column">
-          <label v-for="(subject) in recommendedSubjects" :key="subject" class="recommended-item">
+      <div class="recrecommended-list">
+        <div class="recrecommended-column">
+          <label v-for="(subject) in recommendedSubjects" :key="subject" class="recrecommended-item">
             <input type="checkbox" v-model="selectedRecommendedSubjects" :value="subject">
             {{ subject }}
           </label>
         </div>
       </div>
-      <button @click="addSelectedRecommendedSubjects" class="finish-selection-button">
+      <button @click="addSelectedRecommendedSubjects" class="recfinish-selection-button">
         <i class="fas fa-check"></i> 完成知识点选择
       </button>
     </div>
@@ -200,7 +200,7 @@
   <!-- 加载中弹窗 -->
   <div v-if="loading" class="loading-dialog">
     <div class="loading-content">
-      <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
+      <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中，请稍等...</h2>
     </div>
   </div>
 </template>
@@ -435,11 +435,13 @@ export default {
     async goTestPage() {
       this.loading = true;
       try {
+        const time = parseInt(this.timeValue, 10);
+        const difficultyValue  = parseInt(this.difficultyValue, 10);
         const response = await axios.post('/get_problems', {
             subjects: this.selectedSubjects,
-            time: this.timeValue,
+            time: time,
             min_difficulty: 0,
-            max_difficulty: this.difficultyValue,
+            max_difficulty: difficultyValue,
             type: ['single_choice', 'judgement', 'fillin'],
             others: this.otherInput,
           }).then((response) => {
@@ -793,5 +795,75 @@ h1 {
   background-color: #e68900;
   color: #fff;
   font-weight: bold;
+}
+
+.recdialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.recdialog-content {
+  width: 300px;
+  height: 300px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.recdialog-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: #007bff;
+}
+
+.recclose-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.recrecommended-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.recrecommended-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.recrecommended-item {
+  margin-bottom: 10px;
+}
+
+.recfinish-selection-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.3s;
+}
+
+.recfinish-selection-button:hover {
+  background-color: #0056b3;
 }
 </style>

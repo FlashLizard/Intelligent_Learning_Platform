@@ -1,7 +1,7 @@
 <template>
   <div class="self-test-history">
     <header class="header">
-      <h1>自测历史</h1>
+      <h1><i class="fas fa-book-open"></i> 自测历史</h1>
       <button class="back-button" @click="goBack">
         <i class="fas fa-arrow-left"></i>
       </button>
@@ -10,10 +10,10 @@
       <div class="scroll-panel">
         <div class="history-item title-row">
           <div class="item-info">
-            <span class="item-date">测试时间</span>
-            <span class="item-subject">测试学科</span>
-            <span class="item-topic">测试知识点</span>
-            <span class="item-score">测试评分</span>
+            <span class="item-date"><i class="fas fa-calendar-alt"></i> 测试时间</span>
+            <span class="item-subject"><i class="fas fa-book"></i> 测试学科</span>
+            <span class="item-topic"><i class="fas fa-lightbulb"></i> 测试知识点</span>
+            <span class="item-score"><i class="fas fa-star"></i> 测试评分</span>
           </div>
         </div>
         <div

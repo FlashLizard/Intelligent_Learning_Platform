@@ -5,6 +5,12 @@
         <h2><i class="fas fa-spinner fa-spin"></i> PPT生成中...</h2>
       </div>
     </div>
+    <!-- Loading Dialog -->
+  <div v-if="yinpining" class="loading-dialog">
+      <div class="loading-content">
+        <h2><i class="fas fa-wave-square"></i> 音频解析中...</h2>
+      </div>
+    </div>
   <!-- Theme Selection Dialog -->
   <div v-if="showDialog" class="theme-dialog">
     <div class="theme-dialog-content">
@@ -49,11 +55,18 @@
     </div>
   </div>
 
-  <div class="translation-container">
+  <!-- 页面顶部的图片背景 -->
+  <div class="top-background">
+    <h1><i class="fas fa-book-open"></i> PPT生成助手</h1>
     <button class="back-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
     </button>
-    <h1>PPT生成助手</h1>
+  </div>
+  <div class="translation-container">
+    <!-- <button class="back-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button> -->
+    <!-- <h1><i class="fas fa-book-open"></i> PPT生成助手</h1> -->
     <div class="switch-tabs">
       <div
         v-for="tab in tabs"
@@ -69,8 +82,8 @@
         <i class="fas fa-cloud-upload-alt"></i> 上传
         <input type="file" @change="uploadFile" class="file-input" />
       </label>
-      <button v-else-if="isTranslateSpeechTab" @click="toggleRecording" class="upload-button">
-        <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '录音' }}
+      <button v-else-if="isTranslateSpeechTab" @click="toggleRecording" class="upload-button" :class="{ 'orange-button': recording }">
+        <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '语音输入' }}
       </button>
       <button @click="showDialog = true" class="upload-ppt-button">
         <i class="fas fa-file-powerpoint"></i> PPT生成
@@ -156,6 +169,7 @@
         selectedTheme: 'auto', // 默认选择的主题
         notesOption: 1, // 默认选择的备注选项
         loading: false,
+        yinpining:false,
       };
     },
     computed: {
@@ -248,7 +262,7 @@
       async generatePPT() {
         // 设置 loading 为 true，显示加载弹窗
         this.loading = true;
-
+        this.showDialog = false;
         // 构建请求数据
         const requestData = {
           text: this.textToTranslate,
@@ -318,7 +332,7 @@
 
               // Stop all tracks of the media stream
               this.mediaStream.getTracks().forEach(track => track.stop());
-
+              this.yinpining = true;
               // Send audio to the backend
               axios.post('/get_speechppt', formData, {
                 headers: {
@@ -329,8 +343,10 @@
                 console.log(res.data);
                 this.textToTranslate = res.data.word; // Assuming the response contains translated text
                 this.tmptext = (res.data)['ans'];
+                this.yinpining = false;
               })
               .catch((err) => {
+                this.yinpining = false;
                 console.error(err);
               });
             };
@@ -344,12 +360,28 @@
   <style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+.top-background {
+  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
+  height: 90px; /* 设置背景高度，根据需要调整 */
+  text-align: center;
+  padding-top: 20px;
+  h1 
+{
+      margin-top: 0;
+      padding: 10px;
+      color: #0474de; /* 将颜色设置为白色 */
+    }
+}
 .translation-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 100vh;
+  height: 80vh;
   padding: 20px;
   background: #ffffff;
   text-align: center;
@@ -358,6 +390,7 @@
 
 .back-button {
   position: absolute;
+  margin-top:20px;
   top: 20px;
   right: 20px;
   padding: 10px 20px;
@@ -377,9 +410,9 @@
 
 h1 {
   font-size: 2.5rem;
-  margin-top: 40px;
+  margin-top: 0px;
   margin-bottom: 20px;
-  color: #333;
+  color: #0474de;
 }
 
 .switch-tabs {
@@ -507,7 +540,6 @@ textarea {
   margin-bottom: 20px;
   gap: 10px; /* 添加这个样式来增加按钮之间的间距 */
 }
-
 .translate-button,
 .upload-button,
 .upload-ppt-button { /* 包括新的上传PPT按钮 */
@@ -537,7 +569,11 @@ textarea {
 .upload-ppt-button:active { /* 包括新的上传PPT按钮 */
   transform: translateY(0);
 }
-
+.orange-button {
+  background-color: orange;
+  color: white; /* 文字颜色 */
+  /* 可以根据需要添加其他样式，如边框、阴影等 */
+}
 .file-input {
   display: none;
 }
@@ -666,5 +702,17 @@ textarea {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: waveAnimation 1s infinite linear; 
+}
+@keyframes waveAnimation {
+  0% {
+    transform: translateY(0); /* 初始位置 */
+  }
+  50% {
+    transform: translateY(-5px); /* 波动上升 */
+  }
+  100% {
+    transform: translateY(0); /* 回到初始位置 */
+  }
 }
 </style>

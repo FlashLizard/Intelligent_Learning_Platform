@@ -1,8 +1,8 @@
 <template>
   <div class="evaluation-page">
     <header>
-      <h1>测试评估</h1>
-      <button @click="goBack">返回</button>
+      <h1><i class="fas fa-star"></i>测试评估 </h1>
+      <button @click="goBack"><i class="fas fa-arrow-left"></i> 返回</button>
     </header>
     <div class="content">
       <div class="left-panel">
@@ -22,14 +22,18 @@
       <div class="right-panel">
         <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
         <div class="button-container">
-          <button @click="viewQuestions">查看题目</button>
-          <button @click="saveResults">保存结果</button>
+          <button @click="saveResults"><i class="fas fa-save"></i> 保存结果</button>
         </div>
       </div>
     </div>
   </div>
+  <!-- 加载中弹窗 -->
+  <div v-if="saving" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 测试结果保存中...</h2>
+    </div>
+  </div>
 </template>
-
 <script>
 import { openDB } from 'idb';
 import HexagonChart from '../../component/HexagonChart.vue';
@@ -41,11 +45,12 @@ export default {
   },
   data() {
     return {
-      userAbilities: [],
-      userLabels: [],
+      userAbilities: [50,50,50,50,50,50],
+      userLabels: ['分析','使用','思维','理论','计算','综合'],
       evaluationContent: '',
       shortcomingContent: '',
       suggestionContent: '',
+      saving:false,
     };
   },
   methods: {
@@ -55,11 +60,24 @@ export default {
         const evaluation = await db.get('evaluation', 1);
         const shortcoming = await db.get('shortcoming', 1);
         const suggestion = await db.get('suggestion', 1);
-        const dimensions = await db.getAll('dimension');
-        const scores = await db.getAll('score');
+        let dimensions = await db.getAll('dimension');
+        let scores = await db.getAll('score');
+        dimensions = dimensions.length > 6 ? dimensions.slice(0, 6) : dimensions;
+        scores = scores.length > 6 ? scores.slice(0, 6) : scores;
+        if (dimensions.length < 6 && scores.length < 6) {
+            for (let i = 0; i < dimensions.length; i++) {
+                this.userLabels[i] = dimensions[i].dimension;
+            }
+            for (let i = 0; i < scores.length; i++) {
+                this.userAbilities[i] = scores[i].score < 10 ? 10 : scores[i].score;
+            }
+        }else{
+          this.userLabels = dimensions.map(dim => dim.dimension);     
+          this.userAbilities = scores.map(score => {
+            return score.score < 10 ? 10 : score.score;
+          });
+        }
         
-        this.userLabels = dimensions.map(dim => dim.dimension);
-        this.userAbilities = scores.map(score => score.score);        
         if (evaluation) this.evaluationContent = evaluation.content;
         if (shortcoming) this.shortcomingContent = shortcoming.content;
         if (suggestion) this.suggestionContent = suggestion.content;
@@ -75,85 +93,89 @@ export default {
       console.log('查看题目');
     },
     async saveResults() {
-  try {
-    const problemsDB = await openDB('problemsDB', 1);
-    const db = await openDB('UserDatabase', 1);
-    const tx = db.transaction('users', 'readonly');
-    const store = tx.objectStore('users');
-    // Get all stored entries (assuming there's only one due to the clear operation)
-    const allUsers = await store.getAll();
-    await tx.done;
-    // Check if we have at least one user
-    const { userId } = allUsers[0]; // Get the first user's userId
-    console.log('Retrieved userId:', userId);
+      this.saving = true;
+      try {
+        const problemsDB = await openDB('problemsDB', 1);
+        const db = await openDB('UserDatabase', 1);
+        const tx = db.transaction('users', 'readonly');
+        const store = tx.objectStore('users');
+        // Get all stored entries (assuming there's only one due to the clear operation)
+        const allUsers = await store.getAll();
+        await tx.done;
+        // Check if we have at least one user
+        const { userId } = allUsers[0]; // Get the first user's userId
+        console.log('Retrieved userId:', userId);
 
-    const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
-    const fillinProblems = await problemsDB.getAll('fillin_problems');
-    const judgementProblems = await problemsDB.getAll('judgement_problems');
+        const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
+        const fillinProblems = await problemsDB.getAll('fillin_problems');
+        const judgementProblems = await problemsDB.getAll('judgement_problems');
 
-    const evaluation = await problemsDB.get('evaluation', 1);
-    const scores = await problemsDB.getAll('score');
+        const evaluation = await problemsDB.get('evaluation', 1);
+        const scores = await problemsDB.getAll('score');
 
-    const subjects = await problemsDB.getAll('subjects');
-    const knowledgePoints = await problemsDB.getAll('knowledge_points');
+        const subjects = await problemsDB.getAll('subjects');
+        const knowledgePoints = await problemsDB.getAll('knowledge_points');
 
-    const testName = subjects.map(subject => subject.name).join(', ');
-    const testSubjects = knowledgePoints.map(point => point.name).join(', ');
+        const testName = subjects.map(subject => subject.name).join(', ');
+        const testSubjects = knowledgePoints.map(point => point.name).join(', ');
 
-    const problems = [
-      ...singleChoiceProblems.map(p => ({
-        type: 'single_choice',
-        problem: p.problem,
-        choices: p.choices,
-        answer: p.answer,
-        analysis: p.analysis,
-      })),
-      ...fillinProblems.map(p => ({
-        type: 'fillin',
-        problem: p.problem,
-        answer: p.answer,
-        analysis: p.analysis,
-      })),
-      ...judgementProblems.map(p => ({
-        type: 'judgement',
-        problem: p.problem,
-        answer: p.answer,
-        analysis: p.analysis,
-      })),
-    ];
+        const problems = [
+          ...singleChoiceProblems.map(p => ({
+            type: 'single_choice',
+            problem: p.problem,
+            choices: p.choices,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+          ...fillinProblems.map(p => ({
+            type: 'fillin',
+            problem: p.problem,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+          ...judgementProblems.map(p => ({
+            type: 'judgement',
+            problem: p.problem,
+            answer: p.answer,
+            analysis: p.analysis,
+          })),
+        ];
 
-    const answers = [
-      ...singleChoiceProblems.map(p => p.doneanswer),
-      ...fillinProblems.map(p => p.doneanswer),
-      ...judgementProblems.map(p => p.doneanswer),
-    ];
+        const answers = [
+          ...singleChoiceProblems.map(p => p.doneanswer),
+          ...fillinProblems.map(p => p.doneanswer),
+          ...judgementProblems.map(p => p.doneanswer),
+        ];
 
-    const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
+        const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
 
-    const payload = {
-      user_id: userId,
-      test_name: testName,
-      test_subjects: testSubjects,
-      problems,
-      answers,
-      evaluation: evaluation.content,
-      test_score: testScore,
-    };
-    console.log('payload:',payload)
-    const response = await axios.post('/save_test', payload).then((res) => {
-      return res
-    });
+        const payload = {
+          user_id: userId,
+          test_name: testName,
+          test_subjects: testSubjects,
+          problems,
+          answers,
+          evaluation: evaluation.content,
+          test_score: testScore,
+        };
+        console.log('payload:',payload)
+        const response = await axios.post('/save_test', payload).then((res) => {
+          return res
+        });
 
-    const data = response.data;
-    if (data.status === 'success') {
-      console.log('测试结果保存成功:', data.test_id);
-    } else {
-      console.error('测试结果保存失败');
-    }
-  } catch (error) {
-    console.error('保存结果失败:', error);
-  }
-},
+        const data = response.data;
+        this.saving = false;
+        if (data.status === 'success') {
+          alert('测试结果保存成功!')
+          console.log('测试结果保存成功:', data.test_id);
+        } else {
+          alert('网络不畅，请重新保存')
+          console.error('测试结果保存失败');
+        }
+      } catch (error) {
+        console.error('保存结果失败:', error);
+      }
+    },
   },
   async mounted() {
     await this.loadDataFromIndexedDB();
@@ -162,6 +184,48 @@ export default {
 </script>
 
 <style lang="scss">
+header button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+header button i {
+  margin-right: 8px;
+}
+
+header button:hover {
+  background-color: #0056b3;
+}
+.loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  margin-top: 10px;
+  text-align: center;
+}
 .evaluation-page {
   padding: 20px;
 

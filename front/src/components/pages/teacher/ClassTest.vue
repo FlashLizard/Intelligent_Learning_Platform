@@ -1,76 +1,97 @@
 <template>
-    <div class="test-page">
-      <header>
-        <span class="title">测试</span>
-        <button class="return-button" @click="returnToPreviousPage">返回</button>
-      </header>
-      <main>
-        <aside class="sidebar">
-          <div class="timer-container">
-            <div class="time">考试时间：{{ formattedMinutes }}:{{ formattedSeconds }}</div>
-            <button @click="submitTest" class="submit-button"><i class="fas fa-paper-plane"></i>交卷</button>
+  <div class="test-page">
+    <header>
+      <span class="title">测试</span>
+      <button class="return-button" @click="returnToPreviousPage">
+        <i class="fas fa-arrow-left"></i> 返回
+      </button>
+    </header>
+    <main>
+      <aside class="sidebar">
+        <div class="timer-container">
+          <div class="time">
+            <i class="fas fa-clock"></i> 考试时间：{{ formattedMinutes }}:{{ formattedSeconds }}
           </div>
-          <div class="section" v-for="section in sections" :key="section.name">
-            <div class="section-title">{{ section.name }}</div>
-            <div class="question-status-container">
-              <div
-                class="question-status"
-                v-for="question in section.questions"
-                :key="question.id"
-                :class="{ 'done': isQuestionDone(section.name, question.id), 'not-done': !isQuestionDone(section.name, question.id) }"
-                @click="jumpToQuestion(section.name, question.id)"
-              >
-                {{ question.id }}
-              </div>
-            </div>
+          <button @click="submitTest" class="submit-button">
+            <i class="fas fa-paper-plane"></i> 交卷
+          </button>
+        </div>
+        <div class="section" v-for="section in sections" :key="section.name">
+          <div class="section-title">
+            <i class="fas fa-book"></i> {{ section.name }}
           </div>
-        </aside>
-        <div class="content">
-          <h2>{{ currentSection ? currentSection.name : '' }} 题 第{{ currentQuestionIndex + 1 }}题</h2>
-          <div v-if="currentQuestion" :key="currentQuestion.id">
-            <div v-if="currentSection && currentSection.name === '选择'" class="choice-question">
-              <div class="question-content">{{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}</div>
-              <div class="options">
-                <div v-for="(option, index) in currentQuestion.choices" :key="index" class="option" @click="selectOption(index)">
-                  <span>{{ index }}. {{ option }}</span>
-                  <span class="circle" :class="{ selected: this.selectedOption === index }"></span>
-                </div>
-              </div>
-            </div>
-            <div v-if="currentSection && currentSection.name === '填空'" class="fill-blank-question">
-              <div class="question-content">{{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}</div>
-              <input type="text" class="input-box" placeholder="请输入答案" v-model="filledAnswer" />
-            </div>
-            <div v-if="currentSection && currentSection.name === '判断'" class="judge-question">
-              <div class="question-content">{{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}</div>
-              <div class="options">
-                <div class="option" @click="selectOption(true)">
-                  <span>正确</span>
-                  <span class="circle" :class="{ selected: selectedOption === true }"></span>
-                </div>
-                <div class="option" @click="selectOption(false)">
-                  <span>错误</span>
-                  <span class="circle" :class="{ selected: selectedOption === false }"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="buttons">
-            <div class="navigation-buttons">
-              <button @click="previousQuestion">上一题</button>
-              <button @click="nextQuestion">下一题</button>
+          <div class="question-status-container">
+            <div
+              class="question-status"
+              v-for="question in section.questions"
+              :key="question.id"
+              :class="{ 'done': isQuestionDone(section.name, question.id), 'not-done': !isQuestionDone(section.name, question.id) }"
+              @click="jumpToQuestion(section.name, question.id)"
+            >
+              {{ question.id }}
             </div>
           </div>
         </div>
-      </main>
-      <!-- AI正在阅卷中...弹窗 -->
-      <div v-if="grading" class="grading-dialog">
-        <div class="grading-content">
-          <h2>AI正在阅卷中...</h2>
+      </aside>
+      <div class="content">
+        <h2>
+          <i class="fas fa-question-circle"></i>
+          {{ currentSection ? currentSection.name : '' }}题 第{{ currentQuestionIndex + 1 }}题
+        </h2>
+        <div v-if="currentQuestion" :key="currentQuestion.id">
+          <div v-if="currentSection && currentSection.name === '选择'" class="choice-question">
+            <div class="question-content">
+              {{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}
+            </div>
+            <div class="options">
+              <div v-for="(option, index) in currentQuestion.choices" :key="index" class="option" @click="selectOption(index)">
+                <span>{{ letterlist[index] }}. {{ option }}</span>
+                <span class="circle" :class="{ selected: this.selectedOption === index }"></span>
+              </div>
+            </div>
+          </div>
+          <div v-if="currentSection && currentSection.name === '填空'" class="fill-blank-question">
+            <div class="question-content">
+              {{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}
+            </div>
+            <input type="text" class="input-box" placeholder="请输入答案" v-model="filledAnswer" />
+          </div>
+          <div v-if="currentSection && currentSection.name === '判断'" class="judge-question">
+            <div class="question-content">
+              {{ currentQuestionIndex + 1 }}. {{ currentQuestionContent }}
+            </div>
+            <div class="options">
+              <div class="option" @click="selectOption(true)">
+                <span>A. 正确</span>
+                <span class="circle" :class="{ selected: selectedOption === true }"></span>
+              </div>
+              <div class="option" @click="selectOption(false)">
+                <span>B. 错误</span>
+                <span class="circle" :class="{ selected: selectedOption === false }"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="buttons">
+          <div class="navigation-buttons">
+            <button @click="previousQuestion">
+              <i class="fas fa-arrow-left"></i> 上一题
+            </button>
+            <button @click="nextQuestion">
+              下一题 <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
       </div>
+    </main>
+    <!-- AI正在阅卷中...弹窗 -->
+    <div v-if="grading" class="grading-dialog">
+      <div class="grading-content">
+        <h2><i class="fas fa-robot"></i> AI正在阅卷中...</h2>
+      </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
   import { openDB } from 'idb';
@@ -92,7 +113,8 @@
         selectedOption: null,
         filledAnswer: '',
         questionContents: {},
-        grading: false // 新增属性，控制“AI正在阅卷中...”弹窗显示
+        grading: false, // 新增属性，控制“AI正在阅卷中...”弹窗显示
+        letterlist:['A', 'B', 'C', 'D','E'],
       };
     },
     computed: {
@@ -195,6 +217,7 @@
         return false;
       },
       selectOption(option) {
+        console.log(this.letterlist[option])
         this.selectedOption = option;
         this.saveCurrentAnswer();
       },
@@ -296,7 +319,6 @@
             }
           }
           await transaction.done;
-          alert('测试已提交');
           this.$router.push('/classtestevaluation');
         } catch (error) {
           console.error('Failed to submit test:', error);

@@ -6,7 +6,7 @@
     <div class="main-content">
       <!-- Page Title -->
       <div class="page-title">
-        <h1>智慧书苑</h1>
+        <h1>讯飞智教</h1>
       </div>
 
       <!-- Application Switch Tabs -->
@@ -19,11 +19,11 @@
       <div v-if="activeTab === 'teacher'">
         <!-- Top Section: Teacher Assistant -->
         <div class="top-section">
-          <h2 class="section-title">教师助手</h2>
+          <h2 class="section-title">教学助手</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/coursehelper')">
               <i class="fas fa-book-open"></i>
-              <h3 class="button-title">课程记录</h3>
+              <h3 class="button-title">随堂助手</h3>
               <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
             </div>
             <div class="button" @click="handleClick('/homeworkmanagement')">
@@ -41,24 +41,7 @@
 
         <!-- Middle Section: Intelligent Q&A -->
         <div class="middle-section">
-          <h2 class="section-title">智能问答</h2>
-          <div class="button-container">
-            <div class="button" @click="handleClick('/translationpage')">
-              <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">中英翻译</h3>
-              <p class="button-description">随时为您提供翻译功能。</p>
-            </div>
-            <div class="button" @click="handleClick('/aiqa')">
-              <i class="fas fa-comments"></i>
-              <h3 class="button-title">教育咨询</h3>
-              <p class="button-description">获取教育相关的咨询和建议。</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Course Management Section -->
-        <div class="course-management-section">
-          <h2 class="section-title">课程管理</h2>
+          <h2 class="section-title">迅捷备课</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/teacherrecording')">
               <i class="fas fa-video"></i>
@@ -68,8 +51,25 @@
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">
               <i class="fas fa-download"></i>
-              <h3 class="button-title">AI出题</h3>
-              <p class="button-description">下载试卷以供学生练习。</p>
+              <h3 class="button-title">智教出卷</h3>
+              <p class="button-description">讯飞智教根据教学需求快速出卷。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Management Section -->
+        <div class="course-management-section">
+          <h2 class="section-title">智教问答</h2>
+          <div class="button-container">
+            <div class="button" @click="handleClick('/translationpage')">
+              <i class="fas fa-user-astronaut"></i>
+              <h3 class="button-title">即时翻译</h3>
+              <p class="button-description">讯飞智教随时为您提供翻译功能。</p>
+            </div>
+            <div class="button" @click="handleClick('/aiqa')">
+              <i class="fas fa-comments"></i>
+              <h3 class="button-title">问答咨询</h3>
+              <p class="button-description">获取教育相关的咨询和建议。</p>
             </div>
           </div>
         </div>
@@ -79,17 +79,17 @@
       <div v-if="activeTab === 'student'">
         <!-- Bottom Section: Online Testing -->
         <div class="bottom-section">
-          <h2 class="section-title">在线测试</h2>
+          <h2 class="section-title">在线自测</h2>
           <div class="button-container">
             <button class="button" @click="startTest" title="进入选择不同测试">
               <i class="fas fa-pencil-alt"></i>
               <h3 class="button-title">开始测试</h3>
-              <p class="button-description">选择不同的测试方式以开始测试。</p>
+              <p class="button-description">选择不同的测试要求以开始测试。</p>
             </button>
             <button class="button" @click="viewHistory" title="回顾最近的测试情况">
               <i class="fas fa-history"></i>
               <h3 class="button-title">测试历史</h3>
-              <p class="button-description">查看最近的测试情况和结果。</p>
+              <p class="button-description">查看在线测试的测试历史与结果。</p>
             </button>
           </div>
         </div>
@@ -100,13 +100,13 @@
           <div class="button-container">
             <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
-              <h3 class="button-title">中英翻译</h3>
-              <p class="button-description">随时为您提供翻译功能。</p>
+              <h3 class="button-title">即时翻译</h3>
+              <p class="button-description">讯飞智教随时为您提供翻译功能。</p>
             </div>
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
-              <h3 class="button-title">教育咨询</h3>
-              <p class="button-description">获取教育相关的咨询和建议。</p>
+              <h3 class="button-title">智教解惑</h3>
+              <p class="button-description">讯飞智教为学生答疑解惑。</p>
             </div>
           </div>
         </div>
@@ -114,18 +114,18 @@
         <!-- Course Learning Section -->
         <!-- Course Learning Section -->
         <div class="course-learning-section">
-          <h2 class="section-title">课程学习</h2>
+          <h2 class="section-title">智学资源</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/classselect')">
               <i class="fas fa-play-circle"></i>
-              <h3 class="button-title">课程观看</h3>
-              <p class="button-description">观看录制好的课程。</p>
+              <h3 class="button-title">环球网课</h3>
+              <p class="button-description">讯飞智教环球检索符合用户需求的网课。</p>
             </div>
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">
               <i class="fas fa-download"></i>
-              <h3 class="button-title">试卷下载</h3>
-              <p class="button-description">下载试卷以供复习。</p>
+              <h3 class="button-title">量身密卷</h3>
+              <p class="button-description">讯飞智教生成符合学生需求的试卷以供练习。</p>
             </div>
           </div>
         </div>
