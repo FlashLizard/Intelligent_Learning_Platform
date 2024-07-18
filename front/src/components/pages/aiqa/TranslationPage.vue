@@ -158,6 +158,7 @@
         imageloading:false,
         mediaRecorder: null,
         audioChunks: [],
+        stream: [],
       };
     },
     computed: {
@@ -265,6 +266,7 @@
           .then(stream => {
             this.mediaRecorder = new MediaRecorder(stream);
             this.mediaRecorder.start();
+            this.stream = stream; 
             this.recording = true;
 
             this.mediaRecorder.ondataavailable = event => {
@@ -304,11 +306,13 @@
         this.recording = false;
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();
+          this.mediaRecorder = null;
           this.isRecording = false;
 
           // Stop all tracks from the media stream
           if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null; 
           }
         }
       },
