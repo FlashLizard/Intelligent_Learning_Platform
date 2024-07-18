@@ -454,7 +454,7 @@ export default {
           this.loading = true;
 
           // 发送 POST 请求到后端获取试题文本
-          const response = await axios.post('http://localhost:5000/get_downloadproblems', formData, {
+          const response = await axios.post('/get_downloadproblems', formData, {
             responseType: 'blob' // 响应类型为 Blob
           });
 
