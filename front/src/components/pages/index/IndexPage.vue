@@ -24,17 +24,17 @@
             <div class="button" @click="handleClick('/coursehelper')">
               <i class="fas fa-book-open"></i>
               <h3 class="button-title">随堂助手</h3>
-              <p class="button-description">记录教师的课程信息，方便管理和回顾。</p>
+              <p class="button-description">在真实课堂中为教学带来便利。</p>
             </div>
             <div class="button" @click="handleClick('/homeworkmanagement')">
               <i class="fas fa-tasks"></i>
               <h3 class="button-title">背诵批改</h3>
-              <p class="button-description">管理学生的背诵作业，包括布置、查看和反馈。</p>
+              <p class="button-description">管理学生的背诵作业，快速计算学生的背诵准确率。</p>
             </div>
             <div class="button" @click="handleClick('/pptgenerator')">
               <i class="fas fa-chalkboard-teacher"></i>
               <h3 class="button-title">PPT生成</h3>
-              <p class="button-description">创建和编辑教学用的幻灯片，简化制作过程。</p>
+              <p class="button-description">创建和编辑教学幻灯片，简化制作过程。</p>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
             <div class="button" @click="handleClick('/teacherrecording')">
               <i class="fas fa-video"></i>
               <h3 class="button-title">教师备课</h3>
-              <p class="button-description">帮助教师轻松备课的AI助手。</p>
+              <p class="button-description">讯飞智教帮助教师轻松备课。</p>
             </div>
             <!-- 新增的试卷下载按钮 -->
             <div class="button" @click="handleClick('/paperdownload')">
@@ -69,7 +69,7 @@
             <div class="button" @click="handleClick('/aiqa')">
               <i class="fas fa-comments"></i>
               <h3 class="button-title">问答咨询</h3>
-              <p class="button-description">获取教育相关的咨询和建议。</p>
+              <p class="button-description">讯飞智教实时给出教育建议和答复。</p>
             </div>
           </div>
         </div>
@@ -84,7 +84,7 @@
             <button class="button" @click="startTest" title="进入选择不同测试">
               <i class="fas fa-pencil-alt"></i>
               <h3 class="button-title">开始测试</h3>
-              <p class="button-description">选择不同的测试要求以开始测试。</p>
+              <p class="button-description">生成个性化的测试题目。</p>
             </button>
             <button class="button" @click="viewHistory" title="回顾最近的测试情况">
               <i class="fas fa-history"></i>
