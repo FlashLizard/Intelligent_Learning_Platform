@@ -50,10 +50,10 @@
         <!-- <button @click="toggleRecording" class="upload-button" :class="{'orange-button': recording}">
           <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i> {{ recording ? '结束录音' : '录音' }}
         </button> -->
-        <button v-if="!recording" class="upload-button" onclick="startVoiceRecognition()">
+        <button v-if="!recording" class="upload-button" @click="startVoiceRecognition">
           <i id="startIcon" class="fas fa-microphone"></i> 录音
         </button>
-        <button v-else-if="recording" class="upload-button orange-button" onclick="stopVoiceRecognition()">
+        <button v-else-if="recording" class="upload-button orange-button" @click="stopVoiceRecognition">
           <i id="stopIcon" class="fas fa-stop"></i> 结束录音
         </button>
         <button @click="translateText" class="translate-button">
@@ -156,6 +156,8 @@
         yinpining:false,
         loading:false,
         imageloading:false,
+        mediaRecorder: null,
+        audioChunks: [],
       };
     },
     computed: {
@@ -253,6 +255,7 @@
         this.sourceLanguage = language === '中文' ? '英文' : '中文';
       },
       startVoiceRecognition() {
+        this.recording = true;
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           alert('您的浏览器不支持语音识别功能。');
           return;
@@ -262,7 +265,7 @@
           .then(stream => {
             this.mediaRecorder = new MediaRecorder(stream);
             this.mediaRecorder.start();
-            this.isRecording = true;
+            this.recording = true;
 
             this.mediaRecorder.ondataavailable = event => {
               this.audioChunks.push(event.data);
@@ -298,6 +301,7 @@
           });
       },
       stopVoiceRecognition() {
+        this.recording = false;
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();
           this.isRecording = false;
