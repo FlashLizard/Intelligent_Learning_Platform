@@ -96,7 +96,7 @@
         <button v-if="!isrecording" class="upload-button" @click="startVoiceRecognition">
           <i id="startIcon" class="fas fa-microphone"></i> 录音
         </button>
-        <button v-else-if="isrecording" class="upload-button orange-button" @click="stopVoiceRecognition">
+        <button v-if="isrecording" class="upload-button orange-button" @click="stopVoiceRecognition">
           <i id="stopIcon" class="fas fa-stop"></i> 结束录音
         </button>
       </div>
@@ -348,7 +348,7 @@
 
               // Display thinking message
               this.yinpining = true;
-
+              this.isRecording = false;
               // 向后端发送请求
               axios.post('/get_speechtranslation', formData, {
                 headers: {
@@ -356,25 +356,29 @@
                 }
               })
               .then((res) => {
+                this.isRecording = false;
                 this.yinpining= false;
                 this.textToTranslate = res.data.word; // Assuming the response contains translated text
               })
               .catch((err) => {
+                this.isRecording = false;
                 this.yinpining = false;
                 console.error(err);
               });
             };
           })
           .catch(error => {
+            this.isRecording = false;
             console.error('getUserMedia error:', error);
           });
       },
       stopVoiceRecognition() {
         this.recording = false;
+        this.isRecording = false;
+        this.$forceUpdate();
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();
           this.mediaRecorder = null;
-          this.isRecording = false;
 
           // Stop all tracks from the media stream
           if (this.stream) {

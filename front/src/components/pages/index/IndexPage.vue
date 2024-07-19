@@ -28,7 +28,7 @@
             </div>
             <div class="button" @click="handleClick('/homeworkmanagement')">
               <i class="fas fa-tasks"></i>
-              <h3 class="button-title">背诵批改</h3>
+              <h3 class="button-title">背诵速查</h3>
               <p class="button-description">管理学生的背诵作业，快速计算学生的背诵准确率。</p>
             </div>
             <div class="button" @click="handleClick('/pptgenerator')">
