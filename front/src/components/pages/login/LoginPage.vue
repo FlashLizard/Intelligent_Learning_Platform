@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-container">
-      <h1>讯飞智教</h1>
+      <h1>欢迎来到讯飞智教</h1>
       <form @submit.prevent="login">
         <div class="form-group">
           <label for="username">用户名</label>
@@ -79,7 +79,7 @@ export default {
           this.dialogMessage = '注册成功';
           const userId = response.data.user_id;
           await this.saveUserToIndexedDB(this.username, userId);
-          this.dialogVisible = true;
+          // this.dialogVisible = true;
         } else {
           this.dialogMessage = '注册失败: ' + response.data.msg;
           this.dialogVisible = true;
@@ -339,6 +339,8 @@ button:hover {
 }
 
 .dialog-content {
+  width:300px;
+  height:150px;
   background: white;
   padding: 20px;
   border-radius: 5px;
