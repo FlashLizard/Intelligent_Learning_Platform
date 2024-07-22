@@ -74,6 +74,10 @@ def get_database():
             user.commit()
         user.close()
         database = connect(database='ilp')
+    try:
+        cursor = database.cursor()
+    except:
+        database = connect(database='ilp')
     return database
 
 
