@@ -90,24 +90,6 @@
       </div>
       <!-- 星光特效 -->
       <!-- <div class="star-effect-container">
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-      </div>-->
-      <!-- <div class="star-effect-container">
         <div v-for="n in 16" :key="n" class="star" :ref="'star' + n"></div>
       </div> -->
     </main>
@@ -789,6 +771,27 @@ export default {
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+
+    h2 {
+      background-image: linear-gradient(90deg, #FF5733, #FFC300, #c9f774);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientAnimation 2s infinite;
+      background-size: 300%;
+    }
+  }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>
