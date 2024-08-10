@@ -2,6 +2,9 @@
   <div class="evaluation-page">
     <header>
       <h1><i class="fas fa-star"></i>测试评估 </h1>
+      <div class="stars">
+        <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
+      </div>
       <button @click="goBack"><i class="fas fa-arrow-left"></i> 返回</button>
     </header>
     <div class="content">
@@ -56,6 +59,24 @@ export default {
     };
   },
   methods: {
+    setTitleStarPositions() {
+      const positions = [
+        { top: '10px', left: '380px' },  
+        { top: '0px', left: '560px' }, 
+        { top: '20px', left: '750px' }, 
+        { top: '10px', left: '1100px' },
+        { top: '0px', left: '1250px' },
+        { top: '15px', left: '1410px' },
+      ];
+
+      for (let i = 1; i <= 6; i++) {
+        const starElement = this.$refs[`starTitle${i}`][0];
+        const position = positions[i - 1] || { top: '0px', left: '50%' };
+        starElement.style.top = position.top;
+        starElement.style.left = position.left;
+        starElement.style.transform = `translate(-50%, ${position.top})`;
+      }
+    },
     async loadDataFromIndexedDB() {
       try {
         const db = await openDB('problemsDB', 1);
@@ -180,6 +201,7 @@ export default {
     },
   },
   async mounted() {
+    this.setTitleStarPositions();
     await this.loadDataFromIndexedDB();
   },
 };
@@ -205,6 +227,50 @@ header button i {
 header button:hover {
   background-color: #0056b3;
 }
+
+header .stars {
+        position: absolute;
+        top: 0px; /* 调整星星的位置 */
+        left: 35%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        overflow: visible;
+
+        .star {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          filter: blur(4px);
+          animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+          clip-path: polygon(
+            50% 0%,
+            61% 35%,
+            98% 35%,
+            68% 57%,
+            79% 91%,
+            50% 70%,
+            21% 91%,
+            32% 57%,
+            2% 35%,
+            39% 35%
+          ); /* 五角星形状 */
+        }
+        @keyframes colorChange {
+          0% { background: red; }
+          16.66% { background: orange; }
+          33.33% { background: yellow; }
+          50% { background: green; }
+          66.66% { background: rgb(1, 235, 235); }
+          83.33% { background: blue; }
+          100% { background: purple; }
+        }
+      }
+
 .loading-dialog {
   position: fixed;
   top: 0;

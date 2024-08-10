@@ -107,9 +107,9 @@
         <div class="star"></div>
         <div class="star"></div>
       </div>-->
-      <div class="star-effect-container">
+      <!-- <div class="star-effect-container">
         <div v-for="n in 16" :key="n" class="star" :ref="'star' + n"></div>
-      </div>
+      </div> -->
     </main>
     <!-- AI正在阅卷中...弹窗 -->
     <div v-if="grading" class="grading-dialog">
@@ -446,8 +446,8 @@ export default {
     await this.loadQuestions();
     this.startTimer();
     this.restoreAnswer();
-    this.setStarPositions();
-    this.starPositionInterval = setInterval(this.setStarPositions, 2000);
+    // this.setStarPositions();
+    // this.starPositionInterval = setInterval(this.setStarPositions, 2000);
     this.setTitleStarPositions();
   },
   beforeUnmount() {
@@ -491,7 +491,7 @@ export default {
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        overflow: hidden;
+        overflow: visible;
 
         .star {
           position: absolute;
@@ -769,6 +769,26 @@ export default {
         border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
       }
     }
+  }
+}
+
+.grading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+
+  .grading-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
   }
 }
 </style>
