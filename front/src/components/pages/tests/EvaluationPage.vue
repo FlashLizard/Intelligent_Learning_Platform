@@ -22,6 +22,7 @@
       <div class="right-panel">
         <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
         <div class="button-container">
+          <button @click="viewQuestions"><i class="fas fa-save"></i> 查看答案</button>
           <button @click="saveResults"><i class="fas fa-save"></i> 保存结果</button>
         </div>
       </div>
@@ -34,6 +35,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import { openDB } from 'idb';
 import HexagonChart from '../../component/HexagonChart.vue';
@@ -239,6 +241,7 @@ header button:hover {
       margin: 0;
       flex: 1;
       text-align: center;
+      color: #0474de;
     }
 
     button {
@@ -281,35 +284,73 @@ header button:hover {
       }
     }
 
-    .right-panel {
-      width: 50%;
+    // .right-panel {
+    //   width: 50%;
+    //   display: flex;
+    //   flex-direction: column;
+    //   align-items: center;
+    //   justify-content: center;
+
+    //   .button-container {
+    //     margin-top: 20px;
+    //     display: flex;
+    //     justify-content: center;
+
+    //     button {
+    //       margin: 0 10px;
+    //       padding: 10px 20px;
+    //       cursor: pointer;
+    //       background-color: #3778e0;
+    //       color: white;
+    //       border: none;
+    //       border-radius: 5px;
+    //       transition: background-color 0.3s;
+
+    //       &:hover {
+    //         background-color: #584eec;
+    //       }
+    //     }
+    //   }
+    // }
+  }
+
+  .right-panel {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px; /* Add padding to ensure space around the hexagon chart */
+
+    hexagon-chart {
+      width: 50%; /* Ensure the chart takes full width */
+      height: 50%; /* Ensure the chart takes full height */
+      max-width: 500px; /* Set a maximum width for the chart */
+      max-height: 500px; /* Set a maximum height for the chart */
+    }
+
+    .button-container {
+      margin-top: 20px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
 
-      .button-container {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
+      button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #3778e0;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
 
-        button {
-          margin: 0 10px;
-          padding: 10px 20px;
-          cursor: pointer;
-          background-color: #3778e0;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          transition: background-color 0.3s;
-
-          &:hover {
-            background-color: #584eec;
-          }
+        &:hover {
+          background-color: #584eec;
         }
       }
     }
   }
+
 }
 </style>
 

@@ -32,7 +32,7 @@
               class="option"
               :class="{ 'selected': selectedOption === index, 'correct': isCorrectOption(index), 'incorrect': !isCorrectOption(index) && selectedOption === index }"
             >
-              <span>{{ index }}. {{ option }}</span>
+              <span>{{ convertToLetter(index) }}. {{ option }}</span>
               <span class="circle" :class="{ selected: selectedOption === index }"></span>
             </div>
           </div>
@@ -54,9 +54,17 @@
             </div>
           </div>
         </div>
-        <div v-if="currentQuestionContent" class="result-details">
-          <div>作答结果: {{ currentQuestionContent.doneanswer }}</div>
+        <div v-if="currentSection.name === '选择' && currentQuestionContent" class="result-details">
+          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
+          <div>正确答案: {{ convertToLetter(currentQuestionContent.answer[0]) }}</div>
+        </div>
+        <div v-if="currentSection.name === '判断' && currentQuestionContent" class="result-details">
+          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
           <div>正确答案: {{ currentQuestionContent.answer }}</div>
+        </div>
+        <div v-if="currentSection.name === '填空' && currentQuestionContent" class="result-details">
+          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
+          <div>正确答案: {{ (currentQuestionContent.answer)[0] }}</div>
         </div>
         <div v-if="currentQuestionContent" class="explanation">
           <h3>解析</h3>
@@ -95,7 +103,8 @@ export default {
       return this.currentSection.questions[this.currentQuestion - 1] || null;
     },
     correctAnswer() {
-      return this.currentQuestionContent?.answer || null;
+      const answer = this.currentQuestionContent?.answer || null;
+      return Array.isArray(answer) ? answer : [answer];
     }
   },
   methods: {
@@ -110,7 +119,7 @@ export default {
         this.sections[2].questions = judgementQuestions;
 
         this.currentSection = this.sections[0];
-        this.restoreAnswer();
+        //this.restoreAnswer();
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -140,20 +149,26 @@ export default {
     jumpToQuestion(sectionName, questionNumber) {
       this.currentSection = this.sections.find((section) => section.name === sectionName);
       this.currentQuestion = questionNumber;
-      this.restoreAnswer();
+      //this.restoreAnswer();
     },
-    restoreAnswer() {
-      const answer = this.currentSection.answers[this.currentQuestion];
-      if (this.currentSection.name === '选择') {
-        this.selectedOption = answer !== undefined ? answer : null;
-      } else if (this.currentSection.name === '填空') {
-        this.filledAnswer = answer !== undefined ? answer : '';
-      } else if (this.currentSection.name === '判断') {
-        this.selectedOption = answer !== undefined ? answer : null;
-      }
-    },
+    // restoreAnswer() {
+    //   const answer = this.currentSection.answers[this.currentQuestion];
+    //   if (this.currentSection.name === '选择') {
+    //     this.selectedOption = answer !== undefined ? answer : null;
+    //   } else if (this.currentSection.name === '填空') {
+    //     this.filledAnswer = answer !== undefined ? answer : '';
+    //   } else if (this.currentSection.name === '判断') {
+    //     this.selectedOption = answer !== undefined ? answer : null;
+    //   }
+    // },
     isAnswerCorrect(section, index) {
       const question = section.questions[index];
+      if(question.doneanswer===''){
+        return false;
+      }
+      if(section.name === '选择' || section.name === '填空'){
+        return question.doneanswer === (question.answer)[0];
+      }
       return question.doneanswer === question.answer;
     },
     isCorrectOption(index) {
@@ -168,15 +183,46 @@ export default {
     previousQuestion() {
       if (this.currentQuestion > 1) {
         this.currentQuestion--;
-        this.restoreAnswer();
+      } else {
+        const currentSectionIndex = this.sections.indexOf(this.currentSection);
+        if (currentSectionIndex > 0) {
+          this.currentSection = this.sections[currentSectionIndex - 1];
+          this.currentQuestion = this.currentSection.questions.length ;
+        }
       }
+      // this.restoreAnswer();
     },
     nextQuestion() {
-      if (this.currentQuestion < this.currentSection.questions.length) {
+      if (this.currentSection && this.currentQuestion < this.currentSection.questions.length) {
         this.currentQuestion++;
-        this.restoreAnswer();
+      } else {
+        const currentSectionIndex = this.sections.indexOf(this.currentSection);
+        if (currentSectionIndex < this.sections.length - 1) {
+          this.currentSection = this.sections[currentSectionIndex + 1];
+          this.currentQuestion = 1;
+        }
       }
-    }
+      // this.restoreAnswer();
+    },
+    dealDoneAnswer(ans) {
+      // console.log(this.currentSection.name,this.currentQuestion,ans)
+      if(ans === ""){
+        return '未作答';
+      }
+      if(Array.isArray(ans)){
+        if(this.currentSection.name==='选择'){
+          return this.convertToLetter(ans);
+        }
+        return ans[0];
+      }
+      if(this.currentSection.name==='选择'){
+        return this.convertToLetter(ans);
+      }
+      return ans;
+    },
+    convertToLetter(ans) {
+      return String.fromCharCode(65 + ans); // Convert 0, 1, 2, ... to A, B, C, ...
+    },
   },
   mounted() {
     this.fetchData();

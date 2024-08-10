@@ -4,10 +4,18 @@
       <polygon :points="points" class="hexagon" />
       <polygon :points="dataPoints" class="data" />
       <line v-for="(line, index) in hexagonLines" :key="index" :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2" class="hexagon-line" />
-      <text v-for="(point, index) in labelPoints" :key="'label' + index" :x="point.x" :y="point.y" class="hexagon-label">{{ labels[index] }}</text>
+      <template v-for="(point, index) in labelPoints" :key="'label' + index">
+        <text v-if="isVerticalLabel(index)" :x="point.x" :y="point.y" :transform="'rotate(45 ' + (point.x+0.3) + ' ' + (point.y+0.13) + ')'" class="hexagon-label vertical-label">
+          <tspan v-for="(char, charIndex) in labels[index].split('')" :key="charIndex" x="x" dy="1em">{{ char }}</tspan>
+        </text>
+        <text v-else :x="point.x" :y="point.y" class="hexagon-label">
+          {{ labels[index] }}
+        </text>
+      </template>
     </svg>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -34,7 +42,7 @@ export default {
     labelPoints() {
       return this.generateHexagonPoints(1.1).map(point => {
         const [x, y] = point.split(',').map(Number);
-        return { x, y:y+0.04 };
+        return { x, y: y + 0.04 };
       });
     },
   },
@@ -61,6 +69,9 @@ export default {
       }
       return lines;
     },
+    isVerticalLabel(index) {
+      return index === 0 || index === 3;
+    },
   },
 };
 </script>
@@ -85,5 +96,8 @@ export default {
   font-weight: bold;
   text-anchor: middle;
   fill: rgb(21, 21, 21);
+}
+.vertical-label tspan {
+  display: block;
 }
 </style>

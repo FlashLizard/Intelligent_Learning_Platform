@@ -1,7 +1,12 @@
 <template>
   <div class="test-page">
     <header>
-      <span class="title">测试</span>
+      <span class="title"><i class="fas fa-pencil-alt"></i> 测试
+        <div class="stars">
+          <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
+        </div>
+      </span>
+      <!-- 星星装饰 -->
       <button class="return-button" @click="returnToPreviousPage">
         <i class="fas fa-arrow-left"></i> 返回
       </button>
@@ -45,7 +50,7 @@
             </div>
             <div class="options">
               <div v-for="(option, index) in currentQuestion.choices" :key="index" class="option" @click="selectOption(index)">
-                <span>{{ letterlist[index] }}. {{ option }}</span>
+                <span> {{" "}} {{ letterlist[index] }}. {{ option }} </span>
                 <span class="circle" :class="{ selected: this.selectedOption === index }"></span>
               </div>
             </div>
@@ -83,6 +88,28 @@
           </div>
         </div>
       </div>
+      <!-- 星光特效 -->
+      <!-- <div class="star-effect-container">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+      </div>-->
+      <div class="star-effect-container">
+        <div v-for="n in 16" :key="n" class="star" :ref="'star' + n"></div>
+      </div>
     </main>
     <!-- AI正在阅卷中...弹窗 -->
     <div v-if="grading" class="grading-dialog">
@@ -92,6 +119,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script>
 import { openDB } from 'idb';
@@ -138,6 +167,82 @@ export default {
     }
   },
   methods: {
+    setTitleStarPositions() {
+    const positions = [
+      { top: '20px', left: '200px' },  
+      { top: '35px', left: '400px' }, 
+      { top: '10px', left: '600px' }, 
+      { top: '30px', left: '1000px' },
+      { top: '10px', left: '1200px' },
+      { top: '35px', left: '1400px' },
+    ];
+
+    for (let i = 1; i <= 6; i++) {
+      const starElement = this.$refs[`starTitle${i}`][0];
+      const position = positions[i - 1] || { top: '0px', left: '50%' };
+      starElement.style.top = position.top;
+      starElement.style.left = position.left;
+      starElement.style.transform = `translate(-50%, ${position.top})`;
+    }
+  },
+    setStarPositions() {
+      const positions = [
+        { top: '0px', right: '0px' },       // 1
+        { bottom: '0px', right: '0px' },    // 2
+        { top: '0px', left: '0px' },        // 3
+        { bottom: '0px', left: '0px' },     // 4
+        { top: '220px', right: '0px' },     // 5
+        { top: '450px', right: '0px' },     // 6
+        { top: '220px', left: '0px' },      // 7
+        { top: '450px', left: '0px' },      // 8
+        { bottom: '0px', right: '300px' },  // 9
+        { bottom: '0px', right: '600px' },  // 10
+        { bottom: '0px', right: '900px' },  // 11
+        { bottom: '0px', right: '1200px' }, // 12
+        { top: '0px', right: '300px' },     // 13
+        { top: '0px', right: '600px' },     // 14
+        { top: '0px', right: '900px' },     // 15
+        { top: '0px', right: '1200px' },    // 16
+      ];
+
+      // 先处理编号为奇数的星星
+      for (let i = 1; i <= 16; i += 2) {
+        const starElement = this.$refs[`star${i}`][0];
+        const position = positions[i - 1]; // 奇数编号的星星对应的索引
+
+        if (position.top !== undefined) {
+          starElement.style.top = position.top;
+        }
+        if (position.bottom !== undefined) {
+          starElement.style.bottom = position.bottom;
+        }
+        if (position.left !== undefined) {
+          starElement.style.left = position.left;
+        }
+        if (position.right !== undefined) {
+          starElement.style.right = position.right;
+        }
+      }
+
+      // 再处理编号为偶数的星星
+      for (let i = 2; i <= 16; i += 2) {
+        const starElement = this.$refs[`star${i}`][0];
+        const position = positions[i-1]; // 偶数编号的星星对应的索引（从第9个位置开始）
+
+        if (position.top !== undefined) {
+          starElement.style.top = position.top;
+        }
+        if (position.bottom !== undefined) {
+          starElement.style.bottom = position.bottom;
+        }
+        if (position.left !== undefined) {
+          starElement.style.left = position.left;
+        }
+        if (position.right !== undefined) {
+          starElement.style.right = position.right;
+        }
+      }
+    },
     async loadQuestions() {
       try {
         const db = await openDB('problemsDB', 1);
@@ -316,7 +421,7 @@ export default {
           }
         }
         await transaction.done;
-        alert('测试已提交');
+        // alert('测试已提交');
         this.$router.push('/evaluationpage');
       } catch (error) {
         console.error('Failed to submit test:', error);
@@ -341,9 +446,13 @@ export default {
     await this.loadQuestions();
     this.startTimer();
     this.restoreAnswer();
+    this.setStarPositions();
+    this.starPositionInterval = setInterval(this.setStarPositions, 2000);
+    this.setTitleStarPositions();
   },
   beforeUnmount() {
     clearInterval(this.timer);
+    clearInterval(this.starPositionInterval);
   }
 };
 </script>
@@ -352,7 +461,7 @@ export default {
 .test-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 97vh;
 
   header {
     display: flex;
@@ -361,13 +470,58 @@ export default {
     padding: 10px;
     background-color: #f8f8f8;
     border-bottom: 1px solid #ddd;
+    position:relative;
 
     .title {
+      color:#1d8ade;
       flex: 1;
       text-align: center;
       font-size: 2em;
       font-weight: bolder;
     }
+
+    .stars {
+        position: absolute;
+        top: 0px; /* 调整星星的位置 */
+        left: 45%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        overflow: hidden;
+
+        .star {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          filter: blur(4px);
+          animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+          clip-path: polygon(
+            50% 0%,
+            61% 35%,
+            98% 35%,
+            68% 57%,
+            79% 91%,
+            50% 70%,
+            21% 91%,
+            32% 57%,
+            2% 35%,
+            39% 35%
+          ); /* 五角星形状 */
+        }
+        @keyframes colorChange {
+          0% { background: red; }
+          16.66% { background: orange; }
+          33.33% { background: yellow; }
+          50% { background: green; }
+          66.66% { background: rgb(1, 235, 235); }
+          83.33% { background: blue; }
+          100% { background: purple; }
+        }
+      }
 
     .return-button {
       padding: 10px 10px;
@@ -383,12 +537,17 @@ export default {
   main {
     display: flex;
     flex: 1;
-
+    position: relative; /* 为星光特效设置定位上下文 */
     .sidebar {
       width: 20%;
       padding: 20px;
       background-color: #f0f0f0;
-      border-right: 1px solid #ddd;
+      border-top: 3px solid transparent; 
+      border-left: 3px solid transparent; 
+      border-bottom: 3px solid transparent; /* 设置边框宽度和透明色作为基础 */
+      border-right: 3px solid transparent;
+      border-radius: 5px; /* 可选: 为边框添加圆角 */
+      animation: border-rotation 5s linear infinite; /* 使用CSS动画 */
       overflow-y: auto;
 
       .timer-container {
@@ -399,6 +558,8 @@ export default {
         .time {
           margin-bottom: 10px; /* 增加时间显示和按钮之间的间距 */
           font-weight: bold;
+          font-size: 1.5em;
+          color:#3f62ee;
         }
 
         .submit-button {
@@ -408,7 +569,7 @@ export default {
           padding: 10px 20px;
           font-size: 1em;
           cursor: pointer;
-          background-color: #28a745;
+          background-color: #1d8ade;
           color: #fff;
           border: none;
           border-radius: 5px;
@@ -417,7 +578,7 @@ export default {
             margin-right: 5px; /* 图标和文字之间的间距 */
           }
           &:hover {
-            background-color: #218838;
+            background-color: #0d75c4;
           }
         }
       }
@@ -425,6 +586,7 @@ export default {
       .section-title {
         font-weight: bold;
         margin-bottom: 10px;
+        color:#3f62ee;
       }
 
       .question-status-container {
@@ -459,18 +621,24 @@ export default {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      border: 3px solid transparent; /* 设置边框宽度和透明色作为基础 */
+      border-radius: 5px; /* 可选: 为边框添加圆角 */
+      animation: border-rotation 5s linear infinite; /* 使用CSS动画 */
+      position: relative; /* 为星光特效设置定位上下文 */
 
       h2 {
-        font-size: 1.5em;
+        font-size: 2.0em;
         margin-bottom: 20px;
+        color: #2389d7;
       }
 
       .question-content {
-        font-size: 1.2em;
+        font-size: 1.6em;
         margin-bottom: 10px;
       }
 
       .options {
+        font-size: 1.3em;
         display: flex;
         flex-direction: column;
 
@@ -509,41 +677,98 @@ export default {
         margin-top: 20px;
 
         .navigation-buttons {
-          display: flex;
-          justify-content: space-between;
-        }
+          display: inline-flex; /* 使用 inline-flex */
+          justify-content: center; /* 中间对齐 */
 
-        button {
-          padding: 10px 20px;
-          font-size: 1em;
-          cursor: pointer;
-          background-color: #1d8ade;
-          color: #fff;
-          border: none;
-          border-radius: 5px;
+          button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #1d8ade;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin: 0 5px; /* 左右各添加5px的间距 */
+          }
         }
       }
     }
-  }
-}
 
-.grading-dialog {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    /* 星光特效 */
+    .star-effect-container {
+      position: absolute;
+      top: -10px;
+      right: 0; /* Set container to the right */
+      width: 100%;
+      height: 103%;
+      pointer-events: none;
+      overflow: hidden;
+      display: flex;
+      justify-content: flex-end; /* Align stars to the right */
+      align-items: center;
+      border-radius: 5px;
+      z-index: 9999;
+    }
 
-  .grading-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
+    .star {
+      z-index: 9999;
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: radial-gradient(circle, rgba(4, 158, 254, 1) 0%, rgba(0, 255, 255, 0) 70%);
+      filter: blur(4px);
+      animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+      clip-path: polygon(
+        50% 0%,
+        61% 35%,
+        98% 35%,
+        68% 57%,
+        79% 91%,
+        50% 70%,
+        21% 91%,
+        32% 57%,
+        2% 35%,
+        39% 35%
+      ); /* 五角星形状 */
+    }
+
+    @keyframes sparkle {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+      }
+    }
+    @keyframes colorChange {
+      0% { background: red; }
+      16.66% { background: orange; }
+      33.33% { background: yellow; }
+      50% { background: green; }
+      66.66% { background: rgb(1, 235, 235); }
+      83.33% { background: blue; }
+      100% { background: purple; }
+    }
+
+    @keyframes border-rotation {
+      0% {
+        border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      25% {
+        border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      50% {
+        border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      75% {
+        border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      100% {
+        border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+    }
   }
 }
 </style>

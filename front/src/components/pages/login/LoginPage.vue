@@ -13,7 +13,7 @@
         </div>
         <div class="button-group">
           <button type="submit" class="animated-button">登录</button>
-          <button @click="register" class="animated-button register-button">注册</button>
+          <button type="button" @click="register" class="animated-button register-button">注册</button>
         </div>
       </form>
       <!-- 自定义弹窗 -->
@@ -43,14 +43,17 @@ export default {
   },
   methods: {
     async login() {
+      console.log('Into login')
+      // this.$router.push('/index');
       try {
         const response = await axios.post('/get_user_id', { username: this.username }).then((res) => {
           return res;
         });
 
         const data = response.data;
-
+        console.log('data',data)
         if (data.status === 'success') {
+          console.log('userid',data.user_id)
           const userId = data.user_id;
           await this.saveUserToIndexedDB(this.username, userId);
           this.$router.push('/index');
@@ -79,7 +82,7 @@ export default {
           this.dialogMessage = '注册成功';
           const userId = response.data.user_id;
           await this.saveUserToIndexedDB(this.username, userId);
-          // this.dialogVisible = true;
+          this.dialogVisible = true;
         } else {
           this.dialogMessage = '注册失败: ' + response.data.msg;
           this.dialogVisible = true;

@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar-menu">
-    <div class="app-title">讯飞智教</div>
+    <div class="app-title"><i class="fas fa-school"></i> 讯飞智教</div>
     <ul>
       
       <!-- 教师应用 -->

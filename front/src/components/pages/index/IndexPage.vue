@@ -6,20 +6,24 @@
     <div class="main-content">
       <!-- Page Title -->
       <div class="page-title">
-        <h1>讯飞智教</h1>
+        <h1><i class="fas fa-school"></i> 讯飞智教</h1>
       </div>
 
       <!-- Application Switch Tabs -->
       <div class="switch-tabs">
-        <div class="tab" :class="{ active: activeTab === 'teacher' }" @click="switchTab('teacher')">教师应用</div>
-        <div class="tab" :class="{ active: activeTab === 'student' }" @click="switchTab('student')">学生应用</div>
+        <div class="tab" :class="{ active: activeTab === 'teacher' }" @click="switchTab('teacher')">
+          <i class="fas fa-chalkboard-teacher"></i> 教师应用
+        </div>
+        <div class="tab" :class="{ active: activeTab === 'student' }" @click="switchTab('student')">
+          <i class="fas fa-user-graduate"></i> 学生应用
+        </div>
       </div>
 
       <!-- Teacher Application Section -->
       <div v-if="activeTab === 'teacher'">
         <!-- Top Section: Teacher Assistant -->
         <div class="top-section">
-          <h2 class="section-title">教学助手</h2>
+          <h2 class="section-title"><i class="fas fa-chalkboard"></i> 教学助手</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/coursehelper')">
               <i class="fas fa-book-open"></i>
@@ -41,7 +45,7 @@
 
         <!-- Middle Section: Intelligent Q&A -->
         <div class="middle-section">
-          <h2 class="section-title">迅捷备课</h2>
+          <h2 class="section-title"><i class="fas fa-book-reader"></i> 迅捷备课</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/teacherrecording')">
               <i class="fas fa-video"></i>
@@ -59,7 +63,7 @@
 
         <!-- Course Management Section -->
         <div class="course-management-section">
-          <h2 class="section-title">智教问答</h2>
+          <h2 class="section-title"><i class="fas fa-question-circle"></i> 智教问答</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
@@ -79,7 +83,7 @@
       <div v-if="activeTab === 'student'">
         <!-- Bottom Section: Online Testing -->
         <div class="bottom-section">
-          <h2 class="section-title">在线自测</h2>
+          <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 在线自测</h2>
           <div class="button-container">
             <button class="button" @click="startTest" title="进入选择不同测试">
               <i class="fas fa-pencil-alt"></i>
@@ -96,7 +100,7 @@
 
         <!-- Middle Section: Intelligent Q&A -->
         <div class="middle-section">
-          <h2 class="section-title">智能问答</h2>
+          <h2 class="section-title"><i class="fas fa-question-circle"></i> 智能问答</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/translationpage')">
               <i class="fas fa-user-astronaut"></i>
@@ -112,9 +116,8 @@
         </div>
 
         <!-- Course Learning Section -->
-        <!-- Course Learning Section -->
         <div class="course-learning-section">
-          <h2 class="section-title">智学资源</h2>
+          <h2 class="section-title"><i class="fas fa-book-open"></i> 智学资源</h2>
           <div class="button-container">
             <div class="button" @click="handleClick('/classselect')">
               <i class="fas fa-play-circle"></i>
@@ -177,12 +180,24 @@ export default {
 
 <style scoped lang="scss">
 /* Styles for Home Component */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .home {
   display: flex;
   position: relative;
   text-align: center;
   padding: 20px;
-  background: #f0f0f0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   color: #333;
@@ -196,11 +211,18 @@ export default {
   .page-title {
     margin-top: 5px;
     margin-bottom: 20px;
-
+    text-align: center;
+    background: linear-gradient(-45deg, #50a0f0, #53a2ec, #4d8ccb, #9ac8f3);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 10s ease infinite;
+    
     h1 {
       font-size: 2.5rem;
       color: #333;
       margin: 0;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
   }
 
@@ -242,7 +264,7 @@ export default {
   .course-learning-section {
     margin-bottom: 20px;
     padding: 20px;
-    background: #fff;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -273,7 +295,7 @@ export default {
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s, transform 0.3s;
-    background: #1a8dec;
+    background: linear-gradient(145deg, #1a8dec, #7689f7);
     color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -283,7 +305,7 @@ export default {
     gap: 10px;
     
     &:hover {
-      background: #584eec;
+      background: linear-gradient(145deg, #584eec, #1a8dec);
       transform: translateY(-5px);
     }
 
@@ -322,12 +344,12 @@ export default {
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
-    background: #3778e0;
+    background: linear-gradient(145deg, #3778e0, #584eec);
     color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      background: #584eec;
+      background: linear-gradient(145deg, #584eec, #3778e0);
       transform: translateY(-5px);
     }
 

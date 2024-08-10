@@ -92,7 +92,7 @@
           
           <!-- 右侧下部 -->
           <div class="bottom">
-            <h2>AI教育辅导</h2>
+            <h2>随堂提问</h2>
             <div class="chat-box" ref="chatBox">
               <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
                 <p><span v-if="message.isUser">
