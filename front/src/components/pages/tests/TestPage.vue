@@ -771,11 +771,27 @@ export default {
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    // color: linear-gradient(90deg, #FF5733, #FFC300, #DAF7A6);
-  }
 
-  h2{
-    color: linear-gradient(90deg, #FF5733, #FFC300, #DAF7A6);
+    h2 {
+      background-image: linear-gradient(90deg, #FF5733, #FFC300, #c9f774);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientAnimation 2s infinite;
+      background-size: 300%;
+    }
+  }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>
