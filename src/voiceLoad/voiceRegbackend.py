@@ -2,13 +2,13 @@ import json5
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from voiceCompare import voiceAdd,voiceVerify,voiceStackBuild
+from generalRequest import voiceAdd,voiceVerify,voiceStackBuild
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/voiceload', methods=['POST'])
-def voiceload():
+@app.route('/process', methods=['POST'])
+def process():
     data = request.json
     file_path = data['file_path']
 
