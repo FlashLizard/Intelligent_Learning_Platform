@@ -1,21 +1,29 @@
 <template>
   <div class="hexagon-chart">
-    <svg viewBox="-1.2 -1.2 2.4 2.4" width="500" height="500">
+    <svg viewBox="-1.2 -1.2 2.4 2.4" width="400" height="400">
+      <defs>
+        <template v-for="(colorSet, index) in colors" :key="'gradient' + index">
+          <linearGradient :id="'gradient' + (index + 1)" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" :style="{ stopColor: colorSet[0], stopOpacity: 1 }" />
+            <stop offset="100%" :style="{ stopColor: colorSet[1], stopOpacity: 1 }" />
+          </linearGradient>
+        </template>
+      </defs>
+
       <polygon :points="points" class="hexagon" />
       <polygon :points="dataPoints" class="data" />
       <line v-for="(line, index) in hexagonLines" :key="index" :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2" class="hexagon-line" />
       <template v-for="(point, index) in labelPoints" :key="'label' + index">
-        <text v-if="isVerticalLabel(index)" :x="point.x" :y="point.y" :transform="'rotate(45 ' + (point.x+0.3) + ' ' + (point.y+0.13) + ')'" class="hexagon-label vertical-label">
+        <text v-if="isVerticalLabel(index)" :x="point.x" :y="point.y" :fill="'url(#gradient' + (index + 1) + ')'" class="hexagon-label vertical-label">
           <tspan v-for="(char, charIndex) in labels[index].split('')" :key="charIndex" x="x" dy="1em">{{ char }}</tspan>
         </text>
-        <text v-else :x="point.x" :y="point.y" class="hexagon-label">
+        <text v-else :x="point.x" :y="point.y" :fill="'url(#gradient' + (index + 1) + ')'" class="hexagon-label">
           {{ labels[index] }}
         </text>
       </template>
     </svg>
   </div>
 </template>
-
 
 <script>
 export default {
@@ -29,6 +37,18 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      colors: [
+        ['#FF5733', '#FF5733'],
+        ['#e23c09', '#e23c09'],
+        ['#C70039', '#900C3F'],
+        ['#581845', '#900C3F'],
+        ['#1F618D', '#2874A6'],
+        ['#1ABC9C', '#16A085'],
+      ],
+    };
+  },
   computed: {
     points() {
       return this.generateHexagonPoints(1).join(' ');
@@ -40,7 +60,7 @@ export default {
       return this.generateHexagonLines(1);
     },
     labelPoints() {
-      return this.generateHexagonPoints(1.1).map(point => {
+      return this.generateHexagonPoints(1.1).map((point) => {
         const [x, y] = point.split(',').map(Number);
         return { x, y: y + 0.04 };
       });
@@ -79,7 +99,7 @@ export default {
 <style scoped>
 .hexagon {
   fill: none;
-  stroke: rgb(12, 12, 12);
+  stroke: rgb(43, 1, 114);
   stroke-width: 0.03;
 }
 .data {
@@ -88,16 +108,18 @@ export default {
   stroke-width: 0.03;
 }
 .hexagon-line {
-  stroke: rgb(53, 53, 53);
+  stroke: rgb(59, 0, 118);
   stroke-width: 0.01;
 }
 .hexagon-label {
   font-size: 0.005em;
   font-weight: bold;
   text-anchor: middle;
-  fill: rgb(21, 21, 21);
 }
-.vertical-label tspan {
-  display: block;
+
+.vertical-label {
+  writing-mode: vertical-rl;
+  glyph-orientation-vertical: 0;
+  text-anchor: middle;
 }
 </style>

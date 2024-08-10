@@ -464,7 +464,7 @@ export default {
 
     .stars {
         position: absolute;
-        top: 0px; /* 调整星星的位置 */
+        top: 0px;
         left: 45%;
         transform: translateX(-50%);
         width: 100%;
@@ -492,7 +492,7 @@ export default {
             32% 57%,
             2% 35%,
             39% 35%
-          ); /* 五角星形状 */
+          );
         }
         @keyframes colorChange {
           0% { background: red; }
@@ -538,7 +538,7 @@ export default {
         align-items: center;
         margin-bottom: 20px; /* 增加间距 */
         .time {
-          margin-bottom: 10px; /* 增加时间显示和按钮之间的间距 */
+          margin-bottom: 10px;
           font-weight: bold;
           font-size: 1.5em;
           color:#3f62ee;
@@ -557,7 +557,7 @@ export default {
           border-radius: 5px;
           transition: background-color 0.3s ease;
           i {
-            margin-right: 5px; /* 图标和文字之间的间距 */
+            margin-right: 5px;
           }
           &:hover {
             background-color: #0d75c4;
@@ -603,10 +603,10 @@ export default {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
-      border: 3px solid transparent; /* 设置边框宽度和透明色作为基础 */
-      border-radius: 5px; /* 可选: 为边框添加圆角 */
-      animation: border-rotation 5s linear infinite; /* 使用CSS动画 */
-      position: relative; /* 为星光特效设置定位上下文 */
+      border: 3px solid transparent;
+      border-radius: 5px;
+      animation: border-rotation 5s linear infinite; 
+      position: relative;
 
       h2 {
         font-size: 2.0em;
@@ -659,8 +659,8 @@ export default {
         margin-top: 20px;
 
         .navigation-buttons {
-          display: inline-flex; /* 使用 inline-flex */
-          justify-content: center; /* 中间对齐 */
+          display: inline-flex;
+          justify-content: center;
 
           button {
             padding: 10px 20px;
@@ -670,7 +670,7 @@ export default {
             color: #fff;
             border: none;
             border-radius: 5px;
-            margin: 0 5px; /* 左右各添加5px的间距 */
+            margin: 0 5px;
           }
         }
       }
@@ -680,7 +680,7 @@ export default {
     .star-effect-container {
       position: absolute;
       top: -10px;
-      right: 0; /* Set container to the right */
+      right: 0;
       width: 100%;
       height: 103%;
       pointer-events: none;

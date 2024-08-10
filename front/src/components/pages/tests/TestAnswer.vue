@@ -1,7 +1,7 @@
 <template>
   <div class="test-result-page">
     <header>
-      <span class="title">测试结果</span>
+      <span class="title"><i class="fas fa-history"></i> 测试结果</span>
       <button class="return-button" @click="returnToPreviousPage">返回</button>
     </header>
     <main>
@@ -26,11 +26,17 @@
         <div v-if="currentSection.name === '选择' && currentQuestionContent" class="choice-question">
           <div class="question-content">{{ currentQuestionContent.problem }}</div>
           <div class="options">
+            <!-- 选择题选项 -->
             <div
               v-for="(option, index) in currentQuestionContent.choices"
               :key="index"
               class="option"
-              :class="{ 'selected': selectedOption === index, 'correct': isCorrectOption(index), 'incorrect': !isCorrectOption(index) && selectedOption === index }"
+              :class="{
+                'selected': selectedOption === index,
+                'correct': isCorrectOption(index),
+                'incorrect': !isCorrectOption(index),
+                'user-selected': selectedOption === index && !isCorrectOption(index)
+              }"
             >
               <span>{{ convertToLetter(index) }}. {{ option }}</span>
               <span class="circle" :class="{ selected: selectedOption === index }"></span>
@@ -44,11 +50,26 @@
         <div v-if="currentSection.name === '判断' && currentQuestionContent" class="judge-question">
           <div class="question-content">{{ currentQuestionContent.problem }}</div>
           <div class="options">
-            <div class="option" :class="{ 'selected': selectedOption === true, 'correct': selectedOption === true && isCorrectJudge(true), 'incorrect': selectedOption === true && !isCorrectJudge(true) }">
+            <!-- 判断题选项 -->
+            <div class="option"
+              :class="{
+                'selected': selectedOption === true,
+                'correct': selectedOption === true && isCorrectJudge(true),
+                'incorrect': selectedOption === true && !isCorrectJudge(true),
+                'user-selected': selectedOption === true && !isCorrectJudge(true)
+              }"
+            >
               <span>正确</span>
               <span class="circle" :class="{ selected: selectedOption === true }"></span>
             </div>
-            <div class="option" :class="{ 'selected': selectedOption === false, 'correct': selectedOption === false && isCorrectJudge(false), 'incorrect': selectedOption === false && !isCorrectJudge(false) }">
+            <div class="option"
+              :class="{
+                'selected': selectedOption === false,
+                'correct': selectedOption === false && isCorrectJudge(false),
+                'incorrect': selectedOption === false && !isCorrectJudge(false),
+                'user-selected': selectedOption === false && !isCorrectJudge(false)
+              }"
+            >
               <span>错误</span>
               <span class="circle" :class="{ selected: selectedOption === false }"></span>
             </div>
@@ -67,7 +88,9 @@
           <div>正确答案: {{ (currentQuestionContent.answer)[0] }}</div>
         </div>
         <div v-if="currentQuestionContent" class="explanation">
-          <h3>解析</h3>
+          <div class="explanation-header">
+            <h3>解析</h3>  <button class="copy-button" @click="copyAnalysis">复制</button>
+          </div>
           <p>{{ currentQuestionContent.analysis }}</p>
         </div>
         <div class="buttons">
@@ -108,6 +131,38 @@ export default {
     }
   },
   methods: {
+    copyAnalysis() {
+      const analysisText = this.currentQuestionContent.analysis;
+
+      if (!navigator.clipboard) {
+        // 如果浏览器不支持 Clipboard API，可以使用替代方案
+        const textArea = document.createElement("textarea");
+        textArea.value = analysisText;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          this.showCopySuccess();
+        } catch (err) {
+          console.error("复制失败", err);
+        }
+        document.body.removeChild(textArea);
+      } else {
+        navigator.clipboard.writeText(analysisText).then(() => {
+          this.showCopySuccess();
+        }, err => {
+          console.error("复制失败", err);
+        });
+      }
+    },
+    showCopySuccess() {
+      const button = document.querySelector('.copy-button');
+      button.textContent = '复制成功';
+      setTimeout(() => {
+        button.textContent = '复制';
+      }, 2000);
+    },
     async fetchData() {
       try {
         const singleChoiceQuestions = await this.getAllData('single_choice_problems');
@@ -149,18 +204,7 @@ export default {
     jumpToQuestion(sectionName, questionNumber) {
       this.currentSection = this.sections.find((section) => section.name === sectionName);
       this.currentQuestion = questionNumber;
-      //this.restoreAnswer();
     },
-    // restoreAnswer() {
-    //   const answer = this.currentSection.answers[this.currentQuestion];
-    //   if (this.currentSection.name === '选择') {
-    //     this.selectedOption = answer !== undefined ? answer : null;
-    //   } else if (this.currentSection.name === '填空') {
-    //     this.filledAnswer = answer !== undefined ? answer : '';
-    //   } else if (this.currentSection.name === '判断') {
-    //     this.selectedOption = answer !== undefined ? answer : null;
-    //   }
-    // },
     isAnswerCorrect(section, index) {
       const question = section.questions[index];
       if(question.doneanswer===''){
@@ -183,29 +227,36 @@ export default {
     previousQuestion() {
       if (this.currentQuestion > 1) {
         this.currentQuestion--;
+        console.log(this.currentSection.questions[this.currentQuestion-1]);
+        this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
+        console.log(this.selectedOption);
       } else {
         const currentSectionIndex = this.sections.indexOf(this.currentSection);
         if (currentSectionIndex > 0) {
           this.currentSection = this.sections[currentSectionIndex - 1];
           this.currentQuestion = this.currentSection.questions.length ;
+          this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
+          console.log(this.selectedOption);
         }
       }
-      // this.restoreAnswer();
     },
     nextQuestion() {
       if (this.currentSection && this.currentQuestion < this.currentSection.questions.length) {
         this.currentQuestion++;
+        console.log(this.currentSection.questions[this.currentQuestion-1])
+        this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
+        console.log(this.selectedOption);
       } else {
         const currentSectionIndex = this.sections.indexOf(this.currentSection);
         if (currentSectionIndex < this.sections.length - 1) {
           this.currentSection = this.sections[currentSectionIndex + 1];
           this.currentQuestion = 1;
+          this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
+          console.log(this.selectedOption);
         }
       }
-      // this.restoreAnswer();
     },
     dealDoneAnswer(ans) {
-      // console.log(this.currentSection.name,this.currentQuestion,ans)
       if(ans === ""){
         return '未作答';
       }
@@ -248,8 +299,10 @@ header {
 }
 
 .title {
-  font-size: 24px;
+  margin-left: 45%;
+  font-size: 30px;
   font-weight: bold;
+  color: #0474de;
 }
 
 .return-button {
@@ -374,6 +427,17 @@ h2 {
   background-color: #f8a8a8;
   border-color: #e57373;
 }
+.option.incorrect.user-selected {
+  background-color: #f8a8a8;
+  border-color: #e57373;
+  color: red;
+}
+
+.option.selected {
+  background-color: #007bff; /* 用户选择的选项颜色 */
+  color: white;
+}
+
 
 .circle {
   width: 20px;
@@ -400,7 +464,39 @@ h2 {
 .explanation {
   font-size: 16px;
   margin-bottom: 20px;
+
+  p{
+    margin-top: -15px;
+  }
 }
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h3{
+    margin-right: 10px;
+  }
+}
+
+.copy-button {
+  background-color: white;
+  color: gray;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.copy-button:hover {
+  background-color: #f0f0f0;
+  color: #007bff;
+}
+
 
 .result-details {
   margin-top: 20px;

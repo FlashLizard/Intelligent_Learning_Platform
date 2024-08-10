@@ -10,20 +10,34 @@
     <div class="content">
       <div class="left-panel">
         <div class="evaluation-section">
-          <h2>评价</h2>
+          <h2><i class="fas fa-star"></i> 评价</h2>
           <textarea v-model="evaluationContent" readonly></textarea>
         </div>
         <div class="evaluation-section">
-          <h2>不足</h2>
+          <h2><i class="fas fa-exclamation-triangle"></i> 不足</h2>
           <textarea v-model="shortcomingContent" readonly></textarea>
         </div>
         <div class="evaluation-section">
-          <h2>建议</h2>
+          <h2><i class="fas fa-lightbulb"></i> 建议</h2>
           <textarea v-model="suggestionContent" readonly></textarea>
         </div>
       </div>
       <div class="right-panel">
         <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
+        <table class="ability-table">
+          <thead>
+            <tr>
+              <th>智能评卷指标</th>
+              <th>智教评分</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(label, index) in userLabels" :key="index" :style="{ color: colors[index][0] }">
+              <td>{{ label }}</td>
+              <td>{{ userAbilities[index] }}</td>
+            </tr>
+          </tbody>
+        </table>
         <div class="button-container">
           <button @click="viewQuestions"><i class="fas fa-save"></i> 查看答案</button>
           <button @click="saveResults"><i class="fas fa-save"></i> 保存结果</button>
@@ -56,6 +70,14 @@ export default {
       shortcomingContent: '',
       suggestionContent: '',
       saving:false,
+      colors: [
+        ['#FF5733', '#FF5733'],
+        ['#e23c09', '#e23c09'],
+        ['#C70039', '#900C3F'],
+        ['#581845', '#900C3F'],
+        ['#1F618D', '#2874A6'],
+        ['#1ABC9C', '#16A085'],
+      ],
     };
   },
   methods: {
@@ -229,47 +251,47 @@ header button:hover {
 }
 
 header .stars {
-        position: absolute;
-        top: 0px; /* 调整星星的位置 */
-        left: 35%;
-        transform: translateX(-50%);
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        overflow: visible;
+  position: absolute;
+  top: 0px;
+  left: 35%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: visible;
 
-        .star {
-          position: absolute;
-          width: 20px;
-          height: 20px;
-          filter: blur(4px);
-          animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
-          clip-path: polygon(
-            50% 0%,
-            61% 35%,
-            98% 35%,
-            68% 57%,
-            79% 91%,
-            50% 70%,
-            21% 91%,
-            32% 57%,
-            2% 35%,
-            39% 35%
-          ); /* 五角星形状 */
-        }
-        @keyframes colorChange {
-          0% { background: red; }
-          16.66% { background: orange; }
-          33.33% { background: yellow; }
-          50% { background: green; }
-          66.66% { background: rgb(1, 235, 235); }
-          83.33% { background: blue; }
-          100% { background: purple; }
-        }
-      }
+  .star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    filter: blur(4px);
+    animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+    clip-path: polygon(
+      50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%
+    ); 
+  }
+  @keyframes colorChange {
+    0% { background: red; }
+    16.66% { background: orange; }
+    33.33% { background: yellow; }
+    50% { background: green; }
+    66.66% { background: rgb(1, 235, 235); }
+    83.33% { background: blue; }
+    100% { background: purple; }
+  }
+}
 
 .loading-dialog {
   position: fixed;
@@ -320,80 +342,99 @@ header .stars {
 
   .content {
     display: flex;
-    margin-top: 20px;
-    height: 100%;
+    margin-top: 0px;
+    min-height: 500px;
+    border-width: 3px !important;
+    border-style: solid;
+    animation: border-rotation 5s linear infinite;
 
     .left-panel {
-      border: 1px solid black;
-      padding: 10px;
+      margin-left: 20px;
+      border: none !important; /* 确保移除边框 */
+      padding: 5px;
       width: 50%;
-      margin-top: 40px;
-      height: 90%;
+      min-height: 500px;
+      margin-top: 0px;
 
       .evaluation-section {
+        color: #067cfa;
         margin-bottom: 20px;
 
         h2 {
           margin-bottom: 5px;
-          font-size: 2.0m; /* 增加标题字体大小 */
+          font-size: 2.0em;
+          background:#03bad2;
+          // background: linear-gradient(to right, #03bad2, #0056b3, #000d8b);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          // animation: gradient-animation 3s infinite;
+          background-size: 300% 300%;
         }
 
         textarea {
           width: 100%;
-          height: 80px; /* 调整高度 */
-          resize: none; /* 禁止文本框大小调整 */
-          border: 1px solid #ccc;
+          height: 100px;
+          resize: none;
+          border: 2px solid #06b8ef !important;
           padding: 10px;
-          font-size: 1.5em; /* 增加字体大小 */
-          box-sizing: border-box; /* 包括内边距和边框在内的宽度和高度计算 */
+          font-size: 1.5em;
+          box-sizing: border-box;
+          color: #00008a;
+          font-weight: bolder;
+        }
+        @keyframes gradient-animation {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
       }
     }
-
-    // .right-panel {
-    //   width: 50%;
-    //   display: flex;
-    //   flex-direction: column;
-    //   align-items: center;
-    //   justify-content: center;
-
-    //   .button-container {
-    //     margin-top: 20px;
-    //     display: flex;
-    //     justify-content: center;
-
-    //     button {
-    //       margin: 0 10px;
-    //       padding: 10px 20px;
-    //       cursor: pointer;
-    //       background-color: #3778e0;
-    //       color: white;
-    //       border: none;
-    //       border-radius: 5px;
-    //       transition: background-color 0.3s;
-
-    //       &:hover {
-    //         background-color: #584eec;
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   .right-panel {
-    width: 70%;
+    margin-top: -30px;
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px; /* Add padding to ensure space around the hexagon chart */
+    padding: 5px; 
 
     hexagon-chart {
-      width: 50%; /* Ensure the chart takes full width */
-      height: 50%; /* Ensure the chart takes full height */
-      max-width: 500px; /* Set a maximum width for the chart */
-      max-height: 500px; /* Set a maximum height for the chart */
+      max-width: 80px !important; 
+      max-height: 80px !important; 
     }
+
+    .ability-table {
+        width: 80%;
+        height: 40%;
+        margin-top: -15px;
+        border-collapse: collapse;
+
+        th,
+        td {
+          padding: 5px;
+          text-align: center;
+          border: 2px solid #06b8ef;
+        }
+
+        th {
+          background-color: #007bff;
+          color: white;
+        }
+
+        td {
+          font-size: 0.08em;
+          // color: #0360ff;
+          font-weight: bold;
+        }
+      }
 
     .button-container {
       margin-top: 20px;
@@ -414,6 +455,23 @@ header .stars {
           background-color: #584eec;
         }
       }
+    }
+  }
+  @keyframes border-rotation {
+    0% {
+      border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    25% {
+      border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    50% {
+      border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    75% {
+      border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    100% {
+      border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
     }
   }
 
