@@ -2,7 +2,7 @@ import json5
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from generalRequest import voiceAdd,voiceVerify,voiceStackBuild
+from voiceLoad import voiceAdd,voiceVerify,voiceStackBuild
 
 app = Flask(__name__)
 CORS(app)
