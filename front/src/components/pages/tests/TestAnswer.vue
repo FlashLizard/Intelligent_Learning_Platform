@@ -1,13 +1,18 @@
 <template>
   <div class="test-result-page">
     <header>
-      <span class="title"><i class="fas fa-history"></i> 测试结果</span>
-      <button class="return-button" @click="returnToPreviousPage">返回</button>
+      <span class="title"><i class="fas fa-history"></i> 测试结果
+        <!-- 星星装饰 -->
+        <div class="stars">
+          <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
+        </div>
+      </span>
+      <button class="return-button" @click="returnToPreviousPage"><i class="fas fa-arrow-left"></i> 返回</button>
     </header>
     <main>
       <aside class="sidebar">
         <div class="section" v-for="section in sections" :key="section.name">
-          <div class="section-title">{{ section.name }}</div>
+          <div class="section-title"><i class="fas fa-book"></i>  {{ section.name }}</div>
           <div class="question-status-container">
             <div
               class="question-status"
@@ -22,7 +27,7 @@
         </div>
       </aside>
       <div class="content">
-        <h2>{{ currentSection.name }}题 第{{ currentQuestion }}题</h2>
+        <h2><i class="fas fa-question-circle"></i> {{ currentSection.name }}题 第{{ currentQuestion }}题</h2>
         <div v-if="currentSection.name === '选择' && currentQuestionContent" class="choice-question">
           <div class="question-content">{{ currentQuestionContent.problem }}</div>
           <div class="options">
@@ -39,7 +44,12 @@
               }"
             >
               <span>{{ convertToLetter(index) }}. {{ option }}</span>
-              <span class="circle" :class="{ selected: selectedOption === index }"></span>
+              <span class="circle" :class="{ selected: selectedOption === index }">
+                <span class="status-icon" v-if="selectedOption === index">
+                  <i v-if="isCorrectOption(index)" class="fas fa-check"></i>
+                  <i v-else-if="selectedOption === index" class="fas fa-times"></i>
+                </span>
+              </span>
             </div>
           </div>
         </div>
@@ -56,47 +66,69 @@
                 'selected': selectedOption === true,
                 'correct': selectedOption === true && isCorrectJudge(true),
                 'incorrect': selectedOption === true && !isCorrectJudge(true),
-                // 'user-selected': selectedOption === true && !isCorrectJudge(true)
               }"
             >
               <span>正确</span>
-              <span class="circle" :class="{ selected: selectedOption === true }"></span>
+              <span class="circle" :class="{ selected: selectedOption === true }">
+                <span class="status-icon" v-if="selectedOption === true">
+                  <i v-if="isCorrectJudge(true)" class="fas fa-check"></i>
+                  <i v-else-if="!isCorrectJudge(true)" class="fas fa-times"></i>
+                </span>
+              </span>
             </div>
             <div class="option"
               :class="{
                 'selected': selectedOption === false,
                 'correct': selectedOption === false && isCorrectJudge(false),
                 'incorrect': selectedOption === false && !isCorrectJudge(false),
-                // 'user-selected': selectedOption === false && !isCorrectJudge(false)
               }"
             >
               <span>错误</span>
-              <span class="circle" :class="{ selected: selectedOption === false }"></span>
+              <span class="circle" :class="{ selected: selectedOption === false }">
+                <span class="status-icon" v-if="selectedOption === false">
+                  <i v-if="isCorrectJudge(false)" class="fas fa-check"></i>
+                  <i v-else-if="!isCorrectJudge(false)" class="fas fa-times"></i>
+                </span>
+              </span>
             </div>
           </div>
         </div>
         <div v-if="currentSection.name === '选择' && currentQuestionContent" class="result-details">
-          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
-          <div>正确答案: {{ convertToLetter(currentQuestionContent.answer[0]) }}</div>
+          <div :class="isAnswerCorrect(currentSection, currentQuestion-1) ? 'correct-result' : 'incorrect-result'">
+            <i :class="isAnswerCorrect(currentSection, currentQuestion - 1) ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i> 作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}
+          </div>
+          <div class="correct-answer">
+            <i class="fas fa-check"></i> 正确答案: {{ convertToLetter(currentQuestionContent.answer[0]) }}
+          </div>
         </div>
+
         <div v-if="currentSection.name === '判断' && currentQuestionContent" class="result-details">
-          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
-          <div>正确答案: {{ currentQuestionContent.answer }}</div>
+          <div :class="isAnswerCorrect(currentSection, currentQuestion-1) ? 'correct-result' : 'incorrect-result'">
+            <i :class="isAnswerCorrect(currentSection, currentQuestion - 1) ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i> 作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}
+          </div>
+          <div class="correct-answer">
+            <i class="fas fa-check"></i> 正确答案: {{ currentQuestionContent.answer }}
+          </div>
         </div>
+
         <div v-if="currentSection.name === '填空' && currentQuestionContent" class="result-details">
-          <div>作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}</div>
-          <div>正确答案: {{ (currentQuestionContent.answer)[0] }}</div>
+          <div :class="isAnswerCorrect(currentSection, currentQuestion - 1) ? 'correct-result' : 'incorrect-result'">
+            <i :class="isAnswerCorrect(currentSection, currentQuestion - 1) ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i> 作答结果: {{ dealDoneAnswer(currentQuestionContent.doneanswer) }}
+          </div>
+          <div class="correct-answer">
+            <i class="fas fa-check"></i> 正确答案: {{ currentQuestionContent.answer[0] }}
+          </div>
         </div>
         <div v-if="currentQuestionContent" class="explanation">
           <div class="explanation-header">
-            <h3>解析</h3>  <button class="copy-button" @click="copyAnalysis">复制</button>
+            <h3><i class="fas fa-info-circle"></i> 解析</h3>  <button class="copy-button" @click="copyAnalysis">复制</button>
           </div>
           <p>{{ currentQuestionContent.analysis }}</p>
         </div>
         <div class="buttons">
           <div class="navigation-buttons">
-            <button @click="previousQuestion">上一题</button>
-            <button @click="nextQuestion">下一题</button>
+            <button @click="previousQuestion"><i class="fas fa-arrow-left"></i> 上一题</button>
+            <button @click="nextQuestion">下一题 <i class="fas fa-arrow-right"></i></button>
           </div>
         </div>
       </div>
@@ -176,6 +208,7 @@ export default {
         this.sections[2].questions = judgementQuestions;
 
         this.currentSection = this.sections[0];
+        this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -215,9 +248,11 @@ export default {
         return false;
       }
       if(section.name === '选择' || section.name === '填空'){
-        return question.doneanswer === (question.answer)[0];
+        console.log('isAnswerCorrect',(question.answer)[0],question.doneanswer);
+        return (question.doneanswer === (question.answer)[0]);
       }
-      return question.doneanswer === question.answer;
+      console.log('isAnswerCorrect',question.answer,question.doneanswer);
+      return (question.doneanswer === question.answer);
     },
     isCorrectOption(index) {
       return this.correctAnswer.includes(index);
@@ -226,7 +261,8 @@ export default {
       return this.correctAnswer.every((answer, index) => answer === this.filledAnswer[index]);
     },
     isCorrectJudge(answer) {
-      return this.correctAnswer === answer;
+      let RealAnswer = Array.isArray(this.correctAnswer) ? (this.correctAnswer)[0] : this.correctAnswer;
+      return RealAnswer === answer;
     },
     previousQuestion() {
       if (this.currentQuestion > 1) {
@@ -278,9 +314,28 @@ export default {
     convertToLetter(ans) {
       return String.fromCharCode(65 + ans); // Convert 0, 1, 2, ... to A, B, C, ...
     },
+    setTitleStarPositions() {
+      const positions = [
+        { top: '20px', left: '200px' },  
+        { top: '35px', left: '400px' }, 
+        { top: '10px', left: '600px' }, 
+        { top: '30px', left: '1000px' },
+        { top: '10px', left: '1200px' },
+        { top: '35px', left: '1400px' },
+      ];
+
+      for (let i = 1; i <= 6; i++) {
+        const starElement = this.$refs[`starTitle${i}`][0];
+        const position = positions[i - 1] || { top: '0px', left: '50%' };
+        starElement.style.top = position.top;
+        starElement.style.left = position.left;
+        starElement.style.transform = `translate(-50%, ${position.top})`;
+      }
+    },
   },
   mounted() {
     this.fetchData();
+    this.setTitleStarPositions();
   },
 };
 </script>
@@ -289,7 +344,7 @@ export default {
 .test-result-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 96vh;
   font-family: Arial, sans-serif;
 }
 
@@ -307,6 +362,48 @@ header {
   font-size: 30px;
   font-weight: bold;
   color: #0474de;
+  .stars {
+        position: absolute;
+        top: 0px;
+        left: 45%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        overflow: visible;
+
+        .star {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          filter: blur(4px);
+          animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+          clip-path: polygon(
+            50% 0%,
+            61% 35%,
+            98% 35%,
+            68% 57%,
+            79% 91%,
+            50% 70%,
+            21% 91%,
+            32% 57%,
+            2% 35%,
+            39% 35%
+          );
+        }
+        @keyframes colorChange {
+          0% { background: red; }
+          16.66% { background: orange; }
+          33.33% { background: yellow; }
+          50% { background: green; }
+          66.66% { background: rgb(1, 235, 235); }
+          83.33% { background: blue; }
+          100% { background: purple; }
+        }
+      }
 }
 
 .return-button {
@@ -340,7 +437,8 @@ main {
 }
 
 .section-title {
-  font-size: 18px;
+  color:#3f62ee;
+  font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -384,8 +482,9 @@ main {
 }
 
 h2 {
-  font-size: 20px;
+  font-size: 2.0em;
   margin-bottom: 20px;
+  color: #2389d7;
 }
 
 .choice-question,
@@ -405,6 +504,7 @@ h2 {
 }
 
 .option {
+  width:30%;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -449,10 +549,18 @@ h2 {
   margin-left: 10px;
   display: inline-block;
   transition: background-color 0.3s;
+  display: flex; /* 使用flexbox布局 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
 }
 
 .circle.selected {
   background-color: #007bff;
+}
+
+.status-icon {
+  font-size: 16px;
+  color: white;
 }
 
 .input-box {
@@ -476,6 +584,9 @@ h2 {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: bolder;
+  color:#2389d7;
 
   h3{
     margin-right: 10px;
@@ -502,7 +613,19 @@ h2 {
 
 .result-details {
   margin-top: 20px;
-  font-size: 16px;
+  font-size: 20px;
+}
+
+.correct-answer {
+  color: rgb(2, 166, 2);
+}
+
+.correct-result {
+  color: rgb(2, 166, 2);
+}
+
+.incorrect-result {
+  color: red;
 }
 
 .buttons {

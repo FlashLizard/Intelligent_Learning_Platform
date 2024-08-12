@@ -2,11 +2,11 @@
   <div class="test-page">
     <header>
       <span class="title"><i class="fas fa-pencil-alt"></i> 测试
+        <!-- 星星装饰 -->
         <div class="stars">
           <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
         </div>
       </span>
-      <!-- 星星装饰 -->
       <button class="return-button" @click="returnToPreviousPage">
         <i class="fas fa-arrow-left"></i> 返回
       </button>
@@ -102,8 +102,6 @@
   </div>
 </template>
 
-
-
 <script>
 import { openDB } from 'idb';
 import axios from 'axios';
@@ -150,23 +148,23 @@ export default {
   },
   methods: {
     setTitleStarPositions() {
-    const positions = [
-      { top: '20px', left: '200px' },  
-      { top: '35px', left: '400px' }, 
-      { top: '10px', left: '600px' }, 
-      { top: '30px', left: '1000px' },
-      { top: '10px', left: '1200px' },
-      { top: '35px', left: '1400px' },
-    ];
+      const positions = [
+        { top: '20px', left: '200px' },  
+        { top: '35px', left: '400px' }, 
+        { top: '10px', left: '600px' }, 
+        { top: '30px', left: '1000px' },
+        { top: '10px', left: '1200px' },
+        { top: '35px', left: '1400px' },
+      ];
 
-    for (let i = 1; i <= 6; i++) {
-      const starElement = this.$refs[`starTitle${i}`][0];
-      const position = positions[i - 1] || { top: '0px', left: '50%' };
-      starElement.style.top = position.top;
-      starElement.style.left = position.left;
-      starElement.style.transform = `translate(-50%, ${position.top})`;
-    }
-  },
+      for (let i = 1; i <= 6; i++) {
+        const starElement = this.$refs[`starTitle${i}`][0];
+        const position = positions[i - 1] || { top: '0px', left: '50%' };
+        starElement.style.top = position.top;
+        starElement.style.left = position.left;
+        starElement.style.transform = `translate(-50%, ${position.top})`;
+      }
+    },
     setStarPositions() {
       const positions = [
         { top: '0px', right: '0px' },       // 1
