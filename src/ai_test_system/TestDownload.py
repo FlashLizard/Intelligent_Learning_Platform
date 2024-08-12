@@ -209,8 +209,6 @@ def get_download_custompaper_handler():
     evaluation = content['evaluation']
     shortcoming = content['shortcoming']
     suggestion = content['suggestion']
-    # dimention = content['dimention']
-    # score = content['score']
     ans = {'problems': []}
     question = "请根据学生评价，为了强化学生能力出题。" + get_problems_prompt1 + "学生评价是：" + evaluation +",学生不足是：" + shortcoming + ",建议是："+ suggestion + ''
     ans_str = llm.query(question)
