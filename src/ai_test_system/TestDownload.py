@@ -8,8 +8,6 @@ import random
 from utils import Logger
 from spark.SparkApi import SparkLLM
 from audio_to_txt.Ifasr_app import audio2txt_Api
-#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-#print(sys.path)
 import json5
 from App import app
 
@@ -19,10 +17,6 @@ api_key = '990e2770b030441fbcc126c691daf5cd'
 
 domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
-
-# 创建服务器
-# app = Flask(__name__)
-# CORS(app)
 
 # 创建SparkLLM对象
 llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain, False)
@@ -63,7 +57,31 @@ get_problems_prompt = '''我以以下格式:
         返回其要求的试题数据。注意只返回5道单选，5道判断，5道填空题。但如果试题描述的"others"要求了题型和题目数量则按照"others"生成题目。
         提供给你的json如下, 请直接返回json, 不要添加任何其他描述:'''
 
-
+get_problems_prompt1 = '''请以我指定的格式:
+        {
+                "problems": [
+                    {
+                        "type": "single_choice" /*注意注意type只能为single_choice, judgement或fillin, 不要给出这之外的类型*/,
+                        "problem": "1+1=( )",
+                        "choices": ["1","2","3","4"],
+                        "answer": [1] /*对应上一个的下标, 通过这里判断单选多选*/,
+                        "analysis": "一个很简单的数学题"
+                    },
+                    {
+                        "type": "fillin" /*填空、主观等填写的题目*/,
+                        "problem": ["1+2=","4+5=","请回答"], /*以空为分隔符分隔，最后即时没字符也应该有一个结束字符串*/
+                        "answer": ["3", "9"] /*几个空几个答案*/,
+                        "analysis": "可以化为2进制去计算"
+                    },
+                    {
+                        "type": "judgement",
+                        "problem": "6+7=11",
+                        "answer": false,
+                        "analysis": "可以按计算器"
+                    }
+                ]
+            }
+        返回要求的试题数据。注意只返回5道单选，5道判断，5道填空题。请直接返回json, 不要添加任何其他描述'''
 
 @app.route('/get_downloadproblems', methods=['POST'])
 def get_downloadproblems_handler():
@@ -174,3 +192,62 @@ def save_to_word(filename, paper_text):
     document.add_heading('试卷内容', level=1)
     document.add_paragraph(paper_text)
     document.save(filename)
+
+@app.route('/get_download_custompaper', methods=['POST'])
+def get_download_custompaper_handler():
+    content = request.json
+    Logger.info(content)
+    """
+    {
+    "evaluation": "",
+   	"shortcoming": "" ,
+   	"suggestion": "" ,
+   	"dimention": ["","","","","",""],
+   	"score": ["90", "","","","",""],
+   }
+    """
+    evaluation = content['evaluation']
+    shortcoming = content['shortcoming']
+    suggestion = content['suggestion']
+    # dimention = content['dimention']
+    # score = content['score']
+    ans = {'problems': []}
+    question = "请根据学生评价，为了强化学生能力出题。" + get_problems_prompt1 + "学生评价是：" + evaluation +",学生不足是：" + shortcoming + ",建议是："+ suggestion + ''
+    ans_str = llm.query(question)
+    ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+    now_ans = json5.loads(ans_str)
+    ans['problems'].extend(now_ans['problems'])
+    paper_text = generate_paper_text(ans)
+    filepath = os.path.join('ai_test_system','paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath,'test.txt')
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(paper_text)
+    # 创建下载文件的 Response
+    response = Response(paper_text, content_type='text/plain')
+    response.headers["Content-Disposition"] = "attachment; filename=problems.txt"
+    return response
+
+@app.route('/get_custom_onlinepaper', methods=['POST'])
+def get_custom_onlinepaper_handler():
+    content = request.json
+    Logger.info(content)
+    """
+    {
+    "evaluation": "",
+   	"shortcoming": "" ,
+   	"suggestion": "" ,
+   	"dimention": ["","","","","",""],
+   	"score": ["90", "","","","",""],
+   }
+    """
+    evaluation = content['evaluation']
+    shortcoming = content['shortcoming']
+    suggestion = content['suggestion']
+    ans = {'problems': []}
+    question = "请根据学生评价，为了强化学生能力出题。" + get_problems_prompt1 + "学生评价是：" + evaluation +",学生不足是：" + shortcoming + ",建议是："+ suggestion + ''
+    ans_str = llm.query(question)
+    ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+    now_ans = json5.loads(ans_str)
+    ans['problems'].extend(now_ans['problems'])
+    return jsonify(ans)  # 确保返回的是JSON格式

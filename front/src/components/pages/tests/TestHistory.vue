@@ -8,31 +8,61 @@
     </header>
     <main class="main">
       <div class="scroll-panel">
-        <div class="history-item title-row">
-          <div class="item-info">
-            <span class="item-date"><i class="fas fa-calendar-alt"></i> 测试时间</span>
-            <span class="item-subject"><i class="fas fa-book"></i> 测试学科</span>
-            <span class="item-topic"><i class="fas fa-lightbulb"></i> 测试知识点</span>
-            <span class="item-score"><i class="fas fa-star"></i> 测试评分</span>
-          </div>
+        <!-- 表头 -->
+        <div class="table-header">
+          <span class="table-cell"><i class="fas fa-calendar-alt"></i>  测试时间</span>
+          <span class="table-cell"><i class="fas fa-book"></i>  测试学科</span>
+          <span class="table-cell"><i class="fas fa-lightbulb"></i>  测试知识点</span>
+          <span class="table-cell"><i class="fas fa-star"></i>  测试评分</span>
+          <span class="table-cell"></span> 
         </div>
-        <div
-          class="history-item"
-          v-for="item in history"
-          :key="item.id"
-          @mouseenter="highlightItem(item.id)"
-          @mouseleave="unhighlightItem()"
-          @click="fetchTestDetail(item.id)"
-        >
-          <div class="item-info">
-            <span class="item-date">{{ formatDateTime(item.test_time) }}</span>
-            <span class="item-subject">{{ item.test_name }}</span>
-            <span class="item-topic">{{ removeQuotes(item.test_subjects) }}</span>
-            <span class="item-score">{{ item.test_score }}</span>
-            <span class="item-delete" @click.stop="deleteTest(item.id)">
-              <i class="fas fa-times"></i>
+        <!-- 表格内容 -->
+        <div class="table-body">
+          <div
+            class="table-row"
+            v-for="item in history"
+            :key="item.id"
+            @mouseenter="highlightItem(item.id)"
+            @mouseleave="unhighlightItem()"
+            @click="fetchTestDetail(item.id)"
+          >
+            <span class="table-cell">{{ formatDateTime(item.test_time) }}</span>
+            <span class="table-cell">{{ item.test_name }}</span>
+            <span class="table-cell">{{ removeQuotes(item.test_subjects) }}</span>
+            <span class="table-cell">{{ item.test_score }}</span>
+            <span class="table-cell">
+              <h2 class="fas fa-times" @click.stop="deleteTest(item.id)"></h2>
             </span>
           </div>
+        </div>
+      </div>
+      <!-- 评价、缺陷、建议 和 六边形图表布局 -->
+      <div class="analysis-section">
+        <div class="section-title"><i class="fas fa-chart-line"></i>  历史分析
+          <i class="fas fa-search-plus expand-icon" @click="goToExpandedPage"> 更多</i></div>
+        <!-- 加载动画 -->
+        <div v-if="isLoading" class="loading-container">
+          <i class="fas fa-spinner fa-spin"></i> 星火大模型加急分析您的测试历史中，请稍等......
+        </div>
+        <div v-else class = "section-content">
+          <!-- 实际内容 -->
+          <div class="analysis-text">
+          <div>
+            <label for="evaluation"><i class="fas fa-star"></i> 总体评价</label>
+            <textarea id="evaluation" v-model="evaluation" readonly></textarea>
+          </div>
+          <div>
+            <label for="shortcoming"><i class="fas fa-exclamation-triangle"></i> 总体缺陷</label>
+            <textarea id="shortcoming" v-model="shortcoming" readonly></textarea>
+          </div>
+          <div>
+            <label for="suggestion"><i class="fas fa-lightbulb"></i> 总体建议</label>
+            <textarea id="suggestion" v-model="suggestion" readonly></textarea>
+          </div>
+        </div>
+        <div class="hexagon-chart">
+          <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
+        </div>
         </div>
       </div>
     </main>
@@ -42,15 +72,34 @@
 <script>
 import axios from 'axios';
 import { openDB } from 'idb';
+import HexagonChart from '../../component/HexagonChart.vue';
 
 export default {
+  components: {
+    HexagonChart,
+  },
   data() {
     return {
       history: [],
       highlightedItemId: null,
+      evaluation: '',
+      shortcoming: '',
+      suggestion: '',
+      userAbilities: [50,50,50,50,50,50],
+      userLabels: ['分析','使用','思维','理论','计算','综合'],
+      isLoading: true,
     };
   },
   async mounted() {
+    this.$nextTick(() => {
+      // 在组件渲染完成后进行 DOM 操作
+      const hexagonChartElement = this.$refs.hexagonChart;
+      if (hexagonChartElement) {
+        console.log('HexagonChart component:', hexagonChartElement);
+      } else {
+        console.error('HexagonChart component not found');
+      }
+    });
     try {
       // Open UserDatabase and get the userId
       const db = await openDB('UserDatabase', 1);
@@ -61,8 +110,7 @@ export default {
       if (allUsers.length > 0) {
         const { userId } = allUsers[0];
         console.log('Retrieved userId:', userId);
-
-        // Fetch user tests from the backend
+        this.fetchUserTestsAnalysis(userId); //加载用户个性化分析
         const response = await axios.post('/get_user_tests', 
           { user_id: userId }
         ).then((response) => {
@@ -84,6 +132,46 @@ export default {
     }
   },
   methods: {
+    goToExpandedPage() {
+      this.$router.push({
+        path: '/historyevaluationpage',
+        query: {
+          evaluation: this.evaluation,
+          shortcoming: this.shortcoming,
+          suggestion: this.suggestion,
+          userAbilities: JSON.stringify(this.userAbilities),
+          userLabels: JSON.stringify(this.userLabels),
+        }
+      });
+    },
+    async fetchUserTestsAnalysis(userId) {
+      try {
+        const response = await axios.post('/get_user_tests_analysis', {
+          user_id: userId
+        });
+
+        if (response.data.status === 'success') {
+          const analysis = JSON.parse(response.data.tests_analysis.replace(/`/g, '"').replace(/^"""\w*/, '').replace(/"""$/, '').trim());
+          this.evaluation = analysis.evaluation;
+          this.shortcoming = analysis.shortcoming;
+          this.suggestion = analysis.suggestion;
+          this.userAbilities = analysis.knowledge_radar.score;
+          this.userLabels = analysis.knowledge_radar.dimension;
+          console.log('this.evaluation:',this.evaluation)
+          console.log('this.shortcoming:',this.shortcoming)
+          console.log('this.suggestion:',this.suggestion)
+          console.log('analysis.knowledge_radar.dimension:',analysis.knowledge_radar.dimension)
+          console.log('analysis.knowledge_radar.score:',analysis.knowledge_radar.score)
+
+        } else {
+          console.error('Failed to fetch tests analysis:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching tests analysis:', error);
+      } finally {
+        this.isLoading = false; // 数据加载完成后隐藏加载动画
+      }
+    },
     goBack() {
       this.$router.back();
     },
@@ -95,7 +183,6 @@ export default {
     },
     async fetchTestDetail(testId) {
       try {
-        // Fetch test details from the backend
         const response = await axios.post('/get_test', { test_id: testId }).then((response) => {
           return response;
         });
@@ -143,12 +230,10 @@ export default {
     },
     async deleteTest(testId) {
       try {
-        // Send delete request to the backend
         const response = await axios.post('/delete_test', { test_id: testId });
         const data = response.data;
 
         if (data.status === 'success') {
-          // Remove the test from the frontend
           this.history = this.history.filter(item => item.id !== testId);
           console.log('Test deleted successfully:', testId);
         } else {
@@ -191,15 +276,44 @@ export default {
       color: #fff;
       font-size: 24px;
     }
+    .back-button:hover {
+      color:#99e7f5
+    }
   }
   .main {
     padding: 20px;
   }
   .scroll-panel {
     max-height: 400px;
-    overflow-y: auto;
-    .history-item {
+    overflow-y: scroll;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+
+    .table-container {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .table-header {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background-color: #3498db;
+      color: #fff;
+      font-weight: bold;
       padding: 10px;
+    }
+
+    .table-body {
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 2px;
       cursor: pointer;
       transition: background-color 0.3s ease;
       &:hover {
@@ -208,31 +322,133 @@ export default {
       &:not(:last-child) {
         border-bottom: 1px solid #ccc;
       }
-      .item-info {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 0.3fr;
-        gap: 10px;
-        align-items: center;
-        justify-items: center;
-        .item-date, .item-subject, .item-topic, .item-score {
-          white-space: nowrap; /* Prevent line break */
-        }
-        .item-delete {
-          cursor: pointer;
-          color: #e74c3c; /* Red color for the delete icon */
-          font-size: 18px;
-          transition: color 0.3s ease;
-          &:hover {
-            color: #c0392b; /* Darker red on hover */
-          }
-        }
+    }
+
+    .table-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap; 
+
+      h2 {
+        color:#66b0f9
+      }
+      h2:hover {
+        color:rgb(137, 184, 247)
       }
     }
-    .title-row {
-      background-color: #3498db;
-      color: #fff;
+  }
+  .analysis-section {
+    height:330px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 165px;
+    border-radius: 5px !important;
+    border-width: 3px !important;
+    border-style: solid;
+    animation: border-rotation 5s linear infinite;
+
+    .section-title {
+      position: relative;
+      top: 0px;
+      width:100%;
+      text-align: center;
+      height: 30px;
+      font-size: 20px;
       font-weight: bold;
+      color: #fefefe;
+      background-color: #2389d7;
+      white-space: nowrap;
+      margin-bottom: 5px;
     }
+    .expand-icon {
+      position: absolute;
+      right: 15px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      font-size: 20px; 
+      cursor: pointer;
+    }
+    .expand-icon:hover {
+      color:#b3d8f5
+    }
+
+    .section-content {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      margin-top: -5px;
+      flex-direction: row;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      font-size: 24px;
+      color: #2389d7;
+      i {
+        font-size: 24px;
+        margin-right: 10px;
+      }
+    }
+  }
+  @keyframes border-rotation {
+    0% {
+      border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    25% {
+      border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    50% {
+      border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    75% {
+      border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    100% {
+      border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+  }
+
+  .section-content .analysis-text {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin-top: 5px !important;
+    margin-left: 10px !important;
+  }
+
+  .section-content .analysis-text div {
+    margin-bottom: 5px;
+  }
+
+  .section-content .analysis-text label {
+    color: #2389d7; /* Blue color for the labels */
+  }
+
+  .section-content textarea {
+    width: 100%;
+    height: 55px;
+    resize: none;
+    border: 2px solid #2389d7; 
+    color: #2389d7; /* Blue text color */
+    background-color: #f7f9fc; /* Light background color for better readability */
+    
+    ::placeholder {
+      color: #a1c4fd; /* Optional: light blue placeholder text color */
+    }
+  }
+
+  .section-content .hexagon-chart {
+    width: 48%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>

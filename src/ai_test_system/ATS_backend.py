@@ -19,10 +19,6 @@ api_key = '990e2770b030441fbcc126c691daf5cd'
 domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
-# 创建服务器
-# app = Flask(__name__)
-# CORS(app)
-
 # 创建SparkLLM对象
 llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain, False)
 

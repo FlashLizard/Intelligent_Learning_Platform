@@ -121,6 +121,12 @@ def get_user_tests(user_id):
     cursor.execute(query, (user_id,))
     return cursor.fetchall()
 
+def get_user_tests_analysis(user_id):
+    cursor = get_database().cursor(dictionary=True)
+    query = "SELECT test_name,test_score,test_subjects FROM tests WHERE user_id = %s"
+    cursor.execute(query, (user_id,))
+    return cursor.fetchall()
+
 # 查询具体的测试数据
 def get_test_by_id(test_id):
     cursor = get_database().cursor(dictionary=True)

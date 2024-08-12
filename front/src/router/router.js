@@ -19,6 +19,7 @@ import ClassTestEvaluation from '@/components/pages/teacher/ClassTestEvaluation.
 import TranslationPage from '@/components/pages/aiqa/TranslationPage.vue';
 import PaperDownload from '@/components/pages/tests/PaperDownload.vue';
 import HistoryTestAns from '@/components/pages/tests/HistoryTestAns.vue';
+import HistoryEvaluationPage from '@/components/pages/tests/HistoryEvaluationPage.vue';
 
 const routes = [
   {
@@ -120,7 +121,12 @@ const routes = [
     path: '/historytestans',
     name: HistoryTestAns,
     component: HistoryTestAns,
-  }
+  },
+  {
+    path: '/historyevaluationpage',
+    name: 'HistoryEvaluationPage',
+    component: HistoryEvaluationPage,
+  },
 ];
 
 const router = createRouter({
