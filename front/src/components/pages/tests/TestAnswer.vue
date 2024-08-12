@@ -38,8 +38,8 @@
               class="option"
               :class="{
                 'selected': selectedOption === index,
-                'correct': isCorrectOption(index),
-                'incorrect': !isCorrectOption(index),
+                'correct': selectedOption === index && isCorrectOption(index),
+                'incorrect': selectedOption === index && !isCorrectOption(index),
                 'user-selected': selectedOption === index && !isCorrectOption(index)
               }"
             >
@@ -55,7 +55,16 @@
         </div>
         <div v-if="currentSection.name === '填空' && currentQuestionContent" class="fill-blank-question">
           <div class="question-content">{{ currentQuestionContent.problem }}</div>
-          <input type="text" class="input-box" v-model="filledAnswer" disabled />
+          <!-- <input type="text" class="input-box" v-model="filledAnswer" disabled /> -->
+          <input type="text" 
+            class="input-box" 
+            v-model="filledAnswer" 
+            disabled 
+            v-bind:style="{
+              backgroundColor: '#f5f5f5',
+              color: isAnswerCorrect(currentSection, currentQuestion - 1) ? '#6fbf73' : 'red',
+            }" 
+          />
         </div>
         <div v-if="currentSection.name === '判断' && currentQuestionContent" class="judge-question">
           <div class="question-content">{{ currentQuestionContent.problem }}</div>
@@ -68,7 +77,7 @@
                 'incorrect': selectedOption === true && !isCorrectJudge(true),
               }"
             >
-              <span>正确</span>
+              <span>A. 正确</span>
               <span class="circle" :class="{ selected: selectedOption === true }">
                 <span class="status-icon" v-if="selectedOption === true">
                   <i v-if="isCorrectJudge(true)" class="fas fa-check"></i>
@@ -83,7 +92,7 @@
                 'incorrect': selectedOption === false && !isCorrectJudge(false),
               }"
             >
-              <span>错误</span>
+              <span>B. 错误</span>
               <span class="circle" :class="{ selected: selectedOption === false }">
                 <span class="status-icon" v-if="selectedOption === false">
                   <i v-if="isCorrectJudge(false)" class="fas fa-check"></i>
@@ -169,7 +178,6 @@ export default {
       const analysisText = this.currentQuestionContent.analysis;
 
       if (!navigator.clipboard) {
-        // 如果浏览器不支持 Clipboard API，可以使用替代方案
         const textArea = document.createElement("textarea");
         textArea.value = analysisText;
         document.body.appendChild(textArea);
@@ -238,9 +246,12 @@ export default {
     jumpToQuestion(sectionName, questionNumber) {
       this.currentSection = this.sections.find((section) => section.name === sectionName);
       this.currentQuestion = questionNumber;
-      console.log(this.currentSection.questions[this.currentQuestion-1]);
+      // console.log(this.currentSection.questions[this.currentQuestion-1]);
       this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
-      console.log(this.selectedOption);
+      // console.log(this.selectedOption);
+      if(this.currentSection.name==='填空'){
+        this.filledAnswer = this.currentSection.questions[this.currentQuestion-1].doneanswer;
+      }
     },
     isAnswerCorrect(section, index) {
       const question = section.questions[index];
@@ -279,6 +290,9 @@ export default {
           console.log(this.selectedOption);
         }
       }
+      if(this.currentSection.name==='填空'){
+        this.filledAnswer = this.currentSection.questions[this.currentQuestion-1].doneanswer;
+      }
     },
     nextQuestion() {
       if (this.currentSection && this.currentQuestion < this.currentSection.questions.length) {
@@ -294,6 +308,9 @@ export default {
           this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
           console.log(this.selectedOption);
         }
+      }
+      if(this.currentSection.name==='填空'){
+        this.filledAnswer = this.currentSection.questions[this.currentQuestion-1].doneanswer;
       }
     },
     dealDoneAnswer(ans) {
@@ -344,7 +361,7 @@ export default {
 .test-result-page {
   display: flex;
   flex-direction: column;
-  height: 96vh;
+  height: 98vh;
   font-family: Arial, sans-serif;
 }
 
@@ -429,7 +446,10 @@ main {
   width: 200px;
   background-color: #e9e9e9;
   padding: 10px;
-  border-right: 1px solid #ddd;
+  /* border-right: 1px solid #ddd; */
+  border: 3px solid transparent;
+  border-radius: 5px;
+  animation: border-rotation 5s linear infinite; 
 }
 
 .section {
@@ -479,6 +499,26 @@ main {
 .content {
   flex: 1;
   padding: 20px;
+  border: 3px solid transparent;
+  border-radius: 5px;
+  animation: border-rotation 5s linear infinite; 
+}
+@keyframes border-rotation {
+  0% {
+    border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  25% {
+    border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  50% {
+    border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  75% {
+    border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  100% {
+    border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
 }
 
 h2 {
@@ -510,6 +550,7 @@ h2 {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
+  margin-left: 10px;
   cursor: pointer;
   transition: background-color 0.3s, border 0.3s;
 }
@@ -577,6 +618,7 @@ h2 {
 
   p{
     margin-top: -15px;
+    margin-left: 30px;
   }
 }
 
@@ -625,7 +667,7 @@ h2 {
 }
 
 .incorrect-result {
-  color: red;
+  color: rgb(253, 77, 77);
 }
 
 .buttons {
@@ -645,7 +687,8 @@ h2 {
   color: white;
   cursor: pointer;
   border-radius: 5px;
-  margin-right: 10px;
+  margin-left: 60px;
+  margin-right: 80px;
 }
 
 .navigation-buttons button:hover {
