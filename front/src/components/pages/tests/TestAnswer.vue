@@ -56,7 +56,7 @@
                 'selected': selectedOption === true,
                 'correct': selectedOption === true && isCorrectJudge(true),
                 'incorrect': selectedOption === true && !isCorrectJudge(true),
-                'user-selected': selectedOption === true && !isCorrectJudge(true)
+                // 'user-selected': selectedOption === true && !isCorrectJudge(true)
               }"
             >
               <span>正确</span>
@@ -67,7 +67,7 @@
                 'selected': selectedOption === false,
                 'correct': selectedOption === false && isCorrectJudge(false),
                 'incorrect': selectedOption === false && !isCorrectJudge(false),
-                'user-selected': selectedOption === false && !isCorrectJudge(false)
+                // 'user-selected': selectedOption === false && !isCorrectJudge(false)
               }"
             >
               <span>错误</span>
@@ -126,7 +126,9 @@ export default {
       return this.currentSection.questions[this.currentQuestion - 1] || null;
     },
     correctAnswer() {
-      const answer = this.currentQuestionContent?.answer || null;
+      const answer = this.currentQuestionContent.answer;
+      console.log(this.currentQuestionContent)
+      console.log('correctAnswer:',answer)
       return Array.isArray(answer) ? answer : [answer];
     }
   },
@@ -174,7 +176,6 @@ export default {
         this.sections[2].questions = judgementQuestions;
 
         this.currentSection = this.sections[0];
-        //this.restoreAnswer();
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -204,6 +205,9 @@ export default {
     jumpToQuestion(sectionName, questionNumber) {
       this.currentSection = this.sections.find((section) => section.name === sectionName);
       this.currentQuestion = questionNumber;
+      console.log(this.currentSection.questions[this.currentQuestion-1]);
+      this.selectedOption =this.currentSection.questions[this.currentQuestion-1].doneanswer;
+      console.log(this.selectedOption);
     },
     isAnswerCorrect(section, index) {
       const question = section.questions[index];
@@ -424,8 +428,7 @@ h2 {
 }
 
 .option.incorrect {
-  background-color: #f8a8a8;
-  border-color: #e57373;
+  background-color: #ffffff;
 }
 .option.incorrect.user-selected {
   background-color: #f8a8a8;
@@ -434,8 +437,7 @@ h2 {
 }
 
 .option.selected {
-  background-color: #007bff; /* 用户选择的选项颜色 */
-  color: white;
+  background-color: #a8d8a8;
 }
 
 
