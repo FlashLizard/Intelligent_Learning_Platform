@@ -70,13 +70,13 @@ def upload_imagefile():
                 except Exception as e:
                     print(f'Failed to delete {file_path}. Reason: {e}')
         os.makedirs(save_dir, exist_ok=True)
-        file.save(os.path.join('img_2_words','image', filename))
-        img_2_words_run()
-        filename2 = "imageresult.txt"
-        txtdir = os.path.join('img_2_words','image2wordresult')
-        filepath = os.path.join(txtdir,filename2)
-        with open(filepath, "r") as f:
-            content = f.read()
+        file.save(os.path.join('img_2_words','image', filename))  # 保存到一个临时的文件夹下
+
+        content = img_2_words_run()
+
+
+        # 这里得到了试题的文本
+        #TODO 将试题文本格式转化成出题模块中的格式
         print('content:',content)
         return jsonify({"content": content})
 
