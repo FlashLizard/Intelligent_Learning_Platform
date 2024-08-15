@@ -156,17 +156,11 @@ class img_2_words:
                         words_content.append(word['content'])
 
         result_string = ' '.join(words_content)
-        filename2 = "imageresult.txt"
-        save_dir = os.path.join('img_2_words','image2wordresult')
-        os.makedirs(save_dir, exist_ok=True)
-        filepath = os.path.join('img_2_words','image2wordresult',filename2)
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(result_string)
 
-        print("内容已保存。")
         print(result_string)
+        return result_string
 
 
 def img_2_words_run():
     IMG2WORDS = img_2_words(APPId, APIKey, APISecret)
-    IMG2WORDS.run()
+    return IMG2WORDS.run()
