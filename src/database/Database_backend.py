@@ -1,6 +1,6 @@
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,get_user_password,create_user,create_voice_user,delete_test
+from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,get_user_password,get_user_voiceurl,create_user,create_voice_user,delete_test
 from utils import Logger
 from spark.SparkApi import SparkLLM
 from voiceLoad.voiceLoad import voiceAdd,voiceVerify,voiceStackBuild
@@ -244,7 +244,7 @@ def voice_login():
     username = content['username']
     print('username:',username)
     user_id = get_user_id(username)
-    user_voice_url = get_user_password(username)
+    user_voice_url = get_user_voiceurl(username)
     if user_id == None :
         return {
             "status": "failed",
