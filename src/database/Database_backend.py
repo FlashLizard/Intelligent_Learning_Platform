@@ -1,10 +1,14 @@
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,create_user,delete_test
+from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,get_user_password,create_user,create_voice_user,delete_test
 from utils import Logger
 from spark.SparkApi import SparkLLM
+from voiceLoad.voiceLoad import voiceAdd,voiceVerify,voiceStackBuild
+import os
+from io import BytesIO
 import json5
 import time
+from pydub import AudioSegment
 from datetime import datetime
 from App import app
 
@@ -24,18 +28,12 @@ def datetime_serializer(obj):
         return obj.isoformat()  # 将 datetime 对象转换为 ISO 格式的字符串
     raise TypeError(f"Type {type(obj)} not serializable")
 
-# # 创建服务器
-# app = Flask(__name__)
-
-# app.json.ensure_ascii = False
-# CORS(app)
-
 @app.route('/save_test', methods=['POST'])
 def save_test_handler():
     content = request.json
     #获取当前系统时间
     test_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    test_id = create_test(content['user_id'], content['test_name'], test_time,
+    test_id = create_test(content['user_name'], content['test_name'], test_time,
                 content['problems'],content['answers'], content['evaluation'], content['test_score'], content['test_subjects'])
     return {
         "status": "success",
@@ -44,7 +42,7 @@ def save_test_handler():
 
 @app.route('/get_user_tests', methods=['POST'])
 def get_user_tests_handler():
-    tests = get_user_tests(request.json['user_id'])
+    tests = get_user_tests(request.json['user_name'])
     return {
         "status": "success",
         "tests":tests
@@ -52,7 +50,7 @@ def get_user_tests_handler():
 
 @app.route('/get_user_tests_analysis', methods=['POST'])
 def get_user_tests_analysis_handler():
-    tests_data = get_user_tests_analysis(request.json['user_id'])
+    tests_data = get_user_tests_analysis(request.json['user_name'])
     print('tests_data:',tests_data)
     tests_analysis_prompt1 = '''我以以下格式:[
         {'test_name': '生物', 'test_time': datetime.datetime(2024, 7, 19, 5, 32, 16), 'id': 9, 'test_score': 65, 'test_subjects': '"生态学, 分子生物学"'}, {'test_name': '生物', 'test_time': datetime.datetime(2024, 8, 12, 23, 51, 12), 'id': 10, 'test_score': 83, 'test_subjects': '"细胞生物学"'}
@@ -123,20 +121,213 @@ def get_user_id_handler():
         "user_id": result
     }
 
+@app.route('/password_login', methods=['POST'])
+def password_login_handler():
+    content = request.json
+    Logger.info(request)
+    result = get_user_id(content['username'])
+    password = get_user_password(content['username'])
+    if(result is None):
+        return {
+            "status": "failed",
+            "msg": "用户不存在，请先注册"
+        }
+    if(result and password is None):
+        return {
+            "status": "failed",
+            "msg": "请先进行密码注册"
+        }
+    if(result and password != content['password']):
+        return {
+            "status": "failed",
+            "msg": "密码错误"
+        }
+    return {
+        "status": "success",
+        "user_id": result
+    }
+
 @app.route('/create_user', methods=['POST'])
-def create_user_handler():
+def password_register():
     content = request.json
     print(request)
-    user_id = create_user(content['username'])
+    # user_id = create_user(content['username'])
+    user_id = create_user(content['username'], content['password'], None, None)
     if user_id is None:
         return {
             "status": "failed",
-            "msg": "user already exists"
+            "msg": "注册失败"
         }
     return {
         "status": "success",
         "user_id": user_id
     }
+
+@app.route('/save_user_voice', methods=['POST'])
+def save_user_voice():
+    username = request.form['username']
+    print('username:',username)
+    voice_file = request.files['voice_file']
+
+    user_directory = './voiceLoad/uservoice_database'
+    os.makedirs(user_directory, exist_ok=True)
+
+    # 清空用户目录中的所有文件
+    for filename in os.listdir(user_directory):
+        file_path = os.path.join(user_directory, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.remove(file_path)  # 删除文件或符号链接
+            elif os.path.isdir(file_path):
+                # 删除目录及其内容
+                for sub_filename in os.listdir(file_path):
+                    sub_file_path = os.path.join(file_path, sub_filename)
+                    if os.path.isfile(sub_file_path) or os.path.islink(sub_file_path):
+                        os.remove(sub_file_path)
+                    elif os.path.isdir(sub_file_path):
+                        for sub_sub_filename in os.listdir(sub_file_path):
+                            sub_sub_file_path = os.path.join(sub_file_path, sub_sub_filename)
+                            if os.path.isfile(sub_sub_file_path) or os.path.islink(sub_sub_file_path):
+                                os.remove(sub_sub_file_path)
+                            elif os.path.isdir(sub_sub_file_path):
+                                os.rmdir(sub_sub_file_path)
+                        os.rmdir(sub_file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
+    wav_path = os.path.join(user_directory, 'voice.wav')
+    voice_file.save(wav_path)
+
+    # 用pydub加载文件
+    audio = AudioSegment.from_file(wav_path)
+
+    # 设置音频属性
+    audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
+
+    # 保存为MP3格式
+    mp3_path = os.path.join(user_directory, 'voice.mp3')
+    audio.export(mp3_path, format='mp3')
+
+    return jsonify({
+        "status": "success",
+        "file_path": mp3_path
+    })
+
+@app.route('/voiceregister', methods=['POST'])
+def voice_register():
+    data = request.json
+    username = data['username']
+    UPLOAD_FOLDER = './voiceLoad/uservoice_database'
+    file_path = os.path.join(UPLOAD_FOLDER, "voice.mp3")
+
+    # Step 1: 创建库
+    group_name, group_id, group_info = voiceStackBuild(file_path, "1", "xunfeizhijiao", "try")
+    featureId = username  # 使用用户名作为特征 ID
+    featureinfo = username
+    # Step 2: 创建条目
+    feature_id = voiceAdd(file_path, group_id, featureId, featureinfo)
+    print("feature_id:",feature_id)
+
+    user_id = create_voice_user(username, None, UPLOAD_FOLDER, None)
+    print("voice_register_user_id:",user_id)
+
+    return jsonify({
+        "group_name": group_name,
+        "group_id": group_id,
+        "group_info": group_info,
+        "feature_id": feature_id
+    })
+
+@app.route('/voicelogin', methods=['POST'])
+def voice_login():
+    content = request.json
+    username = content['username']
+    print('username:',username)
+    user_id = get_user_id(username)
+    user_voice_url = get_user_password(username)
+    if user_id == None :
+        return {
+            "status": "failed",
+            "msg": "用户不存在，请先注册"
+        }
+    if user_id and user_voice_url == None:
+        return {
+            "status": "failed",
+            "msg": "用户声纹未注册，请先注册"
+        }
+    # Step 1: 验证条目
+    score, feature_info, feature_id = voiceVerify('./voiceLoad/uservoice_database/voice.mp3', "1", username)
+    print('score:',score)
+    print('feature_info:',feature_info)
+    print('feature_id:',feature_id)
+    # 假设分数大于某个阈值表示成功
+    if score > 0.7:  # 阈值可以根据需要调整
+        return jsonify({
+            "status": "success",
+            "score": score,
+            "user_id": feature_info
+        })
+    else:
+        return jsonify({
+            "status": "failure",
+            "score": score,
+            "user_id": feature_info,
+            "msg": "用户声纹错误，请重试",
+        })
+
+@app.route('/face_login', methods=['POST'])
+def face_login():
+    username = request.form.get('username')
+    photo = request.files.get('photo')
+    print(username,photo)
+
+    if not username or not photo:
+        return jsonify({'status': 'fail', 'msg': '用户名或照片缺失'}), 400
+
+    # 保存照片
+    filename = photo.filename
+    photo_directory = "./faceCompareLoad/photos"
+    os.makedirs(photo_directory, exist_ok=True)
+    clear_directory(photo_directory)
+    file_path = os.path.join("./faceCompareLoad/photos", filename)
+
+    photo.save(file_path)
+
+    # 假设您有一个函数 `recognize_face(photo_path, username)` 返回识别结果
+    recognition_result = recognize_face(file_path, username)
+    if recognition_result:
+        return jsonify({'status': 'success', 'msg': '人脸登录成功'})
+    else:
+        return jsonify({'status': 'fail', 'msg': '人脸识别失败'})
+
+def recognize_face(photo_path, username):
+    # 这里是人脸识别的逻辑，占位代码
+    # 返回 True 表示识别成功，False 表示识别失败
+    return True
+
+def clear_directory(directory_path):
+        # 清空用户目录中的所有文件
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.remove(file_path)  # 删除文件或符号链接
+            elif os.path.isdir(file_path):
+                # 删除目录及其内容
+                for sub_filename in os.listdir(file_path):
+                    sub_file_path = os.path.join(file_path, sub_filename)
+                    if os.path.isfile(sub_file_path) or os.path.islink(sub_file_path):
+                        os.remove(sub_file_path)
+                    elif os.path.isdir(sub_file_path):
+                        for sub_sub_filename in os.listdir(sub_file_path):
+                            sub_sub_file_path = os.path.join(sub_file_path, sub_sub_filename)
+                            if os.path.isfile(sub_sub_file_path) or os.path.islink(sub_sub_file_path):
+                                os.remove(sub_sub_file_path)
+                            elif os.path.isdir(sub_sub_file_path):
+                                os.rmdir(sub_sub_file_path)
+                        os.rmdir(sub_file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -10,10 +10,10 @@
       <div class="scroll-panel">
         <!-- 表头 -->
         <div class="table-header">
-          <span class="table-cell"><i class="fas fa-calendar-alt"></i>  测试时间</span>
-          <span class="table-cell"><i class="fas fa-book"></i>  测试学科</span>
-          <span class="table-cell"><i class="fas fa-lightbulb"></i>  测试知识点</span>
-          <span class="table-cell"><i class="fas fa-star"></i>  测试评分</span>
+          <span class="table-cell"><i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>  测试时间</span>
+          <span class="table-cell"><i class="fas fa-book" style="margin-right: 8px;"></i>  测试学科</span>
+          <span class="table-cell"><i class="fas fa-lightbulb" style="margin-right: 8px;"></i>  测试知识点</span>
+          <span class="table-cell"><i class="fas fa-star" style="margin-right: 8px;"></i>  测试评分</span>
           <span class="table-cell"></span> 
         </div>
         <!-- 表格内容 -->
@@ -108,11 +108,14 @@ export default {
       const allUsers = await store.getAll();
       await tx.done;
       if (allUsers.length > 0) {
-        const { userId } = allUsers[0];
+        const userId = allUsers[0].userId;
+        const username = allUsers[0].username;
+        console.log("allUsers:",allUsers)
         console.log('Retrieved userId:', userId);
-        this.fetchUserTestsAnalysis(userId); //加载用户个性化分析
+        console.log('Retrieved username:', username);
+        this.fetchUserTestsAnalysis(username); //加载用户个性化分析
         const response = await axios.post('/get_user_tests', 
-          { user_id: userId }
+          {user_name: username}
         ).then((response) => {
           return response;
         });
@@ -144,10 +147,10 @@ export default {
         }
       });
     },
-    async fetchUserTestsAnalysis(userId) {
+    async fetchUserTestsAnalysis(username) {
       try {
         const response = await axios.post('/get_user_tests_analysis', {
-          user_id: userId
+          user_name: username
         });
 
         if (response.data.status === 'success') {
@@ -212,7 +215,6 @@ export default {
             },
           });
 
-          // Clear the database before adding new test details
           const tx = db.transaction('tests', 'readwrite');
           const store = tx.objectStore('tests');
           await store.clear();
@@ -264,7 +266,7 @@ export default {
     background-color: #3498db;
     color: #fff;
     h1 {
-      font-size: 24px;
+      font-size: 28px;
       margin-left: 48%;
       margin-top: 5px;
       margin-bottom: 5px;
@@ -284,7 +286,7 @@ export default {
     padding: 20px;
   }
   .scroll-panel {
-    max-height: 400px;
+    max-height: 250px;
     overflow-y: scroll;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -301,10 +303,11 @@ export default {
       color: #fff;
       font-weight: bold;
       padding: 10px;
+      font-size: 1.0em;
     }
 
     .table-body {
-      max-height: 300px;
+      max-height: 200px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -343,7 +346,11 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-top: 165px;
+    position: fixed; /* 将组件固定在窗口底部 */
+    bottom: 20px;
+    left: 40px; /* 确保组件从左侧开始 */
+    right: 40px; /* 确保组件延伸到右侧 */
+    margin: 0 auto; /* 居中组件，如果宽度小于100% */
     border-radius: 5px !important;
     border-width: 3px !important;
     border-style: solid;

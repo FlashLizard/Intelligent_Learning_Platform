@@ -148,8 +148,10 @@ export default {
         const allUsers = await store.getAll();
         await tx.done;
         // Check if we have at least one user
-        const { userId } = allUsers[0]; // Get the first user's userId
+        const userId = allUsers[0].userId;
+        const username = allUsers[0].username;
         console.log('Retrieved userId:', userId);
+        console.log('Retrieved username:', username);
 
         const singleChoiceProblems = await problemsDB.getAll('single_choice_problems');
         const fillinProblems = await problemsDB.getAll('fillin_problems');
@@ -195,9 +197,10 @@ export default {
         const testScore = scores.reduce((acc, score) => acc + score.score, 0) / scores.length;
 
         const payload = {
-          user_id: userId,
-          test_name: testName,
-          test_subjects: testSubjects,
+          // user_id: userId,
+          user_name: username,
+          test_name: testName === "" ? "综合" : testName,
+          test_subjects: testSubjects === "" ? "综合" : testSubjects,
           problems,
           answers,
           evaluation: evaluation.content,
@@ -211,7 +214,7 @@ export default {
         const data = response.data;
         this.saving = false;
         if (data.status === 'success') {
-          alert('测试结果保存成功!')
+          alert('本次测试保存成功')
           console.log('测试结果保存成功:', data.test_id);
         } else {
           alert('网络不畅，请重新保存')
@@ -324,6 +327,7 @@ header .stars {
     justify-content: center;
     align-items: center;
     position: relative;
+    margin-bottom: 20px;
 
     h1 {
       margin: 0;

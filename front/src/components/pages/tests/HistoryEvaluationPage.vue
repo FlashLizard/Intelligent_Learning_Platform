@@ -1,7 +1,7 @@
 <template>
   <div class="evaluation-page">
     <header>
-      <h1><i class="fas fa-star"></i>测试评估 </h1>
+      <h1><i class="fas fa-star"></i>学情评估 </h1>
       <div class="stars">
         <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
       </div>
@@ -27,8 +27,8 @@
         <table class="ability-table">
           <thead>
             <tr>
-              <th>智能评卷指标</th>
-              <th>智教评分</th>
+              <th>学情评估指标</th>
+              <th>学情指标评分</th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +193,6 @@ export default {
             db.createObjectStore('shortcoming', { keyPath: 'id', autoIncrement: true });
           }
           if (!db.objectStoreNames.contains('suggestion')) {
-            console.log("create suggestion")
             db.createObjectStore('suggestion', { keyPath: 'id', autoIncrement: true });
           }
           if (!db.objectStoreNames.contains('subjects')) {
@@ -239,13 +238,12 @@ export default {
       });
       await txNew.done;
       const txSubjects = db.transaction(['subjects', 'knowledge_points'], 'readwrite');
-      console.log('学科：',this.selectedSubject)
-      console.log('this.selectedSubjects:',this.selectedSubjects)
-      let selectedsubject = [this.selectedSubject]
+      let selectedsubject = ["综合"]
       selectedsubject.forEach((subject) => {
         txSubjects.objectStore('subjects').put({ name: subject });
       });
-      this.selectedSubjects.forEach((knowledge) => {
+      let selectedSubjects = ["综合"]
+      selectedSubjects.forEach((knowledge) => {
         txSubjects.objectStore('knowledge_points').put({ name: knowledge });
       });
       await txSubjects.done;

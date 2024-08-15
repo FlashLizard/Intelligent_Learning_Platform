@@ -75,6 +75,7 @@
                 'selected': selectedOption === true,
                 'correct': selectedOption === true && isCorrectJudge(true),
                 'incorrect': selectedOption === true && !isCorrectJudge(true),
+                'user-selected': selectedOption === true && !isCorrectOption(true),
               }"
             >
               <span>A. 正确</span>
@@ -90,6 +91,7 @@
                 'selected': selectedOption === false,
                 'correct': selectedOption === false && isCorrectJudge(false),
                 'incorrect': selectedOption === false && !isCorrectJudge(false),
+                'user-selected': selectedOption === false && !isCorrectOption(false)
               }"
             >
               <span>B. 错误</span>

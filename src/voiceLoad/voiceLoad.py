@@ -330,7 +330,7 @@ def voiceStackBuild(file_path, groupId, groupName, groupInfo):    # 新建一个
     res = req_url(api_name='createGroup', APPId=APPId,
             APIKey=APIKey, APISecret=APISecret, file_path=file_path,
             groupId=groupId, groupName=groupName, groupInfo=groupInfo)
-
+    print('voiceStackBuild_res:',res)
     # 获取并解码 text 字段
     encoded_text = res["payload"]["createGroupRes"]["text"]
     decoded_text = base64.b64decode(encoded_text).decode('utf-8')
@@ -343,15 +343,17 @@ def voiceStackBuild(file_path, groupId, groupName, groupInfo):    # 新建一个
     group_id = decoded_json["groupId"]
     group_info = decoded_json["groupInfo"]
 
+    return group_name, group_id, group_info
 
 def voiceAdd(file_path, groupId, featureId, featureInfo):   #  为一个新用户在声纹库中新建一个声纹
     #file_path = 'voices/讯飞开放平台.mp3'
     res = req_url(api_name='createFeature', APPId=APPId,
             APIKey=APIKey, APISecret=APISecret, file_path=file_path,
                   groupId=groupId, featureId=featureId, featureInfo=featureInfo)
-
+    print("VoiceAdd_res:",res)
     # 获取并解码 text 字段
-    encoded_text = res["payload"]["createGroupRes"]["text"]
+    # encoded_text = res["payload"]["createGroupRes"]["text"]
+    encoded_text = res["payload"]["createFeatureRes"]["text"]
     decoded_text = base64.b64decode(encoded_text).decode('utf-8')
 
     # 解析解码后的 JSON 字符串
@@ -360,14 +362,16 @@ def voiceAdd(file_path, groupId, featureId, featureInfo):   #  为一个新用�
     # 提取 groupName、groupId 和 groupInfo 的值
     featureId = decoded_json["featureId"]
 
+    return featureId
+
 
 
 def voiceVerify(file_path, groupId, dstFeatureId):    # 登录验证
     #file_path = 'voices/讯飞开放平台.mp3'
-    res = req_url(api_name='searchScoreFea', APPId=APPId,
-            APIKey=APIKey, APISecret=APISecret, file_path=file_path,
-                  groupId=groupId, dstFeatureId=dstFeatureId)
-    encoded_text = res["payload"]["createGroupRes"]["text"]
+    res = req_url(api_name='searchScoreFea', APPId=APPId, APIKey=APIKey, APISecret=APISecret, 
+                  file_path=file_path, groupId=groupId, dstFeatureId=dstFeatureId)
+    print("voiceVerify_res:",res)
+    encoded_text = res["payload"]["searchScoreFeaRes"]["text"]
     decoded_text = base64.b64decode(encoded_text).decode('utf-8')
 
     # 解析解码后的 JSON 字符串
@@ -377,3 +381,5 @@ def voiceVerify(file_path, groupId, dstFeatureId):    # 登录验证
     score = decoded_json["score"]
     featureInfo = decoded_json["featureInfo"]
     featureId = decoded_json["featureId"]
+
+    return score, featureInfo, featureId

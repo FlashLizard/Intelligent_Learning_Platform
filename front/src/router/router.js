@@ -9,6 +9,7 @@ import EvaluationPage from '@/components/pages/tests/EvaluationPage.vue';
 import TestAnswer from '@/components/pages/tests/TestAnswer.vue';
 import TestHistory from '@/components/pages/tests/TestHistory.vue';
 import HexagonChart from '@/components/component/HexagonChart.vue';
+import HistoryHexagonChart from '@/components/component/HistoryHexagonChart.vue';
 import SidebarMenu from '@/components/component/SidebarMenu.vue';
 import AiQa from '@/components/pages/aiqa/AiQa.vue';
 import TeacherRecording from '@/components/pages/classrecord/TeacherRecording.vue';
@@ -66,6 +67,11 @@ const routes = [
     path: '/hexagonchart',
     name: 'HexagonChart',
     component: HexagonChart,
+  },
+  {
+    path: '/historyhexagonchart',
+    name: 'HistoryHexagonChart',
+    component: HistoryHexagonChart,
   },
   {
     path: '/homeworkmanagement',
