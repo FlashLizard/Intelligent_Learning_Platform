@@ -19,32 +19,32 @@
       <form @submit.prevent="login">
         <!-- 表单内容根据选中的登录方式来显示 -->
         <div v-if="activeTab === 'password'" class="form-group">
-          <label for="username">用户名</label>
+          <label for="username"><i class="fas fa-user"></i> 用户名</label>
           <input type="text" id="username" v-model="username" required />
         </div>
         <div v-if="activeTab === 'password'" class="form-group">
-          <label for="password">密码</label>
+          <label for="password"><i class="fas fa-lock"></i> 密码</label>
           <input type="password" id="password" v-model="password" required />
         </div>
         <!-- 声纹登录的用户名输入框 -->
         <div v-if="activeTab === 'voice'" class="form-group">
-          <label for="voice-username">用户名</label>
+          <label for="voice-username"><i class="fas fa-user"></i> 用户名</label>
           <input type="text" id="voice-username" v-model="username" required />
         </div>
         <!-- 声纹登录的麦克风按钮 -->
         <div v-if="activeTab === 'voice'" class="microphone-container">
-          <label class="voice-label">录入语音: </label>
+          <label class="voice-label"><i class="fas fa-microphone"></i> 录入语音: </label>
           <button type="button" @click="toggleRecording" class="microphone-button">
             <i :class="isRecording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
           </button>
         </div>
         <!-- 人脸识别登录的内容 -->
         <div v-if="activeTab === 'face'" class="form-group">
-          <label for="face-username">用户名</label>
+          <label for="face-username"><i class="fas fa-user"></i> 用户名</label>
           <input type="text" id="face-username" v-model="username" required />
         </div>
         <div v-if="activeTab === 'face'" class="photo-container">
-          <label class="face-label">人脸拍照: </label>
+          <label class="face-label"><i class="fas fa-camera"></i> 上传人脸: </label>
           <button type="button" @click="startCamera" class="photo-button">
             <i class="fas fa-camera"></i>
           </button>
@@ -60,7 +60,7 @@
         </div>
         <div v-else-if="activeTab === 'face'" class="button-group">
           <button type="submit" class="animated-button">登录</button>
-          <button type="button" @click="register" class="animated-button register-button">注册</button>
+          <button type="button" @click="registerFace" class="animated-button register-button">注册</button>
         </div>
       </form>
 
@@ -77,8 +77,10 @@
       <div class="camera-content">
         <i class="fas fa-times close-icon" @click="closeCameraDialog"></i>
         <div class="circle-overlay"></div> <!-- 圆圈 -->
-        <video ref="video" class="camera-video" autoplay></video>
-        <button @click="capturePhoto" class="capture-button">截图</button>
+        <!-- 提示文本 -->
+        <div class="loading-text" v-if="isCameraLoading"><i class="fas fa-spinner fa-spin"></i>  摄像头启用中…</div>
+        <video ref="video" class="camera-video" autoplay @loadeddata="isCameraLoading = false"></video>
+        <button @click="capturePhoto" class="capture-button">上传人脸信息</button>
       </div>
     </div>
   </div>
@@ -101,8 +103,10 @@ export default {
       mediaRecorder: null,
       audioChunks: [],
       hasRecorded: false,  // 记录用户是否已经录制了声纹
+      hasPictured: false,  // 记录用户是否已经上传了人脸
       cameraDialogVisible: false,
       capturedPhoto: null,
+      isCameraLoading: true,
     };
   },
   methods: {
@@ -132,6 +136,7 @@ export default {
         tracks.forEach((track) => track.stop());
         this.$refs.video.srcObject = null;
         console.log('Camera stopped successfully');
+        this.isCameraLoading = true;
       } else {
         console.error('No media stream found');
       }
@@ -170,13 +175,14 @@ export default {
         formData.append('username', this.username);
         formData.append('photo', photoBlob, 'photo.png');
 
-        const response = await axios.post('/face_login', formData);
+        const response = await axios.post('/save_user_face', formData);
         if (response.data.status === 'success') {
-          this.dialogMessage = '人脸登录成功';
+          this.dialogMessage = response.data.msg;
         } else {
           this.dialogMessage = response.data.msg;
         }
         this.dialogVisible = true;
+        this.hasPictured = true;
       } catch (error) {
         console.error('发送照片失败:', error);
         this.dialogMessage = '人脸登录请求失败';
@@ -275,6 +281,24 @@ export default {
         }
         if(this.activeTab === "face"){
           console.log("face")
+          if (!this.hasPictured) {
+            this.dialogMessage = '请先上传人脸信息';
+            this.dialogVisible = true;
+            return;
+          }
+          const response = await axios.post('/facelogin', { username: this.username}).then((res) => {
+            return res;
+          });
+          const data = response.data;
+          if (data.status === 'success') {
+            console.log('userid',data.user_id)
+            const userId = data.user_id;
+            await this.saveUserToIndexedDB(this.username, userId);
+            this.$router.push('/index');
+          } else {
+            this.dialogMessage = data.msg;
+            this.dialogVisible = true;
+          }
         }
       } catch (error) {
         console.error('登录失败:', error);
@@ -332,6 +356,29 @@ export default {
         this.dialogVisible = true;
       }
     },
+    async registerFace() {
+      if (!this.hasPictured) {
+        this.dialogMessage = '请先上传人脸图像';
+        this.dialogVisible = true;
+        return;
+      }
+      try {
+        const response = await axios.post('/faceregister', {
+          username: this.username
+        });
+
+        if (response.data.status === "success") {
+          this.dialogMessage = '人脸注册成功';
+        } else {
+          this.dialogMessage = '人脸注册失败';
+        }
+        this.dialogVisible = true;
+      } catch (error) {
+        console.error('人脸注册请求失败:', error);
+        this.dialogMessage = '人脸注册请求失败';
+        this.dialogVisible = true;
+      }
+    },
     async saveUserToIndexedDB(username, userId) {
       const db = await openDB('UserDatabase', 1, {
         upgrade(db) {
@@ -369,7 +416,11 @@ export default {
 }
 
 .login-container {
-  background-color: white;
+  // background-color: white;
+  background-image: url('../../../assets/Login.jpg'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
   padding: 40px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -385,7 +436,8 @@ export default {
 h1 {
   margin-top: 5px;
   margin-bottom: 40px;
-  color: #2e83df;
+  // color: #2e83df;
+  color: #baf0fa;
   font-size: 2.5em;
 }
 
@@ -424,7 +476,8 @@ h1 {
 label {
   display: block;
   margin-bottom: 10px;
-  color: #4facfe;
+  // color: #4facfe;
+  color:#ade8f1;
   font-weight: bold;
   font-size: 1.2em;
 }
@@ -639,16 +692,17 @@ button:hover {
 .voice-label {
   margin-right: 45px;
   font-size: 1.2em;
-  color: #4facfe;
+  color: #baf0fa;
 }
 
 .microphone-button {
   margin-right: 45px;
-  width: 60px;
-  height: 60px;
+  margin-top:-5px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background-color: #4facfe;
-  color: white;
+  background-color: #01f39e;
+  color: rgb(251, 252, 253);
   border: none;
   font-size: 2.3em;
   display: flex;
@@ -676,15 +730,16 @@ button:hover {
 .face-label {
   margin-right: 45px;
   font-size: 1.2em;
-  color: #4facfe;
+  color: #baf0fa;;
 }
 
 .photo-button {
   margin-right: 45px;
-  width: 60px;
-  height: 60px;
+  margin-top:-5px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background-color: #4facfe;
+  background-color: #01f39e;
   color: white;
   border: none;
   font-size: 2.3em;
@@ -741,7 +796,26 @@ button:hover {
 .capture-button:hover {
   background-color: #2e83df;
 }
-
+.loading-text {
+  margin-left: 5px;
+  position: absolute;
+  text-align: center;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  display: flex; /* 使用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  font-size: 25px;
+  font-weight: bold;
+  color: #2575ed;
+  z-index: 1; /* 提示文本在视频下方 */
+}
+.icon-spacing {
+  margin-right: 10px; /* 根据需要调整空隙 */
+}
 .circle-overlay {
   position: absolute;
   top: 40%;

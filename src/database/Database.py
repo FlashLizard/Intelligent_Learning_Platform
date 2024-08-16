@@ -108,6 +108,7 @@ def delete_database():
     
 # 增加用户
 def create_user(username, user_password=None, user_voice_url=None, user_image_url=None):
+    # 密码注册
     cursor = get_database().cursor()
 
     # 检查用户是否已存在
@@ -138,12 +139,12 @@ def create_user(username, user_password=None, user_voice_url=None, user_image_ur
     return existing_user_id
 
 def create_voice_user(username, user_password=None, user_voice_url=None, user_image_url=None):
+    # 声纹注册
     cursor = get_database().cursor()
 
     # 检查用户是否已存在
     existing_user_id = get_user_id(username)
     if existing_user_id is not None:
-        # 如果用户已存在，则更新记录
         user_password = get_user_password(username)
         user_image_url = get_user_imageurl(username)
         update_query = """
@@ -155,7 +156,35 @@ def create_voice_user(username, user_password=None, user_voice_url=None, user_im
         get_database().commit()
         Logger.info(f"User {username} updated")
     else:
-        # 如果用户不存在，则插入新记录
+        insert_query = """
+        INSERT INTO users (username, user_password, user_voice_url, user_image_url)
+        VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (username, user_password, user_voice_url, user_image_url))
+        get_database().commit()
+        Logger.info(f"User {username} created")
+        return cursor.lastrowid
+
+    return existing_user_id
+
+def create_face_user(username, user_password=None, user_voice_url=None, user_image_url=None):
+    # 声纹注册
+    cursor = get_database().cursor()
+
+    # 检查用户是否已存在
+    existing_user_id = get_user_id(username)
+    if existing_user_id is not None:
+        user_password = get_user_password(username)
+        user_voice_url = get_user_voiceurl(username)
+        update_query = """
+        UPDATE users
+        SET user_password = %s, user_voice_url = %s, user_image_url = %s
+        WHERE username = %s
+        """
+        cursor.execute(update_query, (user_password, user_voice_url, user_image_url, username))
+        get_database().commit()
+        Logger.info(f"User {username} updated")
+    else:
         insert_query = """
         INSERT INTO users (username, user_password, user_voice_url, user_image_url)
         VALUES (%s, %s, %s, %s)

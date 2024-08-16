@@ -1,14 +1,17 @@
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,get_user_password,get_user_voiceurl,create_user,create_voice_user,delete_test
+from .Database import create_test,get_user_tests,get_user_tests_analysis,get_test_by_id,get_user_id,get_user_password,get_user_voiceurl,get_user_imageurl,create_user,create_voice_user,create_face_user,delete_test
 from utils import Logger
 from spark.SparkApi import SparkLLM
 from voiceLoad.voiceLoad import voiceAdd,voiceVerify,voiceStackBuild
+from faceCompareLoad.faceCompare import runFaceCompare
+from faceCompareLoad.livingbodyTest import livingbodyTest
 import os
 from io import BytesIO
 import json5
 import time
 from pydub import AudioSegment
+import shutil
 from datetime import datetime
 from App import app
 
@@ -275,8 +278,8 @@ def voice_login():
             "msg": "用户声纹错误，请重试",
         })
 
-@app.route('/face_login', methods=['POST'])
-def face_login():
+@app.route('/save_user_face', methods=['POST'])
+def save_user_face():
     username = request.form.get('username')
     photo = request.files.get('photo')
     print(username,photo)
@@ -293,17 +296,98 @@ def face_login():
 
     photo.save(file_path)
 
-    # 假设您有一个函数 `recognize_face(photo_path, username)` 返回识别结果
-    recognition_result = recognize_face(file_path, username)
-    if recognition_result:
-        return jsonify({'status': 'success', 'msg': '人脸登录成功'})
-    else:
-        return jsonify({'status': 'fail', 'msg': '人脸识别失败'})
+    return jsonify({'status': 'success', 'msg': '人脸上传成功'})
 
-def recognize_face(photo_path, username):
-    # 这里是人脸识别的逻辑，占位代码
-    # 返回 True 表示识别成功，False 表示识别失败
-    return True
+@app.route('/faceregister', methods=['POST'])
+def face_register():
+    try:
+        data = request.json
+        username = data['username']
+        face_database_path = './database/user_face_database'
+        os.makedirs(face_database_path, exist_ok=True)
+        user_face_database_path = os.path.join(face_database_path, username)
+        os.makedirs(user_face_database_path, exist_ok=True)
+        # 源文件路径
+        source_file_path = './faceCompareLoad/photos/photo.png'
+        # 目标文件路径
+        destination_file_path = os.path.join(user_face_database_path, 'photo.png')
+        print("destination_file_path: ",destination_file_path)
+        # 复制文件
+        shutil.copy(source_file_path, destination_file_path)
+        
+        user_id = create_face_user(username, None, None, destination_file_path)
+        print("voice_register_user_id:",user_id)
+
+        return jsonify({
+            "status" : "success", "user_id" : user_id, "msg": "人脸注册成功"
+        })
+    
+    except Exception as e:
+        print("人脸注册失败:",str(e))
+        return jsonify({
+            "status" : "failed",
+            "msg": "人脸注册失败",
+            "error": str(e)  # 将异常信息返回，方便调试
+        }), 500  # 返回 HTTP 500 状态码表示服务器错误
+
+@app.route('/facelogin', methods=['POST'])
+def face_login():
+    content = request.json
+    username = content['username']
+    print('username:',username)
+    user_id = get_user_id(username)
+    user_image_url = get_user_imageurl(username)
+    if user_id == None :
+        return {
+            "status": "failed",
+            "msg": "用户不存在，请先注册"
+        }
+    if user_id and user_image_url == None:
+        return {
+            "status": "failed",
+            "msg": "用户未进行过人脸注册"
+        }
+    # 登陆中人脸图片路径
+    ToBeChecked_file_path = './faceCompareLoad/photos/photo.png'
+    # 数据库人脸文件路径
+    face_database_path = './database/user_face_database'
+    user_face_database_path = os.path.join(face_database_path, username)
+    database_file_path = os.path.join(user_face_database_path, 'photo.png')
+
+    appid = "e76d7d8f"
+    apisecret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"
+    apikey = "990e2770b030441fbcc126c691daf5cd"
+    score = runFaceCompare(
+        appid=appid,
+        apisecret=apisecret,
+        apikey=apikey,
+        img1_path=ToBeChecked_file_path,
+        img2_path=database_file_path,
+    )
+    living = livingbodyTest(
+        appid=appid,
+        apisecret=apisecret,
+        apikey=apikey,
+        img_path=ToBeChecked_file_path,
+    )
+    print("score,living: ",score, living)
+    # score是一个0-1的浮点数，大于0.99？ 可以视为同一个人
+    # living为一个布尔变量，false表示未能通过活体检测（用户可能使用照片欺骗人像识别）
+
+
+    if score > 0.9:  # 阈值可以根据需要调整
+        return jsonify({
+            "status": "success",
+            "score": score,
+            "user_id": user_id,
+        })
+    else:
+        return jsonify({
+            "status": "failed",
+            "score": score,
+            "user_id": user_id,
+            "msg": "人脸识别失败，请重试",
+        })
 
 def clear_directory(directory_path):
         # 清空用户目录中的所有文件
