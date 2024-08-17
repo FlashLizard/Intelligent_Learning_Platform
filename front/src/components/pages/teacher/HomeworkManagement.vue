@@ -36,11 +36,11 @@
         <h2><i class="fas fa-check-circle"></i> 批改结果</h2>
         <div class="upload-info">
           <div class="info-item">
-            <span>上传作业数量：</span>
+            <span><i class="fas fa-file-alt"></i> 上传作业数量：</span>
             <div class="info-value">{{ uploadResults.length }}</div>
           </div>
           <div class="info-item">
-            <span>平均正确率：</span>
+            <span><i class="fas fa-chart-pie"></i> 平均正确率：</span>
             <div class="info-value">{{ calculateAccuracy() }}%</div>
           </div>
         </div>
@@ -48,9 +48,9 @@
           <table>
             <thead>
               <tr>
-                <th>序号</th>
-                <th>文件名</th>
-                <th>正确率</th>
+                <th><i class="fas fa-list-ol"></i> 序号</th>
+                <th><i class="fas fa-file-alt"></i> 文件名</th>
+                <th><i class="fas fa-percentage"></i> 正确率</th>
               </tr>
             </thead>
             <tbody>
@@ -258,21 +258,39 @@ export default {
   .content {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 2px;
     // margin-top: 20px;
     height: 85vh;
+    border: 3px solid transparent;
+    border-radius: 5px !important;
+    animation: border-rotation 3s linear infinite; 
 
     .left-section,
     .right-section {
       flex-grow: 1;
       background: #ffffff;
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 2px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+      background-size: 300% 300%;
+      animation: gradientAnimation 5s ease infinite; /* 添加循环渐变动画 */
+    }
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     .left-section {
+      width: 45%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -314,13 +332,13 @@ export default {
 
       .standard-answer-title {
         font-size: 1.5rem;
-        color: #444;
+        color: #064ec1;
         text-align: center;
         margin-bottom: 10px; /* 缩小间距 */
 
         i {
           margin-right: 8px;
-          color: #3778e0;
+          color: #064ec1;
         }
       }
 
@@ -337,18 +355,20 @@ export default {
     }
 
     .right-section {
+      width: 45%;
       display: flex;
       flex-direction: column;
       align-items: center;
 
       h2 {
+        margin-top:-5px;
         font-size: 1.5rem;
-        color: #444;
-        margin-bottom: 10px;
+        color: #064ec1;
+        margin-bottom: 30px;
 
         i {
           margin-right: 8px;
-          color: #3778e0;
+          color: #064ec1;
         }
       }
 
@@ -364,10 +384,11 @@ export default {
           display: flex;
           align-items: center;
           margin-right: 30px;
+          color: #064ec1;
 
           i {
             margin-right: 5px;
-            color: #3778e0;
+            color: #064ec1;
           }
         }
 
@@ -381,13 +402,21 @@ export default {
         overflow-y: auto;
         height: 74%;
         width: 100%;
-        border: 2px solid #000;
+        border: 1.5px solid #000;
         border-radius: 3px;
         padding: 10px;
 
         table {
           width: 100%;
           border-collapse: collapse;
+
+          thread {
+            tr{
+              th{
+                color: 3778e0;
+              }
+            }
+          }
 
           th, td {
             border: 1px solid #797777;
@@ -410,6 +439,23 @@ export default {
     .right-section:hover {
       transform: none;
       box-shadow: none;
+    }
+  }
+  @keyframes border-rotation {
+    0% {
+      border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    25% {
+      border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    50% {
+      border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    75% {
+      border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+    }
+    100% {
+      border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
     }
   }
 }

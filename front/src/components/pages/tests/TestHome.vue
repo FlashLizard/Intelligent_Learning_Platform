@@ -440,7 +440,7 @@ export default {
         const response = await axios.post('/get_problems', {
             subjects: this.selectedSubjects,
             time: time,
-            min_difficulty: 0,
+            min_difficulty: difficultyValue,
             max_difficulty: difficultyValue,
             type: ['single_choice', 'judgement', 'fillin'],
             others: this.otherInput,

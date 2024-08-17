@@ -134,12 +134,12 @@ class img_2_words:
         headers = {'content-type': "application/json", 'host': 'api.xf-yun.com', 'app_id': APPId}
         print(request_url)
         response = requests.post(request_url, data=json.dumps(body), headers=headers)
-        print(response)
-        print(response.content)
+        # print(response)
+        # print(response.content)
 
         print("resp=>" + response.content.decode())
         tempResult = json.loads(response.content.decode())
-
+        print("tempResult:",tempResult)
         finalResult = base64.b64decode(tempResult['payload']['result']['text']).decode()
         finalResult = finalResult.replace(" ", "").replace("\n", "").replace("\t", "").strip()
         # 以JSON格式写入文件

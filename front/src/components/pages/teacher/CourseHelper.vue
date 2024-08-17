@@ -48,10 +48,10 @@
           <!-- 右侧上部 -->
           <div class="top">
             <div class="section">
-              <h2>点答器</h2>
+              <h2><i class="fas fa-bell"></i> 点答器</h2>
               <div class="button-container">
-                <button @click="selectUploadFile"><i class="fas fa-file-upload"></i>上传学生名单</button>
-                <button @click="randomSelectStudent"><i class="fas fa-random"></i>随机抽取学生</button>
+                <button @click="selectUploadFile"><i class="fas fa-file-upload"></i> 上传学生名单</button>
+                <button @click="randomSelectStudent"><i class="fas fa-random"></i> 随机抽取学生</button>
               </div>
               
               <!-- 隐藏的文件输入框 -->
@@ -67,7 +67,7 @@
                   <ul class="student-list">
                     <li v-for="(student, index) in students" :key="index" :class="{ selected: index === selectedStudentIndex }">{{ student }}</li>
                   </ul>
-                  <button @click="startSelection" class="extract-button" ><i class="fas fa-check"></i>抽取学生</button>
+                  <button @click="startSelection" class="extract-button" ><i class="fas fa-check"></i> 抽取学生</button>
                 </div>
               </div>
               <!-- 警告模态框 -->
@@ -77,30 +77,46 @@
                     <i class="fas fa-times"></i>
                   </span>
                   <p>学生名单为空，请先上传学生名单。</p>
-                  <button @click="closeDDAlertModal"><i class="fas fa-check"></i>确定</button>
+                  <button @click="closeDDAlertModal"><i class="fas fa-check"></i> 确定</button>
                 </div>
               </div>
             </div>
 
             <div class="section">
-              <h2>随堂测试</h2>
+              <h2><i class="fas fa-pencil-alt"></i> 随堂测试</h2>
               <div class="button-container">
-                <button @click="openModal"><i class="fas fa-pencil-alt"></i>AI生成题目</button>
+                <button @click="openModal"><i class="fas fa-pencil-alt"></i> AI生成题目</button>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2><i class="fas fa-comments"></i> 随堂答疑</h2>
+              <div class="button-container">
+                <button @click="toggleVoiceInput"> {{ isaskRecording ? '🛑' : '🎤' }} 语音提问</button>
+                <button @click="sendMessage"><i class="fas fa-paper-plane"></i>  发送问题 </button>
+              </div>
+              <div class="qa-container">
+                <div class="input-group">
+                  <label><i class="fas fa-question-circle"></i> 问题：</label>
+                  <input type="text" v-model="inputValue" class="input-field scrollable-input" placeholder="输入您的问题..." @keypress.enter="sendMessage" />
+                </div>
+                <div class="input-group">
+                  <label><i class="fas fa-reply"></i> 回答：</label>
+                  <input type="text" v-model="AIanswer" class="input-field scrollable-input" placeholder="AI回答将显示在这里..." readonly />
+                </div>
               </div>
             </div>
           </div>
           
           <!-- 右侧下部 -->
-          <div class="bottom">
-            <h2>随堂提问</h2>
+          <!-- <div class="bottom">
+            <h2><i class="fas fa-comments"></i> 随堂答疑</h2>
             <div class="chat-box" ref="chatBox">
               <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
                 <p><span v-if="message.isUser">
-                    <!-- User message with user icon -->
                     <i class="fas fa-user"></i> {{ message.text }}
                   </span>
                   <span v-else>
-                    <!-- AI message with robot icon -->
                     <i class="fas fa-robot"></i> {{ message.text }}
                   </span></p>
               </div>
@@ -110,7 +126,7 @@
               <button class="voice-button" @click="toggleVoiceInput">{{ isaskRecording ? '🛑' : '🎤' }}</button>
               <button class="send-button" @click="sendMessage">发送</button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -121,15 +137,15 @@
         <button class="tmclose-button" @click="closeModal"><i class="fas fa-times"></i></button>
         <h3>设置题目要求</h3>
         <div class="input-group">
-          <label>学科：</label>
+          <label><i class="fas fa-book"></i> 学科：</label>
           <input type="text" class="input-field" v-model="questionRequirements.subject" />
         </div>
         <div class="input-group">
-          <label>知识点：</label>
+          <label><i class="fas fa-lightbulb"></i> 知识点：</label>
           <input type="text" class="input-field" v-model="questionRequirements.topic" />
         </div>
         <div class="input-group">
-          <label>其他要求：</label>
+          <label><i class="fas fa-clipboard-list"></i> 其他要求：</label>
           <input type="text" class="input-field" v-model="questionRequirements.other" />
         </div>
         <button class="generate-button" @click="generateQuestions">生成题目</button>
@@ -167,6 +183,11 @@
     <ktbutton @click="confirmstartClass"><i class="fas fa-check-circle"></i> 开始上课</ktbutton>
   </div>
 </div>
+<div v-if="thinking" class="AIloading-dialog">
+  <div class="AIloading-content">
+    <h2><i class="fas fa-spinner fa-spin"></i> AI思考中...</h2>
+  </div>
+</div>
 </template>
 
 <script>
@@ -185,9 +206,10 @@ export default {
       startTime: 0,
       elapsed: 0,
       timer: null,
-      messages: [
-        { text: '您好，我是教育辅导AI小助手，有什么我可以帮忙的吗？', isUser: false }
-      ],
+      // messages: [
+      //   { text: '您好，我是教育辅导AI小助手，有什么我可以帮忙的吗？', isUser: false }
+      // ],
+      AIanswer: '',
       inputValue: '',
       isStartClassModalVisible: false,
       isModalVisible: false,
@@ -198,6 +220,7 @@ export default {
         useClassContent: false
       },
       loading: false, // 增加loading控制生成题目弹窗
+      thinking:false,
       isaskRecording: false,
       recognition: null,
       classTime:0,
@@ -294,11 +317,6 @@ export default {
             this.audioChunks.push(e.data);
             console.log(this.audioChunks)
             this.saveAudioToServer();
-            // if (e.data.type.includes('video')) {
-            //   this.videoChunks.push(e.data);
-            // } else {
-            //   this.audioChunks.push(e.data);
-            // }
           }
         };
         this.mediaRecorder.onstop = this.saveAudioToServer;
@@ -385,12 +403,13 @@ export default {
       }
     },
     sendMessage() {
+      this.thinking = true;
       if (this.inputValue.trim() === '') return;
       console.log("this.inputValue",this.inputValue)
-      this.messages.push({ text: this.inputValue, isUser: true });
-      this.questions.push(this.inputValue);
+      // this.messages.push({ text: this.inputValue, isUser: true });
+      // this.questions.push(this.inputValue);
       const userMessage = this.inputValue;
-      this.inputValue = '';
+      // this.inputValue = '';
 
       // Display thinking message
       this.thinking = true;
@@ -401,7 +420,8 @@ export default {
       })
       .then((res) => {
         this.thinking = false;
-        this.messages.push({ text: res.data, isUser: false });
+        this.AIanswer = res.data;
+        // this.messages.push({ text: res.data, isUser: false });
       })
       .catch((err) => {
         this.thinking = false;
@@ -442,6 +462,11 @@ export default {
           // Display thinking message
           this.thinking = true;
 
+          // 关闭麦克风
+          if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+          }
+          this.thinking = true;
           // 向后端发送请求
           axios.post('/get_chatvoiceanswer', formData, {
             headers: {
@@ -450,8 +475,8 @@ export default {
           })
           .then((res) => {
             this.thinking = false;
-            this.messages.push({ text: res.data['question'], isUser: true });
-            this.messages.push({ text: res.data['answer'], isUser: false });
+            this.inputValue = res.data['question'];
+            this.AIanswer = res.data['answer'];
           })
           .catch((err) => {
             this.thinking = false;
@@ -838,8 +863,12 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      border: 3px solid transparent !important;
+      border-radius: 5px !important;
+      animation: border-rotation 3s linear infinite !important; 
 
       h2 {
+        color:#0c78dc;
         margin: 0 0 1rem 0;
       }
 
@@ -855,6 +884,55 @@ export default {
           border-radius: 4px;
           cursor: pointer;
         }
+      }
+
+      .qa-container {
+        margin-top: 10px;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .input-group label {
+        font-size: 14px;
+        width: 80px;
+        font-weight: bold;
+        color:#066dce
+      }
+
+      .scrollable-input {
+        max-height: 100px; /* 根据需要设置最大高度 */
+        overflow-y: auto;
+        white-space: normal; /* 允许文本换行 */
+      }
+
+      /* 调整输入框的样式，使其更适合滚动内容显示 */
+      .input-field {
+        height: auto; /* 允许高度自适应内容 */
+        line-height: 1.5em;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+    }
+    @keyframes border-rotation {
+      0% {
+        border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      25% {
+        border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      50% {
+        border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      75% {
+        border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      100% {
+        border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
       }
     }
   }
@@ -957,13 +1035,18 @@ export default {
 }
 
 .input-group label {
+  font-size:1.1em !important;
+  font-weight: bold;
   margin-right: 10px;
+  margin-top: 0px;
 }
 
 .input-group input {
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 2px solid #4a4949 !important;
   border-radius: 4px;
+  height:120px;
+  width:300px;
 }
 
 .input-group div {
@@ -1298,4 +1381,48 @@ ktbutton {
 ktbutton:hover {
   background-color: #0056b3;
 }
+
+.AIloading-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff, #0072ff); /* 冷色调渐变 */
+  background-size: 400% 400%; /* 背景大小 */
+  padding: 20px;
+  border-radius: 10px;
+  animation: gradientAnimation 8s ease infinite; /* 循环背景变色 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-text {
+  color: #ffffff;
+  font-size: 1.5rem;
+  animation: textColorAnimation 3s ease infinite; /* 循环文字变色 */
+}
+
+@keyframes textColorAnimation {
+  0% {
+    color: #00c6ff;
+  }
+  50% {
+    color: #0072ff;
+  }
+  100% {
+    color: #00c6ff;
+  }
+}
+
 </style>

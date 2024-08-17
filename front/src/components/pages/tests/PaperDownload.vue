@@ -4,8 +4,7 @@
 
     <div class="block">
       <div class="block-title">
-        科目
-        <i class="fas fa-book"></i>
+        科目 <i class="fas fa-book"></i> 
       </div>
       <div class="block-content flex-container">
         <!-- 学科 -->
@@ -170,11 +169,11 @@
     </div>
 
     <div class="button-container">
-      <button class="start-button" @click="getDownloadProblems">
-        <i class="fas fa-play"></i> 学生需求全新密卷
+      <button class="start-button" @click="isNewDownloadDialogOpen=true,downloadDialogTitle = '全新密卷';">
+        <i class="fas fa-play"></i> 全新密卷
       </button>
-      <button class="start-button" @click="getDownloadProblems">
-        <i class="fas fa-play"></i> 测试历史定制密卷
+      <button class="start-button" @click="isCustomDownloadDialogOpen=true,downloadDialogTitle = '个性化密卷';">
+        <i class="fas fa-play"></i> 个性化密卷
       </button>
     </div>
     <button class="back-button" @click="goBack">
@@ -182,11 +181,11 @@
     </button>
   </div>
   
-  <div v-if="isRecommendedDialogOpen" class="dialog">
-    <div class="dialog-content">
-      <h2 class="dialog-title">
-        推荐知识点
-        <button class="close-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
+  <div v-if="isRecommendedDialogOpen" class="recdialog">
+    <div class="recdialog-content">
+      <h2 class="recdialog-title">
+        <i class="fas fa-book-open"></i> 推荐知识点
+        <button class="recclose-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
       </h2>
       <div class="recommended-list">
         <div class="recommended-column">
@@ -196,7 +195,7 @@
           </label>
         </div>
       </div>
-      <button @click="addSelectedRecommendedSubjects" class="finish-selection-button">
+      <button @click="addSelectedRecommendedSubjects" class="recfinish-selection-button">
         <i class="fas fa-check"></i> 完成知识点选择
       </button>
     </div>
@@ -206,6 +205,41 @@
   <div v-if="loading" class="loading-dialog">
     <div class="loading-content">
       <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
+    </div>
+  </div>
+  <!-- 试卷下载弹窗 -->
+  <div v-if="isNewDownloadDialogOpen" class="downloaddialog">
+    <div class="downloaddialog-content">
+      <h2 class="downloaddialog-title">
+        <i class="fas fa-pen"></i>  {{ downloadDialogTitle }}
+        <button class="downloadclose-button" @click="isNewDownloadDialogOpen=false"><i class="fas fa-times"></i></button>
+      </h2>
+      <!-- 弹窗主题 -->
+      <div class="downloadbutton-group">
+        <button @click="getDownloadProblems_docx">
+          <i class="fas fa-file-word"></i> 下载docx试卷
+        </button>
+        <button @click="getDownloadProblems_txt">
+          <i class="fas fa-file-alt"></i> 下载txt试卷
+        </button>
+      </div>
+    </div>
+  </div>
+  <div v-if="isCustomDownloadDialogOpen" class="downloaddialog">
+    <div class="downloaddialog-content">
+      <h2 class="downloaddialog-title">
+        <i class="fas fa-pen"></i>  {{ downloadDialogTitle }}
+        <button class="downloadclose-button" @click="isCustomDownloadDialogOpen=false"><i class="fas fa-times"></i></button>
+      </h2>
+      <!-- 弹窗主题 -->
+      <div class="downloadbutton-group">
+        <button @click="getDownloadCustomProblems_docx">
+          <i class="fas fa-file-word"></i> 下载docx试卷
+        </button>
+        <button @click="getDownloadCustomProblems_txt">
+          <i class="fas fa-file-alt"></i> 下载txt试卷
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -266,6 +300,9 @@ export default {
       knowledgeSearch: '',
       customKnowledge: '',
       customKnowledges: [],
+      isCustomDownloadDialogOpen: false,
+      isNewDownloadDialogOpen: false,
+      downloadDialogTitle: '',
     };
   },
   methods: {
@@ -437,7 +474,8 @@ export default {
       });
       await txSubjects.done;
     },
-    async getDownloadProblems() {
+    async getDownloadProblems_txt() {
+        this.isNewDownloadDialogOpen = false;
         const selectedSubjects = this.selectedSubjects.length > 0 ? this.selectedSubjects : ['物理'];
         const time = parseInt(this.timeValue, 10);
         const difficultyValue  = parseInt(this.difficultyValue, 10);
@@ -454,7 +492,7 @@ export default {
           this.loading = true;
 
           // 发送 POST 请求到后端获取试题文本
-          const response = await axios.post('/get_downloadproblems', formData, {
+          const response = await axios.post('/get_downloadproblems_txt', formData, {
             responseType: 'blob' // 响应类型为 Blob
           });
 
@@ -475,6 +513,156 @@ export default {
           // 清理 URL 对象
           window.URL.revokeObjectURL(url);
 
+          // 完成下载后，隐藏加载动画
+          this.loading = false;
+        } catch (error) {
+          console.error('Error:', error);
+          // 处理错误情况
+          this.loading = false;
+        }
+      },
+      async getDownloadProblems_docx() {
+        this.isNewDownloadDialogOpen = false;
+        const selectedSubjects = this.selectedSubjects.length > 0 ? this.selectedSubjects : ['物理'];
+        const time = parseInt(this.timeValue, 10);
+        const difficultyValue  = parseInt(this.difficultyValue, 10);
+        const formData = {
+          subjects: selectedSubjects,
+          time: time,
+          min_difficulty: difficultyValue,
+          max_difficulty: difficultyValue,
+          others: this.otherInput,
+          type: ["single_choice", "judgement", "fillin"]
+        };
+        console.log('formData',formData)
+        try {
+          this.loading = true;
+
+          // 发送 POST 请求到后端获取试题文本
+          const response = await axios.post('/get_downloadproblems_docx', formData, {
+            responseType: 'blob' // 响应类型为 Blob
+          });
+
+          // 创建一个 Blob URL
+          const blob = new Blob([response.data], { type: response.headers['content-type'] });
+          const url = window.URL.createObjectURL(blob);
+
+          // 创建一个隐藏的链接并触发下载
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'problems.docx'); // 设置下载文件名
+          document.body.appendChild(link);
+          link.click();
+
+          // 清除 URL 和链接
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
+
+          // 完成下载后，隐藏加载动画
+          this.loading = false;
+        } catch (error) {
+          console.error('Error:', error);
+          // 处理错误情况
+          this.loading = false;
+        }
+      },
+      async getDownloadCustomProblems_txt() {
+        this.isCustomDownloadDialogOpen = false;
+        const db = await openDB('UserDatabase', 1);
+        const tx = db.transaction('users', 'readonly');
+        const store = tx.objectStore('users');
+        const allUsers = await store.getAll();
+        await tx.done;
+        const username = allUsers[0].username;
+        console.log("username:",username)
+        const selectedSubjects = this.selectedSubjects.length > 0 ? this.selectedSubjects : ['综合'];
+        const time = parseInt(this.timeValue, 10);
+        const difficultyValue  = parseInt(this.difficultyValue, 10);
+        const formData = {
+          username: username,
+          subjects: selectedSubjects,
+          time: time,
+          min_difficulty: difficultyValue,
+          max_difficulty: difficultyValue,
+          others: this.otherInput,
+          type: ["single_choice", "judgement", "fillin"]
+        };
+        try {
+          this.loading = true;
+
+          // 发送 POST 请求到后端获取试题文本
+          const response = await axios.post('/get_download_customproblems_txt', formData, {
+            responseType: 'blob' // 响应类型为 Blob
+          });
+
+          // 从响应中获取 Blob 数据
+          const blob = new Blob([response.data], { type: 'text/plain' });
+
+          // 创建一个 URL 对象，用于创建下载链接
+          const url = window.URL.createObjectURL(blob);
+
+          // 创建一个 <a> 标签，设置下载链接并自动触发下载
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'problems.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          // 清理 URL 对象
+          window.URL.revokeObjectURL(url);
+
+          // 完成下载后，隐藏加载动画
+          this.loading = false;
+        } catch (error) {
+          console.error('Error:', error);
+          // 处理错误情况
+          this.loading = false;
+        }
+      },
+      async getDownloadCustomProblems_docx() {
+        this.isCustomDownloadDialogOpen = false;
+        const db = await openDB('UserDatabase', 1);
+        const tx = db.transaction('users', 'readonly');
+        const store = tx.objectStore('users');
+        const allUsers = await store.getAll();
+        await tx.done;
+        const username = allUsers[0].username;
+        console.log("username:",username)
+        const selectedSubjects = this.selectedSubjects.length > 0 ? this.selectedSubjects : ['综合'];
+        const time = parseInt(this.timeValue, 10);
+        const difficultyValue  = parseInt(this.difficultyValue, 10);
+        const formData = {
+          username: username,
+          subjects: selectedSubjects,
+          time: time,
+          min_difficulty: difficultyValue,
+          max_difficulty: difficultyValue,
+          others: this.otherInput,
+          type: ["single_choice", "judgement", "fillin"]
+        };
+        try {
+          this.loading = true;
+
+          // 发送 POST 请求到后端获取试题文本
+          const response = await axios.post('/get_download_customproblems_docx', formData, {
+            responseType: 'blob' // 响应类型为 Blob
+          });
+
+          // 创建一个 Blob URL
+          const blob = new Blob([response.data], { type: response.headers['content-type'] });
+          const url = window.URL.createObjectURL(blob);
+
+          // 创建一个隐藏的链接并触发下载
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'problems.docx'); // 设置下载文件名
+          document.body.appendChild(link);
+          link.click();
+
+          // 清除 URL 和链接
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
           // 完成下载后，隐藏加载动画
           this.loading = false;
         } catch (error) {
@@ -828,4 +1016,171 @@ h1 {
   color: #fff;
   font-weight: bold;
 }
+
+.downloaddialog {
+  position: fixed;
+  height: 150px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #01a4d1, #72affa, #00c6ff, #569ef7); /* 冷色调渐变的颜色设置 */
+  background-size: 400% 400%; /* 设置背景大小，以便循环渐变 */
+  animation: gradientAnimation 8s ease infinite; /* 动画设置：8秒内完成循环 */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 20px;
+  width: 400px;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.downloaddialog-content {
+  text-align: center;
+}
+
+.downloaddialog-title {
+  color:#ffffff;
+  font-size: 20px;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.downloadclose-button {
+  color:white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.downloadclose-button:hover{
+  color:rgb(3, 23, 152);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.downloadbutton-group {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.downloadbutton-group button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #3778e0;
+  background-color: #3778e0;
+  color: white;
+  border-radius: 4px;
+}
+
+.downloadbutton-group button:hover {
+  background-color: #285bb5;
+}
+
+.recdialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 20px;
+  width: 400px;
+  background: linear-gradient(45deg, #4A90E2, #50E3C2, #9013FE);
+  background-size: 300% 300%;
+  animation: gradientAnimation 6s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.recdialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.recdialog-title {
+  color:#2d0398;
+  font-size: 1.6em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  width: 100%;
+}
+
+.recclose-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.recommended-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.recommended-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.recommended-item {
+  margin: 10px 0;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #2d0398;
+}
+
+.recfinish-selection-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.recfinish-selection-button:hover {
+  background-color: #45a049;
+}
+
 </style>

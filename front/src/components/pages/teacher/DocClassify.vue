@@ -45,11 +45,11 @@
         <h2><i class="fas fa-check-circle"></i> 分类结果</h2>
         <div class="upload-info">
           <div class="info-item">
-            <span>上传文档数量：</span>
+            <span><i class="fas fa-file-alt"></i> 上传文档数量 ：</span>
             <div class="info-value">{{ uploadResults.length }}</div>
           </div>
           <div class="info-item">
-            <span>类别数量：</span>
+            <span><i class="fas fa-folder-open"></i> 类别数量 ：</span>
             <div class="info-value">{{ countCategories }}</div>
           </div>
         </div>
@@ -57,9 +57,9 @@
           <table>
             <thead>
               <tr>
-                <th>序号</th>
-                <th>文件名</th>
-                <th>所属类别</th>
+                <th><i class="fas fa-list-ol"></i> 序号</th>
+                <th><i class="fas fa-file"></i> 文件名</th>
+                <th><i class="fas fa-folder"></i> 所属类别</th>
               </tr>
             </thead>
             <tbody>
@@ -86,7 +86,7 @@
   </div>
   <div v-if="hasCategory" class="loading-dialog">
     <div class="loading-content">
-      <h2><i class="fas fa-folder-plus"></i> 请先输入分类类别</h2>
+      <h2><i class="fas fa-folder-plus"></i> 请先在上方输入分类类别</h2>
       <button class="confirm-button" @click="hasCategory = false">确认</button>
     </div>
   </div>
@@ -101,7 +101,7 @@ export default {
       categories: [], // 存储所有添加的类别
       uploadResults: [],
       uploadButtonText: '批量上传作业',
-      initialRows: 11,
+      initialRows: 15,
       loading: false,
       hasCategory: false,
     };
@@ -232,7 +232,7 @@ export default {
   .confirm-button {
     justify-content: center;
     align-items: center;
-    margin-left: 80px;
+    margin-left: 110px;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -294,22 +294,36 @@ export default {
     .content {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
+      gap: 5px;
       height: 85vh;
-      border: 3px solid transparent;
+      border: 4px solid transparent;
       border-radius: 5px;
-      animation: border-rotation 5s linear infinite; 
+      animation: border-rotation 3s linear infinite; 
   
       .left-section,
       .right-section {
         flex-grow: 1;
-        background: #ffffff;
+        // background: #ffffff;
         padding: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
         border: 3px solid transparent;
         border-radius: 5px;
         // animation: border-rotation 5s linear infinite; 
+        background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+        background-size: 300% 300%;
+        animation: gradientAnimation 6s ease infinite; /* 添加循环渐变动画 */
+      }
+      @keyframes gradientAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
       }
 
       .left-section {

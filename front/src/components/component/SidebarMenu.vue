@@ -26,6 +26,7 @@
             <ul v-if="isActiveMenu('rapidPreparation')" class="submenu">
               <li @click="navigate('/teacherrecording')"><i class="fas fa-book-open"></i> 教师备课</li>
               <li @click="navigate('/paperdownload')"><i class="fas fa-file-alt"></i> 智教出卷</li>
+              <li @click="navigate('/docclassify')"><i class="fas fa-book-open"></i> 文档归类</li>
             </ul>
           </li>
           <li>

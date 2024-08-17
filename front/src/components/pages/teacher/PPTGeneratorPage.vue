@@ -28,10 +28,10 @@
         <i class="fas fa-times"></i>
       </button>
 
-      <h2>PPT具体需求</h2>
+      <h2><i class="fas fa-tasks"></i> PPT具体需求</h2>
 
       <!-- PPT Style Section -->
-      <h3>PPT风格</h3>
+      <h3><i class="fas fa-paint-brush"></i> PPT风格</h3>
       <div class="theme-buttons">
         <button @click="selectTheme('auto')" :class="{ selected: selectedTheme === 'auto' }">自动</button>
         <button @click="selectTheme('purple')" :class="{ selected: selectedTheme === 'purple' }">紫色主题</button>
@@ -46,13 +46,13 @@
       </div>
 
       <!-- PPT Notes Section -->
-      <h3>是否需要备注</h3>
+      <h3><i class="fas fa-comment-dots"></i> 是否需要备注</h3>
       <div class="notes-buttons">
         <button @click="selectNotesOption(1)" :class="{ selected: notesOption === 1 }">
-          <span class="radio-button"></span> 是
+          <span class="radio-button"></span> <i class="fas fa-check-circle"></i>  是
         </button>
         <button @click="selectNotesOption(0)" :class="{ selected: notesOption === 0 }">
-          <span class="radio-button"></span> 否
+          <span class="radio-button"></span> <i class="fas fa-times-circle"></i>  否
         </button>
       </div>
 
@@ -66,25 +66,25 @@
   </div>
 
   <!-- 页面顶部的图片背景 -->
-  <div class="top-background">
+  <!-- <div class="top-background">
     <h1><i class="fas fa-book-open"></i> PPT生成助手</h1>
     <button class="back-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
     </button>
-  </div>
+  </div> -->
   <div class="translation-container">
-    <!-- <button class="back-button" @click="goBack">
+    <button class="back-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
-    </button> -->
-    <!-- <h1><i class="fas fa-book-open"></i> PPT生成助手</h1> -->
+    </button> 
+    <h1><i class="fas fa-book-open"></i> PPT生成助手</h1>
     <div class="switch-tabs">
       <div
         v-for="tab in tabs"
-        :key="tab"
-        :class="['tab', { active: activeTab === tab }]"
-        @click="setActiveTab(tab)"
+        :key="tab.name"
+        :class="['tab', { active: activeTab === tab.name }]"
+        @click="setActiveTab(tab.name)"
       >
-        {{ tab }}
+        <i :class="tab.icon"></i> {{ tab.label }}
       </div>
     </div>
     <div class="button-container">
@@ -172,7 +172,14 @@
     name: 'TranslationPage',
     data() {
       return {
-        tabs: ['文本生成','文件生成', '图片生成', '音频生成', '语音生成'],
+        // tabs: ['文本生成','文件生成', '图片生成', '音频生成', '语音生成'],
+        tabs: [
+          { name: '文本生成', label: '文本生成', icon: 'fas fa-file-alt' },
+          { name: '文件生成', label: '文件生成', icon: 'fas fa-folder' },
+          { name: '图片生成', label: '图片生成', icon: 'fas fa-image' },
+          { name: '音频生成', label: '音频生成', icon: 'fas fa-music' },
+          { name: '语音生成', label: '语音生成', icon: 'fas fa-microphone' }
+        ],
         activeTab: '文本生成',
         textToTranslate: '',
         tmptext: '',
@@ -395,31 +402,49 @@
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
-.top-background {
-  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
-  background-size: cover; /* 让背景图片充满容器 */
-  background-position: center; /* 居中显示背景图片 */
-  background-repeat: no-repeat; /* 禁止背景图片重复 */
-  height: 90px; /* 设置背景高度，根据需要调整 */
+/* .top-background {
+  background-image: url('../../../assets/PPTbackground.jpg'); 背景图片的路径
+  background-size: cover; 让背景图片充满容器
+  background-position: center; 居中显示背景图片
+  background-repeat: no-repeat; 禁止背景图片重复
+  height: 90px; 设置背景高度，根据需要调整
   text-align: center;
   padding-top: 20px;
   h1 
 {
       margin-top: 0;
       padding: 10px;
-      color: #0474de; /* 将颜色设置为白色 */
+      color: #0474de;
     }
-}
+} */
 .translation-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 80vh;
+  height: 92vh;
   padding: 20px;
-  background: #ffffff;
+  /* background: #ffffff; */
   text-align: center;
   position: relative;
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 *
+  /* background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF); */
+  /* background-size: 300% 300%; */
+  /* animation: gradientAnimation 5s ease infinite; 添加循环渐变动画 */
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .back-button {
@@ -446,7 +471,7 @@ h1 {
   font-size: 2.5rem;
   margin-top: 0px;
   margin-bottom: 20px;
-  color: #0474de;
+  color: #c6e0fa;
 }
 
 .switch-tabs {
@@ -454,7 +479,7 @@ h1 {
   justify-content: center;
   margin-bottom: 20px;
   border-radius: 10px;
-  background-color: #5aa0e6;
+  background-color: #539eea;
   overflow: hidden;
   width: 60%;
   margin: 0 auto 20px;
@@ -465,42 +490,64 @@ h1 {
   flex: 1;
   padding: 10px 0;
   font-size: 1.2rem;
+  font-weight: bold;
   cursor: pointer;
+  justify-content: center;
   text-align: center;
   transition: background-color 0.3s, color 0.3s;
   color: #fff;
 }
 
 .switch-tabs .tab.active {
-  background-color: #1a75d2;
+  background-color: #0379ef;
   font-weight: bold;
+  font-size: 1.4rem;
 }
 
 .switch-tabs .tab:hover:not(.active) {
   background-color: #3b8edb;
+  font-weight: bold;
 }
 
 .translation-content {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  height:400px;
   max-width: 1200px;
   background: #f9f9f9;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  background-size: 300% 300%;
+  animation: gradientAnimation 5s ease infinite; /* 添加循环渐变动画 */
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .left-pane,
 .right-pane {
   width: 48%;
-  height: 300px;
+  height: 370px;
   display: flex;
   flex-direction: column;
   border: 1px solid #ddd;
   border-radius: 10px;
   background: #fff;
   padding: 15px;
+}
+.left-pane {
+  margin-right: 5px;
 }
 
 .input-container {
@@ -528,6 +575,8 @@ textarea {
 }
 
 .language-button {
+  font-size: 1.1em;
+  font-weight: bold;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -537,13 +586,15 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
+  pointer-events: none;
 }
 
 .language-button i {
   margin-right: 5px;
+  pointer-events: none;
 }
 
-.dropdown-menu {
+/* .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
@@ -565,7 +616,7 @@ textarea {
 
 .dropdown-menu li:hover {
   background: #f0f0f0;
-}
+} */
 
 .button-container {
   display: flex;
@@ -625,7 +676,7 @@ textarea {
 }
 
 .theme-dialog-content {
-  background: #fff;
+  /* background: #fff; */
   padding: 20px;
   border-radius: 10px;
   width: 80%;
@@ -633,6 +684,29 @@ textarea {
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: relative;
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  background-size: 300% 300%;
+  animation: gradientAnimation 5s ease infinite; /* 添加循环渐变动画 */
+  h2{
+    color:#007bff;
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-top: -5px;
+  }
+  h3{
+    color:#2894f9;
+  }
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .close-button {
@@ -685,7 +759,7 @@ textarea {
 }
 
 .radio-button {
-  margin-right: 5px;
+  margin-right: 0px;
 }
 
 .generate-ppt-button {
@@ -736,7 +810,26 @@ textarea {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  animation: waveAnimation 1s infinite linear; 
+  animation: waveAnimation 1s infinite linear,color-cycle 3s linear infinite; 
+}
+
+/* 冷色调循环变色动画 */
+@keyframes color-cycle {
+  0% {
+    color: #4a90e2; /* 冷蓝色 */
+  }
+  25% {
+    color: #50e3c2; /* 冷青色 */
+  }
+  50% {
+    color: #b8e986; /* 冷绿色 */
+  }
+  75% {
+    color: #7ed321; /* 浅绿色 */
+  }
+  100% {
+    color: #4a90e2; /* 回到初始冷蓝色 */
+  }
 }
 @keyframes waveAnimation {
   0% {

@@ -113,7 +113,7 @@ export default {
     async downloadCustomPaper() {
       try {
         this.saving = true;
-        const response = await axios.post('/get_download_custompaper', {
+        const response = await axios.post('/get_historyevaluation_download_custompaper', {
           evaluation: this.evaluation,
           shortcoming: this.shortcoming,
           suggestion: this.suggestion,

@@ -1,5 +1,5 @@
 from flask_cors import CORS
-from flask import Flask, request, jsonify,Response
+from flask import Flask, request, jsonify, Response, send_file
 import random
 import regex
 import os
@@ -8,7 +8,9 @@ import random
 from utils import Logger
 from spark.SparkApi import SparkLLM
 from audio_to_txt.Ifasr_app import audio2txt_Api
+from database.Database import get_user_tests_analysis
 import json5
+from docx import Document
 from App import app
 
 appid = 'e76d7d8f'
@@ -83,8 +85,8 @@ get_problems_prompt1 = '''请以我指定的格式:
             }
         返回要求的试题数据。注意只返回5道单选，5道判断，5道填空题。请直接返回json, 不要添加任何其他描述'''
 
-@app.route('/get_downloadproblems', methods=['POST'])
-def get_downloadproblems_handler():
+@app.route('/get_downloadproblems_txt', methods=['POST'])
+def get_downloadproblems_txt_handler():
     content = request.json
     Logger.info(content)
     """
@@ -123,69 +125,228 @@ def get_downloadproblems_handler():
         # Logger.info(f'ans_str:{ans_str}')
         now_ans = json5.loads(ans_str)
         ans['problems'].extend(now_ans['problems'])
-        paper_text = generate_paper_text(ans)
-        filepath = os.path.join('ai_test_system','paper')
-        os.makedirs(filepath, exist_ok=True)
-        filename = os.path.join(filepath,'test.txt')
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(paper_text)
-        # 创建下载文件的 Response
-        response = Response(paper_text, content_type='text/plain')
-        response.headers["Content-Disposition"] = "attachment; filename=problems.txt"
-        return response
+    paper_text = generate_paper_text(ans)
+    filepath = os.path.join('ai_test_system','paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath,'test.txt')
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(paper_text)
+    # 创建下载文件的 Response
+    response = Response(paper_text, content_type='text/plain')
+    response.headers["Content-Disposition"] = "attachment; filename=problems.txt"
+    return response
+
+@app.route('/get_downloadproblems_docx', methods=['POST'])
+def get_downloadproblems_docx_handler():
+    content = request.json
+    # Logger.info(content)
+    """
+    {
+    "subjects": ["math","chinese"],
+   	"time": 10 /*mins*/,
+   	"min_difficulty": 3 /*1-10*/,
+   	"max_difficulty": 8,
+   	"type": ["single_choice", "judgement"],
+    "others": "希望能出一些计算量比较大的题目"
+   }
+    """
+    subjects = content['subjects']
+    time = content['time']
+    types = content['type']
+    str_types = ['"'+x+'"' for x in types]
+    cnt = max(len(subjects), int(time / 3))
+    rest = len(subjects)
+    ans = {'problems': []}
+    for subject in subjects:
+        rest -= 1
+        now_cnt = random.randint(1, cnt - rest)
+        cnt -= now_cnt
+        json_str = f'''{{
+        "subjects": "{subject}" /*问题考察的知识点*/,
+        "count": {now_cnt} /*要求提供的题目数量, 不要少于此数量或多于此数量*/,
+        "min_difficulty": {content['min_difficulty']} /*1-10*/,
+        "max_difficulty": {content['max_difficulty']} /*1-10*/,
+        "type": {str_types} /*需要的题目类型, 不要给出这里所提到的类型这之外的题目*/, 
+        "others": "{content['others']}" /*其他要求*/
+        }}'''
+        Logger.info(f'json_str:{json_str}')
+        question = get_problems_prompt + json_str
+        ans_str = llm.query(question)
+        ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+        # Logger.info(f'ans_str:{ans_str}')
+        now_ans = json5.loads(ans_str)
+        ans['problems'].extend(now_ans['problems'])
+    paper_text = generate_paper_text(ans)
+    # 创建 Word 文档
+    document = Document()
+    document.add_heading('测试试卷', 0)
+    document.add_paragraph(paper_text)
+
+    # 保存文档
+    filepath = os.path.join('ai_test_system', 'paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath, 'test.docx')
+    document.save(filename)
+
+    # 返回 Word 文档供下载
+    return send_file(filename, as_attachment=True, download_name='problems.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+
+@app.route('/get_download_customproblems_txt', methods=['POST'])
+def get_download_customproblems_txt_handler():
+    content = request.json
+    Logger.info(content)
+    username = content['username']
+    subjects = content['subjects']
+    time = content['time']
+    types = content['type']
+    str_types = ['"'+x+'"' for x in types]
+    cnt = max(len(subjects), int(time / 3))
+    rest = len(subjects)
+    user_tests_data = get_user_tests_analysis(username)
+    print("user_tests_data:",str(user_tests_data),type(str(user_tests_data)))
+    ans = {'problems': []}
+    for subject in subjects:
+        rest -= 1
+        now_cnt = random.randint(1, cnt - rest)
+        cnt -= now_cnt
+        json_str = f'''{{
+        "subjects": "{subject}" /*问题考察的知识点*/,
+        "count": {now_cnt} /*要求提供的题目数量, 不要少于此数量或多于此数量*/,
+        "min_difficulty": {content['min_difficulty']} /*1-10*/,
+        "max_difficulty": {content['max_difficulty']} /*1-10*/,
+        "type": {str_types} /*需要的题目类型, 不要给出这里所提到的类型这之外的题目*/, 
+        "others": "{content['others']}" /*其他要求*/
+        }}'''
+        # Logger.info(f'json_str:{json_str}')
+        question = get_problems_prompt + json_str + "。同时我提供用户的测试历史数据，请根据用户测试历史微调不同题目的难度：" + str(user_tests_data)
+        print("question: ",question)
+        ans_str = llm.query(question)
+        ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+        # Logger.info(f'ans_str:{ans_str}')
+        now_ans = json5.loads(ans_str)
+        ans['problems'].extend(now_ans['problems'])
+    paper_text = generate_paper_text(ans)
+    filepath = os.path.join('ai_test_system','paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath,'test.txt')
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(paper_text)
+    # 创建下载文件的 Response
+    response = Response(paper_text, content_type='text/plain')
+    response.headers["Content-Disposition"] = "attachment; filename=problems.txt"
+    return response
+
+@app.route('/get_download_customproblems_docx', methods=['POST'])
+def get_download_customproblems_docx_handler():
+    content = request.json
+    Logger.info(content)
+    username = content['username']
+    subjects = content['subjects']
+    time = content['time']
+    types = content['type']
+    str_types = ['"'+x+'"' for x in types]
+    cnt = max(len(subjects), int(time / 3))
+    rest = len(subjects)
+    user_tests_data = get_user_tests_analysis(username)
+    print("user_tests_data:",str(user_tests_data),type(str(user_tests_data)))
+    ans = {'problems': []}
+    for subject in subjects:
+        rest -= 1
+        now_cnt = random.randint(1, cnt - rest)
+        cnt -= now_cnt
+        json_str = f'''{{
+        "subjects": "{subject}" /*问题考察的知识点*/,
+        "count": {now_cnt} /*要求提供的题目数量, 不要少于此数量或多于此数量*/,
+        "min_difficulty": {content['min_difficulty']} /*1-10*/,
+        "max_difficulty": {content['max_difficulty']} /*1-10*/,
+        "type": {str_types} /*需要的题目类型, 不要给出这里所提到的类型这之外的题目*/, 
+        "others": "{content['others']}" /*其他要求*/
+        }}'''
+        # Logger.info(f'json_str:{json_str}')
+        question = get_problems_prompt + json_str + "。同时我提供用户的测试历史数据，请根据用户测试历史微调不同题目的难度：" + str(user_tests_data)
+        print("question: ",question)
+        ans_str = llm.query(question)
+        ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+        # Logger.info(f'ans_str:{ans_str}')
+        now_ans = json5.loads(ans_str)
+        ans['problems'].extend(now_ans['problems'])
+    paper_text = generate_paper_text(ans)
+    # filepath = os.path.join('ai_test_system','paper')
+    # os.makedirs(filepath, exist_ok=True)
+    # filename = os.path.join(filepath,'test.txt')
+    # with open(filename, 'w', encoding='utf-8') as f:
+    #     f.write(paper_text)
+    # # 创建下载文件的 Response
+    # response = Response(paper_text, content_type='text/plain')
+    # response.headers["Content-Disposition"] = "attachment; filename=problems.txt"
+    # return response
+    # 创建 Word 文档
+    document = Document()
+    document.add_heading('测试试卷', 0)
+    document.add_paragraph(paper_text)
+
+    # 保存文档
+    filepath = os.path.join('ai_test_system', 'paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath, 'test.docx')
+    document.save(filename)
+
+    # 返回 Word 文档供下载
+    return send_file(filename, as_attachment=True, download_name='problems.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
 def generate_paper_text(problems_data):
     problems = problems_data['problems']
-    paper_text = []
+    
+    # 创建各题型的部分列表
+    single_choice_text = []
+    fillin_text = []
+    judgement_text = []
 
     option_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']  # 可以扩展到更多选项
 
-    problem_count = {'single_choice': 0, 'fillin': 0, 'judgement': 0}  # 统计每种题型的数量
+    # 统计各题型数量
+    problem_count = {'single_choice': 0, 'fillin': 0, 'judgement': 0}
 
-    single_choice_start = 0
-    fillin_start = 0
-    judgement_start = 0
-
+    # 按题型分配到不同的部分
     for problem in problems:
         if problem['type'] == 'single_choice':
             problem_count['single_choice'] += 1
-            if problem_count['single_choice'] == 1:
-                paper_text.append("一、选择题：")
-                single_choice_start = len(paper_text)  # 记录选择题开始位置
-            paper_text.append(f"{problem_count['single_choice']}. {problem['problem']}")
+            single_choice_text.append(f"{problem_count['single_choice']}. {problem['problem']}")
             for i, choice in enumerate(problem['choices']):
                 if i < len(option_letters):
-                    paper_text.append(f"{option_letters[i]}. {choice}")
+                    single_choice_text.append(f"{option_letters[i]}. {choice}")
                 else:
-                    paper_text.append(f"{i+1}. {choice}")  # 超过10个选项时使用数字序号
+                    single_choice_text.append(f"{i + 1}. {choice}")  # 超过10个选项时使用数字序号
 
         elif problem['type'] == 'fillin':
             problem_count['fillin'] += 1
-            if problem_count['fillin'] == 1:
-                if single_choice_start > 0:
-                    paper_text.insert(single_choice_start, "")  # 空行分隔选择题和填空题
-                paper_text.append("\n二、填空题：")
-                fillin_start = len(paper_text)  # 记录填空题开始位置
-            paper_text.append(f"{problem_count['fillin']}. {problem['problem']}")
-            paper_text.append("___________")  # 填空题用下划线表示
+            fillin_text.append(f"{problem_count['fillin']}. {problem['problem']}")
+            fillin_text.append("___________")  # 填空题用下划线表示
 
         elif problem['type'] == 'judgement':
             problem_count['judgement'] += 1
-            if problem_count['judgement'] == 1:
-                if fillin_start > 0:
-                    paper_text.insert(fillin_start, "")  # 空行分隔填空题和判断题
-                elif single_choice_start > 0:
-                    paper_text.insert(single_choice_start, "")  # 空行分隔选择题和判断题
-                paper_text.append("\n三、判断题：")
-                judgement_start = len(paper_text)  # 记录判断题开始位置
-            paper_text.append(f"{problem_count['judgement']}. {problem['problem']}")
-            paper_text.append("A. 是")
-            paper_text.append("B. 否")
-        paper_text.append('\n')
-    # 将列表转换为字符串
-    paper_text = "\n".join(map(str, paper_text))
+            judgement_text.append(f"{problem_count['judgement']}. {problem['problem']}")
+            judgement_text.append("A. 是")
+            judgement_text.append("B. 否")
 
-    return paper_text
+    # 拼接各部分内容
+    paper_text = []
+
+    if single_choice_text:
+        paper_text.append("一、选择题：")
+        paper_text.extend(single_choice_text)
+
+    if fillin_text:
+        paper_text.append("\n二、填空题：")
+        paper_text.extend(fillin_text)
+
+    if judgement_text:
+        paper_text.append("\n三、判断题：")
+        paper_text.extend(judgement_text)
+
+    # 将列表转换为字符串并返回
+    return "\n".join(map(str, paper_text))
 
 def save_to_word(filename, paper_text):
     document = Document()
@@ -193,8 +354,8 @@ def save_to_word(filename, paper_text):
     document.add_paragraph(paper_text)
     document.save(filename)
 
-@app.route('/get_download_custompaper', methods=['POST'])
-def get_download_custompaper_handler():
+@app.route('/get_historyevaluation_download_custompaper', methods=['POST'])
+def get_historyevaluation_download_custompaper_handler():
     content = request.json
     Logger.info(content)
     """
