@@ -411,7 +411,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(to right, #89c8ff 0%, #00f2fe 100%);
   font-family: 'Arial', sans-serif;
 }
 

@@ -1,4 +1,4 @@
-from src.spark.SparkApi import SparkLLM
+from spark.SparkApi import SparkLLM
 import time
 import json5
 import os
@@ -7,8 +7,8 @@ from pptx import Presentation
 import olefile
 import re
 
-with open('../config.json', encoding='utf-8') as f:
-    config = json5.load(f)
+# with open('../config.json', encoding='utf-8') as f:
+#     config = json5.load(f)
 
 appid = 'e76d7d8f'
 api_secret = 'Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl'
@@ -18,13 +18,14 @@ domain = "generalv3.5"    # v3.0版本
 Spark_url = "wss://spark-api.xf-yun.com/v3.5/chat"  # v3.5环服务地址
 
 
-def docClassify(file_path, max_length, keyword_list):
+def doc_Classify(file_path, max_length, keyword_list):
     try:
         file_extension = os.path.splitext(file_path)[1].lower()
 
         if file_extension == '.txt':
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read(max_length)
+                print("txt_content:",content)
 
         elif file_extension == '.docx':
             doc = Document(file_path)
@@ -80,11 +81,12 @@ def docClassify(file_path, max_length, keyword_list):
     kw.strip()
 
     llm = SparkLLM(appid, api_key, api_secret, Spark_url, domain)
-    Input = input("\n" + "我:这里有一段文本内容：“" + content + "”，请根据其内容，从以下一组词汇中为其选定一个合适的主题:“" +
-                  kw + "”，请给我一个数字作为回答。（注意，你的回答仅仅允许有一个数字！不要有其他任何多余的内容")
+    Input = "\n" + "我:这里有一段文本内容：“" + content + "”，请根据其内容，从以下一组词汇中为其选定一个合适的主题:“" +  kw + "”，请给我一个数字作为回答。（注意，你的回答仅仅允许有一个数字！不要有其他任何多余的内容"
 
     ans = llm.query(Input)
+    print("ans:",ans)
     match = re.search(r'\d+', ans)
+    print("match:",match)
     if match:
         return int(match.group())
     else:

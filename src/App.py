@@ -14,4 +14,5 @@ if __name__ == '__main__':
     from generate_ppt.ppt_backend import *
     from aiqa.AIQA_backend import *
     from database.Database_backend import *
+    from docClassify.docClassifybackend import *
     app.run(host='0.0.0.0', port=5000)

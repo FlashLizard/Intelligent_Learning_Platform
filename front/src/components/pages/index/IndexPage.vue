@@ -58,6 +58,11 @@
               <h3 class="button-title">智教出卷</h3>
               <p class="button-description">讯飞智教根据教学需求快速出卷。</p>
             </div>
+            <div class="button" @click="handleClick('/docclassify')">
+              <i class="fas fa-file-alt"></i> 
+              <h3 class="button-title">文档归类</h3>
+              <p class="button-description">讯飞智教帮助教师快速分类整理文档。</p>
+            </div>
           </div>
         </div>
 

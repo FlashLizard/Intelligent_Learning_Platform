@@ -120,8 +120,6 @@ export default {
         formData.append('audio_files', file);
       }
 
-      // 发送给后端
-      // const url = 'http://127.0.0.1:5000/uploadhomework';
       const url = '/uploadhomework';
       
       console.log('formData',formData)
