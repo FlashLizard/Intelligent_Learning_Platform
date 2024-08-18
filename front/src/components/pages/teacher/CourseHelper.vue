@@ -31,9 +31,10 @@
           <!-- 课堂控制 -->
           <div class="classroom-controls">
             <button @click="classStarted ? endClass() : startClass()">
+              <i :class="classStarted ? 'fas fa-stop' : 'fas fa-play'"></i>
               {{ classStarted ? '结束课堂' : '开始课堂' }}
             </button>
-            <span>{{ formatCountdownTime }}</span>
+            <span>倒计时：{{ formatCountdownTime }}</span>
           </div>
           
           <!-- 视频画布 -->
@@ -142,7 +143,6 @@
   <!-- 开始课堂 -->
 <div class="modal" v-show="isStartClassModalVisible">
   <div class="ktmodal-content">
-    <!-- 关闭按钮 -->
     <button class="ktclose-button" @click="closeStartClassModal">
       <i class="fas fa-times"></i>
     </button>
@@ -152,7 +152,7 @@
       <input type="text" v-model="questionRequirements.subject" />
     </div>
     <div class="ktinput-group">
-      <label><i class="far fa-clock"></i><span class="blue-text">课堂时间</span> </label>
+      <label><i class="far fa-clock"></i><span class="blue-text"> 课堂时间:</span> </label>
       <div class="kttime-options">
         <button @click="selectTime(30)" :class="{ selected: questionRequirements.classTime === 30 }">30分钟</button>
         <button @click="selectTime(45)" :class="{ selected: questionRequirements.classTime === 45 }">45分钟</button>
@@ -160,7 +160,7 @@
         <button @click="selectTime(120)" :class="{ selected: questionRequirements.classTime === 120 }">120分钟</button>
       </div>
     </div>
-    <ktbutton @click="confirmstartClass"><i class="fas fa-check-circle"></i> 开始上课</ktbutton>
+    <button @click="confirmstartClass" class="ktbutton"><i class="fas fa-check-circle"></i> 开始上课</button>
   </div>
 </div>
 <div v-if="thinking" class="AIloading-dialog">
@@ -212,6 +212,7 @@ export default {
       selectedStudentIndex: 0,
       showDDAlertModal: false, // 控制警告模态框显示
       classtext: null,
+      // classtext: "ok",
       recordloading:false,
     };
   },
@@ -374,6 +375,7 @@ export default {
     },
     selectTime(time) {
       this.countdownTime = time;
+      this.questionRequirements.classTime = time;
     },
     toggleVoiceInput() {
       if (this.isaskRecording) {
@@ -699,18 +701,21 @@ export default {
 
   h1 {
     text-align: center;
-    color: #027ff4;
+    color:#3451f7;
     margin: 0px;
     margin-left: 600px;
   }
 
   .back-button {
     padding: 0.5rem 1rem;
-    background-color: #007bff;
+    background-color: #4862f8;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+  }
+  .back-button:hover {
+    background-color: #0026ff;
   }
 }
 
@@ -730,14 +735,25 @@ export default {
     padding: 0.5rem 1rem;
     background-color: #007bff;
     color: white;
+    font-size:1.4em;
+    font-weight:bold;
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
 
   span {
-    color:#0659ff;
-    font-size: 1.2rem;
+    height: 40px;
+    width:250px;
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    background-color: #4862f8;;
+    color:#fbfdff;
+    font-size: 1.4em;
     font-weight: bold;
   }
 }
@@ -745,6 +761,7 @@ export default {
 .main-content {
   display: flex;
   flex: 1;
+  background-color: #bbd8f9;
 }
 
 .left {
@@ -759,7 +776,7 @@ export default {
   padding: 10px;
   position: relative;
   background-color: #eaf0f6;
-  background-image: url('../../../assets/1.jpg'); /* 背景图片的路径 */
+  background-image: url('../../../assets/blackboard.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
   background-repeat: no-repeat; /* 禁止背景图片重复 */
@@ -849,7 +866,7 @@ export default {
       padding: 0.5rem; /* 为内容添加一些内边距 */
 
       h2 {
-        color:#0c78dc;
+        color:#0026ff;
         margin: 0 0 1rem 0;
       }
 
@@ -885,7 +902,7 @@ export default {
         font-weight: bold;
         margin-top:-20px;
         margin-bottom: 3px;
-        color: #066dce;
+        color: #0026ff;
       }
 
       .scrollable-input {
@@ -1045,7 +1062,7 @@ export default {
 }
 
 .selected {
-  background-color: #007bff;
+  background-color: #0379f7 !important;
   color: #fff;
 }
 
@@ -1252,7 +1269,7 @@ export default {
     background-color: #0056b3;
   }
 
-  .class-dialog {
+.class-dialog {
   position: fixed;
   top: 0;
   left: 0;
@@ -1275,14 +1292,52 @@ export default {
   width: 90%; /* Ensure content is responsive */
 }
 
+h3 {
+  text-align: center;
+  color: #007BFF; /* 蓝色调 */
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  margin-top: -5px;
+}
+
 .summary-container {
-  max-height: 400px; /* Adjust the height as needed */
-  overflow-y: auto; /* Add vertical scrolling */
+  max-height: 400px; 
+  overflow-y: auto;
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  background-size: 300% 300%;
+  animation: gradientAnimation 5s ease infinite; 
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.summary-content {
+  padding: 1rem;
+  color: #333;
+  line-height: 1.6;
+  font-size: 1rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .summary-content p {
-  margin: 0;
-  padding: 5px 0;
+  width: 550px;
+  min-height: 300px;
+  /* margin: 0.5rem 0; */
+  margin-top: -5px;
+  border: 3px solid #007BFF;
+  padding-left: 10px;
 }
 
 .sumclose-button {
@@ -1295,31 +1350,49 @@ export default {
   cursor: pointer;
 }
 
-.sumclose-button i {
-  color: #f53030;
+.sumclose-button:hover {
+  color: #0738fc !important;
 }
 
-.close-button:hover i {
-  color: #f00;
+.sumclose-button i {
+  color: #0860f7;
 }
 
 /* 开始课堂弹窗样式 */
 .ktmodal-content {
-  background-color: #fff;
+  background-color: #baeff8;
   padding: 20px;
   border-radius: 5px;
-  width: 400px;
+  width: 500px;
+  height: 40%;
   max-width: 90%;
+  justify-content: center;
   text-align: center;
   position: relative; /* Ensure relative positioning for child elements */
 
   h3 {
-    color: #066dce;
-    i {
-      color: #066dce;
-    }
+    margin-top: -5px;
+    color: #007bff;
+    font-size: 2em;
+    font-weight: bold;
   }
 
+  .ktbutton {
+    margin-top:50px;
+    width:150px;
+    height:40px;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2em;
+  }
+
+  .ktbutton:hover {
+    background-color: #0056b3;
+  }
 }
 .blue-text {
     color: #066dce;
@@ -1341,15 +1414,18 @@ export default {
 }
 
 .ktinput-group {
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 3em;
+  margin-bottom: em;
 }
 
 .ktinput-group label {
   margin-right: 10px;
-  
-  i {
-    color: #066dce;
-  }
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #007bff;
 }
 
 .ktinput-group input {
@@ -1359,32 +1435,28 @@ export default {
 }
 
 .kttime-options button {
+  width: 87px;
   margin-top: 10px;
-  margin-right: 10px; /* Adjust spacing between buttons */
-  background-color: #80bcf5;
-  border: 2px solid #066dce;
+  margin-right: 5px; /* Adjust spacing between buttons */
+  background-color: #72b9fc;
+  border: 1px solid #066dce;
   border-radius: 3px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color:#ffffff;
 }
+
 .kttime-options button:hover {
+  background-color: #1890ff;
+}
+
+.kttime-options button:selected {
   background-color: #1890ff;
   margin-right: 10px; /* Adjust spacing between buttons */
 }
 
 .kttime-options button:last-child {
   margin-right: 0; /* Remove right margin from the last button */
-}
-
-ktbutton {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-ktbutton:hover {
-  background-color: #0056b3;
 }
 
 
