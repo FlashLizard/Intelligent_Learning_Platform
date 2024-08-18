@@ -16,10 +16,12 @@ import requests
 4、在倾斜文字上效果有提升，同时支持部分生僻字的识别
 '''
 
-APPId = "e76d7d8f"  # 控制台获取
-
-APISecret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"  # 控制台获取
-APIKey = "990e2770b030441fbcc126c691daf5cd"  # 控制台获取
+# APPId = "e76d7d8f"  # 控制台获取
+# APISecret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl"  # 控制台获取
+# APIKey = "990e2770b030441fbcc126c691daf5cd"  # 控制台获取
+APPId = "4999c1d0"
+APISecret = "YWVhOWE3MzQ3ODc1ZThhYTkxYjYxZGFl"
+APIKey = "7927ea2fc2bb91d5f08226320e3d205d"
 
 
 class AssembleHeaderException(Exception):
@@ -132,18 +134,18 @@ class img_2_words:
 
         request_url = assemble_ws_auth_url(self.url, "POST", APIKey, APISecret)
         headers = {'content-type': "application/json", 'host': 'api.xf-yun.com', 'app_id': APPId}
-        print(request_url)
+        # print(request_url)
         response = requests.post(request_url, data=json.dumps(body), headers=headers)
         # print(response)
         # print(response.content)
 
-        print("resp=>" + response.content.decode())
+        # print("resp=>" + response.content.decode())
         tempResult = json.loads(response.content.decode())
         print("tempResult:",tempResult)
         finalResult = base64.b64decode(tempResult['payload']['result']['text']).decode()
         finalResult = finalResult.replace(" ", "").replace("\n", "").replace("\t", "").strip()
         # 以JSON格式写入文件
-
+        print("finalResult:",finalResult)
         data_to_save = finalResult
         data = json.loads(data_to_save)
 
@@ -157,7 +159,7 @@ class img_2_words:
 
         result_string = ' '.join(words_content)
 
-        print(result_string)
+        print("result_string: ",result_string)
         return result_string
 
 

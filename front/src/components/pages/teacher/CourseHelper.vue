@@ -98,35 +98,15 @@
               <div class="qa-container">
                 <div class="input-group">
                   <label><i class="fas fa-question-circle"></i> 问题：</label>
-                  <input type="text" v-model="inputValue" class="input-field scrollable-input" placeholder="输入您的问题..." @keypress.enter="sendMessage" />
+                  <textarea v-model="inputValue" class="input-field scrollable-input" placeholder="输入您的问题..." @keypress.enter="sendMessage"></textarea>
                 </div>
                 <div class="input-group">
                   <label><i class="fas fa-reply"></i> 回答：</label>
-                  <input type="text" v-model="AIanswer" class="input-field scrollable-input" placeholder="AI回答将显示在这里..." readonly />
+                  <textarea v-model="AIanswer" class="input-field scrollable-input" placeholder="AI回答将显示在这里..." readonly></textarea>
                 </div>
               </div>
             </div>
           </div>
-          
-          <!-- 右侧下部 -->
-          <!-- <div class="bottom">
-            <h2><i class="fas fa-comments"></i> 随堂答疑</h2>
-            <div class="chat-box" ref="chatBox">
-              <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-                <p><span v-if="message.isUser">
-                    <i class="fas fa-user"></i> {{ message.text }}
-                  </span>
-                  <span v-else>
-                    <i class="fas fa-robot"></i> {{ message.text }}
-                  </span></p>
-              </div>
-            </div>
-            <div class="input-container">
-              <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
-              <button class="voice-button" @click="toggleVoiceInput">{{ isaskRecording ? '🛑' : '🎤' }}</button>
-              <button class="send-button" @click="sendMessage">发送</button>
-            </div>
-          </div> -->
         </div>
       </div>
     </div>
@@ -315,7 +295,7 @@ export default {
           if (e.data.size > 0) {
             console.log('this.audioChunks.push(e.data);')
             this.audioChunks.push(e.data);
-            console.log(this.audioChunks)
+            // console.log(this.audioChunks)
             this.saveAudioToServer();
           }
         };
@@ -420,7 +400,8 @@ export default {
       })
       .then((res) => {
         this.thinking = false;
-        this.AIanswer = res.data;
+        this.AIanswer = (res.data);
+        console.log("AIanswer",this.AIanswer)
         // this.messages.push({ text: res.data, isUser: false });
       })
       .catch((err) => {
@@ -718,7 +699,7 @@ export default {
 
   h1 {
     text-align: center;
-    color: #0c78dc;
+    color: #027ff4;
     margin: 0px;
     margin-left: 600px;
   }
@@ -779,9 +760,9 @@ export default {
   position: relative;
   background-color: #eaf0f6;
   background-image: url('../../../assets/1.jpg'); /* 背景图片的路径 */
-    background-size: cover; /* 让背景图片充满容器 */
-    background-position: center; /* 居中显示背景图片 */
-    background-repeat: no-repeat; /* 禁止背景图片重复 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
 
   .loading-spinner {
     width: 50px;
@@ -814,7 +795,7 @@ export default {
 .progress-text {
     margin-right: 10px;
     font-size: 14px;
-    white-space: nowrap;
+    /* white-space: nowrap; */
 }
 
 .progress-bar {
@@ -857,15 +838,15 @@ export default {
   .top {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.1rem;
 
     .section {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      border: 3px solid transparent !important;
-      border-radius: 5px !important;
-      animation: border-rotation 3s linear infinite !important; 
+      border: 3px solid #0c78dc; /* 设置蓝色边框 */
+      border-radius: 5px;
+      padding: 0.5rem; /* 为内容添加一些内边距 */
 
       h2 {
         color:#0c78dc;
@@ -875,6 +856,7 @@ export default {
       .button-container {
         display: flex;
         gap: 1rem;
+        margin-bottom: 30px;
 
         button {
           padding: 0.5rem 1rem;
@@ -887,34 +869,43 @@ export default {
       }
 
       .qa-container {
-        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
 
       .input-group {
         display: flex;
-        align-items: center;
-        margin-bottom: 10px;
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       .input-group label {
         font-size: 14px;
-        width: 80px;
         font-weight: bold;
-        color:#066dce
+        margin-top:-20px;
+        margin-bottom: 3px;
+        color: #066dce;
       }
 
       .scrollable-input {
-        max-height: 100px; /* 根据需要设置最大高度 */
-        overflow-y: auto;
+        width: 100%;
+        max-height: 150px; /* 适当设置文本框的最大高度 */
+        overflow-y: auto; /* 启用纵向滚动 */
         white-space: normal; /* 允许文本换行 */
-      }
-
-      /* 调整输入框的样式，使其更适合滚动内容显示 */
-      .input-field {
-        height: auto; /* 允许高度自适应内容 */
-        line-height: 1.5em;
+        word-wrap: break-word; /* 自动换行，避免超出容器范围 */
         padding: 10px;
         font-size: 14px;
+        line-height: 1.5em;
+        box-sizing: border-box; /* 包括内边距在内的宽度计算 */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: none; 
+      }
+
+      .input-field {
+        width:310px;
+        height: 90px; 
       }
 
     }
@@ -1321,6 +1312,14 @@ export default {
   max-width: 90%;
   text-align: center;
   position: relative; /* Ensure relative positioning for child elements */
+
+  h3 {
+    color: #066dce;
+    i {
+      color: #066dce;
+    }
+  }
+
 }
 .blue-text {
     color: #066dce;
@@ -1347,11 +1346,15 @@ export default {
 
 .ktinput-group label {
   margin-right: 10px;
+  
+  i {
+    color: #066dce;
+  }
 }
 
 .ktinput-group input {
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 2px solid #066dce !important;
   border-radius: 4px;
 }
 
@@ -1359,6 +1362,8 @@ export default {
   margin-top: 10px;
   margin-right: 10px; /* Adjust spacing between buttons */
   background-color: #80bcf5;
+  border: 2px solid #066dce;
+  border-radius: 3px;
 }
 .kttime-options button:hover {
   background-color: #1890ff;
@@ -1382,16 +1387,56 @@ ktbutton:hover {
   background-color: #0056b3;
 }
 
+
 .AIloading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.AIloading-content {
+  background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff, #0072ff); 
+  background-size: 400% 400%;
+  animation: gradientAnimation 8s ease infinite; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color:white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.AIloading-spinner {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* .AIloading-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff, #0072ff); /* 冷色调渐变 */
-  background-size: 400% 400%; /* 背景大小 */
+  background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff, #0072ff); 
+  background-size: 400% 400%;
   padding: 20px;
   border-radius: 10px;
-  animation: gradientAnimation 8s ease infinite; /* 循环背景变色 */
+  animation: gradientAnimation 8s ease infinite; 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -1405,7 +1450,7 @@ ktbutton:hover {
   100% {
     background-position: 0% 50%;
   }
-}
+} */
 
 .ai-text {
   color: #ffffff;

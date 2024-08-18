@@ -18,19 +18,10 @@ from App import app
 # with open('../../config.json', encoding='utf-8') as f:
 #     config = json5.load(f)
 
-# 配置信息
-# appid = config['appid']
-# api_secret = config['api_secret']
-# api_key = config['api_key']
-# secret_key = config['secret_key']
 appid =  "e76d7d8f",
 api_secret = "Y2Y2ODc2OGQyOWFjMWZhY2JkOTllMDVl",
 api_key = "990e2770b030441fbcc126c691daf5cd",
 secret_key = "3d354554a40d73e05331347dda9380c0"
-
-# audio_folder = "audio_to_txt/audio"
-# audio_tmp_folder = "audio_to_txt/tmp_audio"
-# context_folder = "./context"
 
 # Spark API 设置
 domain = "generalv3.5"  # v3.0版本
@@ -81,5 +72,5 @@ def upload_imagefile():
         return jsonify({"content": content})
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000)

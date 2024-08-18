@@ -286,6 +286,9 @@
           this.tmptext = (response.data)['ans'];
           this.$forceUpdate();
           console.log(this.textToTranslate);
+
+          // 重置 input 的值，以确保下次选择同一个文件时仍然会触发事件
+          event.target.value = null;
           this.imageloading = false;
           this.textloading = false;
           this.yinpining = false;
