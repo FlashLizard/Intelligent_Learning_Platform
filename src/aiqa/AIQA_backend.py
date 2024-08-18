@@ -194,17 +194,17 @@ def get_imagetranslation_handler():
         os.makedirs(save_dir, exist_ok=True)
         filename = file.filename
         file.save(os.path.join('img_2_words','image', filename))
-        img_2_words_run()
-        filename2 = "imageresult.txt"
-        filepath = os.path.join('img_2_words','image2wordresult',filename2)
-        with open(filepath, 'rb') as f:  # 使用二进制模式读取文件
-            content = f.read().decode('utf-8')  # 解码为字符串
+        content = img_2_words_run()
+        # filename2 = "imageresult.txt"
+        # filepath = os.path.join('img_2_words','image2wordresult',filename2)
+        # with open(filepath, 'rb') as f:  # 使用二进制模式读取文件
+        #     content = f.read().decode('utf-8')  # 解码为字符串
         print('content:',content)
-        if os.path.exists(filepath):
-            os.remove(filepath)
-            print(f"File {filepath} has been deleted.")
-        else:
-            print(f"File {filepath} does not exist.")
+        # if os.path.exists(filepath):
+            # os.remove(filepath)
+            # print(f"File {filepath} has been deleted.")
+        # else:
+            # print(f"File {filepath} does not exist.")
         filepath = os.path.join('img_2_words','image', filename)
         if os.path.exists(filepath):
             os.remove(filepath)

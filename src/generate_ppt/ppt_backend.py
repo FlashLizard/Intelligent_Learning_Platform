@@ -7,6 +7,7 @@ from img_2_words.img_2_words import img_2_words_run
 from aiqa.Ifasr_app import audio2txt_Api
 # from pptx import Presentation
 import os
+import io
 import docx
 from .run_generate_app import generate_ppt
 from App import app
@@ -121,7 +122,9 @@ def get_txt_fileppt():
 
 def read_docx(file_stream):
     """读取 .docx 文件内容并返回文本"""
-    doc = docx.Document(file_stream)
+    # 将文件内容转换为字节流
+    file_bytes = io.BytesIO(file_stream.read())
+    doc = docx.Document(file_bytes)
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)

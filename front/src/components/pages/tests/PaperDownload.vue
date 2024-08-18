@@ -170,10 +170,10 @@
 
     <div class="button-container">
       <button class="start-button" @click="isNewDownloadDialogOpen=true,downloadDialogTitle = '全新密卷';">
-        <i class="fas fa-play"></i> 全新密卷
+        <i class="fas fa-download"></i> 全新密卷
       </button>
       <button class="start-button" @click="isCustomDownloadDialogOpen=true,downloadDialogTitle = '个性化密卷';">
-        <i class="fas fa-play"></i> 个性化密卷
+        <i class="fas fa-download"></i> 个性化密卷
       </button>
     </div>
     <button class="back-button" @click="goBack">
@@ -208,7 +208,8 @@
     </div>
   </div>
   <!-- 试卷下载弹窗 -->
-  <div v-if="isNewDownloadDialogOpen" class="downloaddialog">
+  <div v-if="isNewDownloadDialogOpen" class="downloaddialogwrapper">
+    <div class="downloaddialog">
     <div class="downloaddialog-content">
       <h2 class="downloaddialog-title">
         <i class="fas fa-pen"></i>  {{ downloadDialogTitle }}
@@ -225,7 +226,10 @@
       </div>
     </div>
   </div>
-  <div v-if="isCustomDownloadDialogOpen" class="downloaddialog">
+  </div>
+  
+  <div v-if="isCustomDownloadDialogOpen" class="downloaddialogwrapper">
+    <div class = "downloaddialog">
     <div class="downloaddialog-content">
       <h2 class="downloaddialog-title">
         <i class="fas fa-pen"></i>  {{ downloadDialogTitle }}
@@ -241,6 +245,7 @@
         </button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -677,22 +682,27 @@ export default {
 <style scoped>
 .online-test {
   padding: 20px;
-  background-color: #d0eefe;
-  color: #333;
+  /* background-color: #d0eefe; */
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
+  color: #333 ;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 20px;
-  color: #007bff;
+  /* color: #007bff; */
+  color:rgb(171, 238, 253);
 }
 
 .block {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  /* border: 1px solid #ccc; */
   border-radius: 8px;
   padding: 10px;
-  background-color: #fff;
+  background-color: rgba(164, 230, 247, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -702,7 +712,9 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #007bff;
+  color: #030bed;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 .block-content {
@@ -882,8 +894,12 @@ h1 {
 
 .start-button {
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  /* background-color: #007bff;
+  color: white; */
+  background-color: #99ddf9;
+  color: #030bed;
+  font-weight: bold;
+  font-size: 1.3em;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -892,7 +908,7 @@ h1 {
 }
 
 .start-button:hover {
-  background-color: #0056b3;
+  background-color: #82a7ce;
 }
 
 .back-button {
@@ -900,11 +916,18 @@ h1 {
   top: 50px;
   right: 50px;
   padding: 8px 16px;
-  background-color: #007bff;
-  color: #f7f6f6;
+  font-weight: bold;
+  font-size: 1.3em;
+  /* background-color: #007bff; */
+  /* color: #f7f6f6; */
+  background-color: #99ddf9;
+  color: #0374ed;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.back-button:hover{
+  background-color: #bbd3de;
 }
 
 .bordered {
@@ -1017,13 +1040,25 @@ h1 {
   font-weight: bold;
 }
 
+.downloaddialogwrapper{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .downloaddialog {
   position: fixed;
   height: 150px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(45deg, #01a4d1, #72affa, #00c6ff, #569ef7); /* 冷色调渐变的颜色设置 */
+  background: linear-gradient(45deg, #7fc9e3, #a2d4f8, #99e0ff, #a7c9f9);; /* 冷色调渐变的颜色设置 */
   background-size: 400% 400%; /* 设置背景大小，以便循环渐变 */
   animation: gradientAnimation 8s ease infinite; /* 动画设置：8秒内完成循环 */
   border-radius: 8px;
@@ -1050,14 +1085,15 @@ h1 {
 }
 
 .downloaddialog-title {
-  color:#ffffff;
-  font-size: 20px;
+  color:#0551d5;
+  font-size: 25px;
+  font-weight: bold;
   margin-bottom: 40px;
   position: relative;
 }
 
 .downloadclose-button {
-  color:white;
+  color:rgb(13, 78, 219);
   position: absolute;
   top: 0;
   right: 0;
@@ -1085,7 +1121,8 @@ h1 {
 
 .downloadbutton-group button {
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
   cursor: pointer;
   border: 1px solid #3778e0;
   background-color: #3778e0;

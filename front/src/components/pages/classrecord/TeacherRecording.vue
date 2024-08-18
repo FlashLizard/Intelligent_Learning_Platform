@@ -21,12 +21,12 @@
       <button class="close-button" @click="isUploadModalVisible=false">
         <i class="fas fa-times"></i> 
       </button>
-      <h3>选择课件类型</h3>
+      <h3><i class="fas fa-file"></i> 选择课件类型</h3>
       <div class="button-group">
-        <button @click="selectFile('txt')">上传txt课件</button>
-        <button @click="selectFile('docx')">上传docx课件</button>
-        <button @click="selectFile('image')">上传图片课件</button>
-        <button @click="selectFile('audio')">上传音频课件</button>
+        <button @click="selectFile('txt')"><i class="fas fa-file-alt"></i> 上传txt课件</button>
+        <button @click="selectFile('docx')"><i class="fas fa-file-word"></i> 上传docx课件</button>
+        <button @click="selectFile('image')"><i class="fas fa-image"></i> 上传图片课件</button>
+        <button @click="selectFile('audio')"><i class="fas fa-volume-up"></i>  上传音频课件</button>
       </div>
     </div>
   </div>
@@ -42,18 +42,21 @@
       <!-- 设置题目要求 -->
       <h3><i class="fas fa-book-open"></i> 设置题目要求</h3>
       <div class="input-group">
-        <label>学科：</label>
+        <label><i class="fas fa-chalkboard-teacher"></i> 学科：</label>
         <input type="text" v-model="questionRequirements.subject" />
       </div>
       <div class="input-group">
-        <label>知识点：</label>
+        <label><i class="fas fa-book"></i> 知识点：</label>
         <input type="text" v-model="questionRequirements.topic" />
       </div>
       <div class="input-group">
-        <label>其他要求：</label>
+        <label><i class="fas fa-cogs"></i> 其他要求：</label>
         <input type="text" v-model="questionRequirements.other" />
       </div>
-      <button @click="getDownloadProblems"><i class="fas fa-book-open"></i> 下载试卷</button>
+      <div class="button-group">
+        <button @click="getDownloadProblems_txt"><i class="fas fa-file-alt"></i> 下载TXT格式</button>
+        <button @click="getDownloadProblems_docx"><i class="fas fa-file-word"></i> 下载DOCX格式</button>
+      </div>
     </div>
   </div>
 
@@ -131,6 +134,7 @@ export default {
       thinking: false,
       mediaRecorder: null,
       audioChunks: [],
+      stream:null,
       isRecording: false,
       fileType: '',
       fileContent: '',
@@ -188,6 +192,7 @@ export default {
 
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
+          this.stream = stream; 
           this.mediaRecorder = new MediaRecorder(stream);
           this.mediaRecorder.start();
           this.isRecording = true;
@@ -280,7 +285,7 @@ export default {
         console.error(err);
       });
     },
-    async getDownloadProblems() {
+    async getDownloadProblems_txt() {
         const formData = {
           subjects: [
             this.questionRequirements.subject || '',
@@ -297,7 +302,7 @@ export default {
           this.quesloading = true;
           
           // 发送 POST 请求到后端获取试题文本
-          const response = await axios.post('/get_downloadproblems', formData, {
+          const response = await axios.post('/get_downloadproblems_txt', formData, {
             responseType: 'blob' // 响应类型为 Blob
           });
 
@@ -316,6 +321,54 @@ export default {
           document.body.removeChild(a);
 
           // 清理 URL 对象
+          window.URL.revokeObjectURL(url);
+
+          // 完成下载后，隐藏加载动画
+          this.quesloading = false;
+        } catch (error) {
+          console.error('Error:', error);
+          // 处理错误情况
+          this.quesloading = false;
+        }
+      },
+      async getDownloadProblems_docx() {
+        const formData = {
+          subjects: [
+            this.questionRequirements.subject || '',
+            this.questionRequirements.topic || this.questionRequirements.subject
+          ],
+          time: 10, // Example time in minutes
+          min_difficulty: 3,
+          max_difficulty: 8,
+          type: ["single_choice", "judgement",'fillin'],
+          others: this.questionRequirements.other || '无'
+        };
+        console.log(formData)
+        try {
+          this.quesloading = true;
+          
+          // 发送 POST 请求到后端获取试题文本
+          const response = await axios.post('/get_downloadproblems_docx', formData, {
+            responseType: 'blob' // 响应类型为 Blob
+          });
+
+          // Create a Blob object for the .docx file
+          const blob = new Blob([response.data], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+
+          // Create a URL for the Blob object
+          const url = window.URL.createObjectURL(blob);
+
+          // Create an <a> element and trigger download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'problems.docx'; // Use .docx extension for Word document
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          // Clean up the URL object
           window.URL.revokeObjectURL(url);
 
           // 完成下载后，隐藏加载动画
@@ -385,15 +438,15 @@ export default {
   position: relative;
   margin-top: 10px;
   background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
-    background-size: cover; /* 让背景图片充满容器 */
-    background-position: center; /* 居中显示背景图片 */
-    background-repeat: no-repeat; /* 禁止背景图片重复 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
 }
 
 .title {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: bold;
-  color: #0474de;
+  color: #0026ff;
 }
 
 .back-button {
@@ -426,12 +479,30 @@ export default {
   flex: 3;
   padding: 10px;
   overflow-y: scroll;
-  background-color: #eef8fa;
+  // background: linear-gradient(45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  // background-size: 400% 400%;
+  // animation: gradientAnimation 4s ease infinite;
+  background-image: url('../../../assets/blackboard.jpg'); /* 背景图片的路径 */
+  //background-size: cover; /* 让背景图片充满容器 */
+  background-size: 110% 100%; /* 背景高度适应容器，宽度按比例缩放 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .sidebar {
   flex: 1;
-  padding: 10px;
+  padding: 5px;
   background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
   background-size: 100% 100%;
   animation: gradientAnimation 3s ease infinite;
@@ -450,7 +521,29 @@ export default {
 }
 
 .sidebar-content {
-  margin-bottom: 30px;
+  min-height: 130px;
+  margin-bottom:5px;
+  padding:10px;
+  border: 4px solid transparent;
+  border-radius: 5px !important;
+  animation: border-rotation 3s linear infinite; 
+}
+@keyframes border-rotation {
+  0% {
+    border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  25% {
+    border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  50% {
+    border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  75% {
+    border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
+  100% {
+    border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
+  }
 }
 
 .sidebar-title {
@@ -490,18 +583,19 @@ export default {
 }
 
 .file-analysis {
-  margin-top: 20px;
+  margin-top: 0px;
 }
 
 .file-analysis h3 {
   color: #0026ff;
   margin-bottom: 5px;
-  font-size: 0.8em;
+  font-size: 0.9em;
   font-weight: bold;
 }
 
 .file-result {
   width: 90%;
+  height: 70px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -513,13 +607,16 @@ export default {
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 5px;
-  background-color: #9be08f;
+  // background-color: #9be08f;
+  background-color: rgba(155, 224, 143, 0.8);
   max-width: 70%;
 }
 
 .user-message {
   align-self: flex-end;
-  background-color: #d1f0d1;
+  // background-color: #d1f0d1;
+  background-color: rgba(209, 240, 209, 0.8);
+  font-weight: bold;
 }
 
 .ai-thinking p {
@@ -583,13 +680,60 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
   padding: 20px;
   border-radius: 5px;
-  width: 400px;
+  width: 520px;
   max-width: 90%;
   text-align: center;
   position: relative;
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  background-size: 300% 300%;
+  animation: gradientAnimation 6s ease infinite;
+
+  h3{
+    color:#0026ff;
+    font-size: 1.7em;
+    font-weight: bold;
+    margin-top: -9px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .button-group button {
+    flex: 1;
+    margin: 0 10px;
+    padding: 10px;
+    background-color: #4862f8;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .button-group button i {
+    margin-right: 8px;
+  }
+
+  .button-group button:hover {
+    background-color: #374abd;
+  }
+
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .close-button {
@@ -610,6 +754,9 @@ export default {
 
 .input-group label {
   margin-right: 10px;
+  color:#0026ff;
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 .input-group input {
@@ -682,16 +829,6 @@ export default {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-}
-
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  width: 400px;
-  max-width: 90%;
-  text-align: center;
-  position: relative;
 }
 
 .close-button {

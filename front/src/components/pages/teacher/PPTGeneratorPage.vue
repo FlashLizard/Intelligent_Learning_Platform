@@ -433,7 +433,7 @@
   background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
-  background-repeat: no-repeat; /* 禁止背景图片重复 *
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
   /* background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF); */
   /* background-size: 300% 300%; */
   /* animation: gradientAnimation 5s ease infinite; 添加循环渐变动画 */

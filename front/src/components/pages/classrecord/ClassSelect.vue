@@ -1,7 +1,7 @@
 <template>
   <div class="course-selection" @click="hideDropdown">
     <header class="header">
-      <h1>AI荐课</h1>
+      <h1><i class="fas fa-graduation-cap"></i> AI荐课</h1>
       <div class="tabs">
         <div
           v-for="tab in tabs"
@@ -48,7 +48,7 @@
       </div>
     </div>
     <div class="recommendations">
-      <h2>推荐课程</h2>
+      <h2><i class="fas fa-book"></i> 推荐课程</h2>
       <!-- 这里是推荐课程列表的渲染 -->
       <div v-for="(course, index) in recommendations" :key="index" class="recommended-course" @click="openUrl(course.url)">
         <div class="recommended-content">
@@ -63,7 +63,7 @@
     <!-- 新增：首次进入页面时弹出的提示弹窗 -->
     <div v-if="showWelcomePopup" class="welcome-popup-overlay" @click="showWelcomePopup = false">
       <div class="welcome-popup" @click.stop>
-        <h3>欢迎使用AI荐课</h3>
+        <h3><i class="fas fa-handshake"></i>  欢迎使用AI荐课</h3>
         <p>AI荐课功能根据您指定的学科和关键词为您推荐各大平台上的课程，您可以通过本应用推荐的路径找到您感兴趣的课程。</p>
         <button @click="showWelcomePopup = false">我知道了</button>
       </div>
@@ -189,7 +189,7 @@ export default {
     h1 {
       margin: 0;
       font-size: 32px;
-      color: #333;
+      color: #0084ef;
       display: flex;
       align-items: center;
 
@@ -310,7 +310,7 @@ export default {
     h2 {
       margin-bottom: 10px;
       font-size: 28px;
-      color: #333;
+      color: #0084ef;
     }
 
     .recommended-course {
@@ -407,6 +407,7 @@ export default {
     z-index: 2000;
 
     .welcome-popup {
+      width: 40%;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
@@ -416,13 +417,22 @@ export default {
       h3 {
         margin-top: 0;
         font-size: 24px;
-        color: #333;
+        font-weight: bold;
+        color: #297af4;
       }
 
       p {
         font-size: 18px;
         color: #666;
         margin: 10px 0;
+      }
+      p {
+        white-space: normal; /* 确保文本自动换行 */
+        word-wrap: break-word; /* 长单词换行 */
+        word-break: break-word; /* 对超长词进行强制换行 */
+        max-width: 100%; /* 限制宽度以确保适应弹窗 */
+        margin: 10px 0;
+        line-height: 1.5;
       }
 
       button {

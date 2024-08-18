@@ -12,24 +12,23 @@
     </div>
     <!-- Loading Dialog -->
   <div v-if="yinpining" class="loading-dialog">
-      <div class="loading-content">
-        <h2><i class="fas fa-wave-square"></i> 音频解析中...</h2>
-      </div>
+    <div class="loading-content">
+      <h2><i class="fas fa-wave-square"></i> 音频解析中...</h2>
     </div>
-    <div class="top-background">
-    <h1><i class="fas fa-book-open"></i> 即时翻译</h1>
-    <button class="back-button" @click="goBack">
-      <i class="fas fa-arrow-left"></i> 返回
-    </button>
   </div>
   <div class="translation-container">
+    <button class="back-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button> 
+    <h1><i class="fas fa-book-open"></i> 即时翻译</h1>
     <div class="switch-tabs">
       <div
-        v-for="tab in tabs"
+        v-for=" (tab, index) in tabs"
         :key="tab"
         :class="['tab', { active: activeTab === tab }]"
         @click="setActiveTab(tab)"
       >
+        <i :class="['fas', tabIcons[index]]"></i>
         {{ tab }}
       </div>
     </div>
@@ -118,6 +117,10 @@
       </div>
       <div class="right-pane">
         <div class="input-container">
+          <!-- 下载图标按钮 -->
+          <button class="download-button" @click="downloadTranslation">
+            <i class="fas fa-download"></i> 下载结果
+          </button>
           <div class="language-selector">
             <button @click="toggleTargetLanguageMenu" class="language-button">
               <i class="fas fa-flag"></i> {{ targetLanguage }}
@@ -145,6 +148,7 @@
     data() {
       return {
         tabs: ['翻译文本', '翻译图片', '翻译音频', '翻译语音'],
+        tabIcons: ['fa-file-alt', 'fa-image', 'fa-music', 'fa-microphone'],
         activeTab: '翻译文本',
         textToTranslate: '',
         translationResult: '',
@@ -228,6 +232,8 @@
               'Content-Type': 'multipart/form-data'
             }
           });
+          // 重置 input 的值，以确保下次选择同一个文件时仍然会触发事件
+          event.target.value = null;
           this.textToTranslate = (response.data)['word'];
           this.imageloading = false;
           this.yinpining = false;
@@ -316,42 +322,61 @@
           }
         }
       },
+      downloadTranslation() {
+        // 创建一个Blob对象，用于存储翻译结果
+        const blob = new Blob([this.translationResult], { type: 'text/plain;charset=utf-8' });
+
+        // 创建一个链接并模拟点击，触发文件下载
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '翻译结果.txt'; // 指定下载文件的名称
+        link.click();
+
+        // 释放URL对象资源
+        URL.revokeObjectURL(link.href);
+      },
     },
   };
   </script>
   
   <style scoped>
-  .top-background {
-  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
-  background-size: cover; /* 让背景图片充满容器 */
-  background-position: center; /* 居中显示背景图片 */
-  background-repeat: no-repeat; /* 禁止背景图片重复 */
-  height: 120px; /* 设置背景高度，根据需要调整 */
+  /* .top-background {
+  background-image: url('../../../assets/10.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; 
+  height: 120px;
   text-align: center;
   padding-top: 20px;
   h1 
 {
       margin-top: 0;
       padding: 10px;
-      color: #0474de; /* 将颜色设置为白色 */
+      color: #0474de; 
     }
-}
+} */
   .translation-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: 80vh;
+    height: 92vh;
     padding: 20px;
-    background: #ffffff;
+    /* background: #ffffff; */
     text-align: center;
     position: relative;
+    background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
+    background-size: cover; /* 让背景图片充满容器 */
+    background-position: center; /* 居中显示背景图片 */
+    background-repeat: no-repeat; /* 禁止背景图片重复 */
   }
   
   .back-button {
   position: absolute;
+  font-size: 1.2em;
+  font-weight: bold;
   margin-top:20px;
-  top: 20px;
+  top: 5px;
   right: 20px;
   padding: 10px 20px;
   border: none;
@@ -364,14 +389,14 @@
   gap: 5px;
 }
   .back-button:hover {
-    background: #0056b3;
+    background: hsl(211, 94%, 65%);
   }
   
   h1 {
     font-size: 2.5rem;
-    margin-top: 40px;
+    margin-top: 0px;
     margin-bottom: 20px;
-    color: #333;
+    color: #63aef9;
   }
   
   .switch-tabs {
@@ -410,20 +435,20 @@
     justify-content: space-between;
     width: 100%;
     max-width: 1200px;
-    background: #f9f9f9;
+    background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
     border-radius: 10px;
-    padding: 20px;
+    padding: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   .left-pane,
   .right-pane {
     width: 48%;
-    height: 300px;
+    height: 400px;
     display: flex;
     flex-direction: column;
     border: 1px solid #ddd;
-    border-radius: 10px;
+    border-radius: 5px;
     background: #fff;
     padding: 15px;
   }
@@ -433,6 +458,23 @@
     flex-direction: column;
     align-items: center;
     flex-grow: 1;
+  }
+
+  .download-button {
+    position: absolute;
+    top: 267px;
+    right: 180px !important;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #007bff;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 10px;
+    border: 2px solid #007bff;
+  }
+
+  .download-button:hover {
+    background-color: #056cda;
   }
   
   textarea {
@@ -450,8 +492,11 @@
   .language-selector {
     position: relative;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
   }
-  
+
   .language-button {
     padding: 10px 20px;
     border: none;
@@ -560,7 +605,9 @@
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  animation: waveAnimation 1s infinite linear; 
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF); 
+  background-size: 300% 300%; 
+  animation: waveAnimation 1s infinite linear , gradientAnimation 5s ease infinite; 
 }
 @keyframes waveAnimation {
   0% {
@@ -571,6 +618,17 @@
   }
   100% {
     transform: translateY(0); /* 回到初始位置 */
+  }
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
   </style>
