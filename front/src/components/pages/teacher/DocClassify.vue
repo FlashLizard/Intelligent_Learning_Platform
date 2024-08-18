@@ -100,7 +100,7 @@ export default {
       categoryInput: '', // 新增的类别输入框绑定的数据
       categories: [], // 存储所有添加的类别
       uploadResults: [],
-      uploadButtonText: '批量上传作业',
+      uploadButtonText: '批量上传文件',
       initialRows: 15,
       loading: false,
       hasCategory: false,

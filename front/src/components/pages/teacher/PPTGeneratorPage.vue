@@ -269,7 +269,7 @@
               break;
             case '文件生成':
               this.textloading = true;
-              endpoint = '/get_fileppt';
+              endpoint = '/get_txtfileppt';
               break;
             // Add more cases if needed
             default:
@@ -384,7 +384,7 @@
       },
       stopVoiceRecognition() {
         this.recording = false;
-        this.isRecording = false;
+        this.isrecording = false;
         this.$forceUpdate();
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();

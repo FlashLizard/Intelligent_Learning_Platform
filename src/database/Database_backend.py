@@ -90,7 +90,7 @@ def get_test_handler():
     response = {
         "status": "success",
         "id": result['id'],
-        "user_id": result['user_id'],
+        "user_name": result['user_name'],
         "test_name": result['test_name'],
         "test_time": result['test_time'].isoformat(),
         "test_questions": json5.loads(result['test_questions']),

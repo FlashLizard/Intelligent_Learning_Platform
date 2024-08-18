@@ -7,6 +7,7 @@ from img_2_words.img_2_words import img_2_words_run
 from aiqa.Ifasr_app import audio2txt_Api
 # from pptx import Presentation
 import os
+import docx
 from .run_generate_app import generate_ppt
 from App import app
 # 创建服务器
@@ -101,8 +102,8 @@ def download_ppt():
     else:
         return 'Generated PPT file not found', 404
 
-@app.route('/get_fileppt', methods=['POST', 'GET'])
-def get_fileppt():
+@app.route('/get_txtfileppt', methods=['POST', 'GET'])
+def get_txt_fileppt():
     # 检查是否有文件在请求内
     if 'file' not in request.files:
         return 'No file part in the request'
@@ -117,7 +118,36 @@ def get_fileppt():
     print(ans)
     # 返回文件内容给前端
     return jsonify({'word': file_content,'ans':ans})
+
+def read_docx(file_stream):
+    """读取 .docx 文件内容并返回文本"""
+    doc = docx.Document(file_stream)
+    full_text = []
+    for paragraph in doc.paragraphs:
+        full_text.append(paragraph.text)
+    return '\n'.join(full_text)
+
+@app.route('/get_docxfileppt', methods=['POST', 'GET'])
+def get_docx_fileppt():
+    # 检查是否有文件在请求内
+    if 'file' not in request.files:
+        return 'No file part in the request'
     
+    file = request.files['file']
+
+    if file.filename.endswith('.docx'):
+        # 处理 .docx 文件
+        file_content = read_docx(file.stream)
+    else:
+        # 处理其他文本文件
+        file_content = file.stream.read().decode('utf-8')
+
+    question = file_content + '的100字以内总结是什么？只返回即可总结结果。'
+    print(question)
+    ans = llm.query(question)
+    print(ans)
+    # 返回文件内容给前端
+    return jsonify({'word': file_content, 'ans': ans})
       
 
 @app.route('/get_imageppt', methods=['POST'])

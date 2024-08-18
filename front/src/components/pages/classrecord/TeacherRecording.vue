@@ -24,8 +24,9 @@
       <h3>选择课件类型</h3>
       <div class="button-group">
         <button @click="selectFile('txt')">上传txt课件</button>
-        <button @click="selectFile('image')">上传课件图片</button>
-        <button @click="selectFile('audio')">上传课件音频</button>
+        <button @click="selectFile('docx')">上传docx课件</button>
+        <button @click="selectFile('image')">上传图片课件</button>
+        <button @click="selectFile('audio')">上传音频课件</button>
       </div>
     </div>
   </div>
@@ -79,7 +80,7 @@
       </div>
       <div class="sidebar">
         <div class="sidebar-content">
-          <h2 class="sidebar-title">课件分析</h2>
+          <h2 class="sidebar-title"><i class="fas fa-chalkboard-teacher"></i> 课件分析</h2>
           <input type="file" ref="fileInput" style="display: none" @change="handleFileUpload" />
           <div class="button-group">
             <button @click="isUploadModalVisible=true"><i class="fas fa-upload"></i>上传课件</button>
@@ -97,7 +98,7 @@
           </div>
         </div>
         <div class="sidebar-content">
-          <h2 class="sidebar-title">智能出题</h2>
+          <h2 class="sidebar-title"><i class="fas fa-question-circle"></i> 智能出题</h2>
           <div class="button-group small-button">
             <button @click="isModalVisible=true"><i class="fas fa-lightbulb"></i> AI生成题目</button>
           </div>
@@ -255,7 +256,9 @@ export default {
 
       let url = '';
       if (this.fileType === 'txt') {
-        url = '/get_fileppt';
+        url = '/get_txtfileppt';
+      } else if (this.fileType === 'docx') {
+        url = '/get_docxfileppt';
       } else if (this.fileType === 'image') {
         url = '/get_imageppt';
       } else if (this.fileType === 'audio') {
@@ -429,8 +432,21 @@ export default {
 .sidebar {
   flex: 1;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+  background-size: 100% 100%;
+  animation: gradientAnimation 3s ease infinite;
   overflow-y: auto;
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .sidebar-content {
@@ -440,6 +456,7 @@ export default {
 .sidebar-title {
   font-weight: bold;
   margin-bottom: 10px;
+  color: #0026ff;
 }
 
 .button-group {
@@ -477,6 +494,7 @@ export default {
 }
 
 .file-analysis h3 {
+  color: #0026ff;
   margin-bottom: 5px;
   font-size: 0.8em;
   font-weight: bold;
