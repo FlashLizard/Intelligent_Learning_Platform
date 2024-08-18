@@ -17,6 +17,7 @@ import ClassSelect from '@/components/pages/classrecord/ClassSelect.vue'
 import CourseHelper from '@/components/pages/teacher/CourseHelper.vue';
 import ClassTest from '@/components/pages/teacher/ClassTest.vue'
 import ClassTestEvaluation from '@/components/pages/teacher/ClassTestEvaluation.vue'
+import ClassTestAnswer from '@/components/pages/teacher/ClassTestAnswer.vue';
 import TranslationPage from '@/components/pages/aiqa/TranslationPage.vue';
 import PaperDownload from '@/components/pages/tests/PaperDownload.vue';
 import HistoryTestAns from '@/components/pages/tests/HistoryTestAns.vue';
@@ -113,6 +114,11 @@ const routes = [
     path: '/classtestevaluation',
     name: 'ClassTestEvaluation',
     component: ClassTestEvaluation,
+  },
+  {
+    path: '/classtestanswer',
+    name: 'ClassTestAnswer',
+    component: ClassTestAnswer,
   },
   {
     path: '/translationpage',

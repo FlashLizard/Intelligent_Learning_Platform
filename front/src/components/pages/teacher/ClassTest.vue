@@ -1,7 +1,10 @@
 <template>
   <div class="test-page">
     <header>
-      <span class="title">测试</span>
+      <span class="title"><i class="fas fa-pencil-alt"></i> 测试</span>
+      <div class="stars">
+        <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
+      </div>
       <button class="return-button" @click="returnToPreviousPage">
         <i class="fas fa-arrow-left"></i> 返回
       </button>
@@ -337,12 +340,31 @@
           default:
             throw new Error('Unknown section name: ' + sectionName);
         }
-      }
+      },
+      setTitleStarPositions() {
+        const positions = [
+          { top: '20px', left: '200px' },  
+          { top: '25px', left: '400px' }, 
+          { top: '10px', left: '600px' }, 
+          { top: '20px', left: '1000px' },
+          { top: '10px', left: '1200px' },
+          { top: '25px', left: '1400px' },
+        ];
+
+        for (let i = 1; i <= 6; i++) {
+          const starElement = this.$refs[`starTitle${i}`][0];
+          const position = positions[i - 1] || { top: '0px', left: '50%' };
+          starElement.style.top = position.top;
+          starElement.style.left = position.left;
+          starElement.style.transform = `translate(-50%, ${position.top})`;
+        }
+      },
     },
     async mounted() {
       await this.loadQuestions();
       this.startTimer();
       this.restoreAnswer();
+      this.setTitleStarPositions();
     },
     beforeUnmount() {
       clearInterval(this.timer);
@@ -354,7 +376,7 @@
 .test-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 97vh;
 
   header {
     display: flex;
@@ -362,13 +384,56 @@
     align-items: center;
     padding: 10px;
     background-color: #f8f8f8;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
 
     .title {
       flex: 1;
       text-align: center;
       font-size: 2em;
       font-weight: bolder;
+      color:#1d8ade;
+    }
+    .stars {
+      position: absolute;
+      top: 0px;
+      left: 45%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      overflow: visible;
+
+      .star {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        filter: blur(4px);
+        animation: sparkle 1s infinite ease-in-out, colorChange 7s infinite;
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+      }
+      @keyframes colorChange {
+        0% { background: red; }
+        16.66% { background: orange; }
+        33.33% { background: yellow; }
+        50% { background: green; }
+        66.66% { background: rgb(1, 235, 235); }
+        83.33% { background: blue; }
+        100% { background: purple; }
+      }
     }
 
     .return-button {
@@ -390,7 +455,12 @@
       width: 20%;
       padding: 20px;
       background-color: #f0f0f0;
-      border-right: 1px solid #ddd;
+      border-top: 3px solid transparent; 
+      border-left: 3px solid transparent; 
+      border-bottom: 3px solid transparent; /* 设置边框宽度和透明色作为基础 */
+      border-right: 3px solid transparent;
+      border-radius: 5px; /* 可选: 为边框添加圆角 */
+      animation: border-rotation 5s linear infinite; /* 使用CSS动画 */
       overflow-y: auto;
 
       .timer-container {
@@ -456,25 +526,48 @@
         }
       }
     }
+    @keyframes border-rotation {
+      0% {
+        border-image: linear-gradient(0deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      25% {
+        border-image: linear-gradient(90deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      50% {
+        border-image: linear-gradient(180deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      75% {
+        border-image: linear-gradient(270deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+      100% {
+        border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
+      }
+    }
 
     .content {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      border: 3px solid transparent;
+      border-radius: 5px;
+      animation: border-rotation 5s linear infinite; 
 
       h2 {
-        font-size: 1.5em;
+        font-size: 2.2em;
         margin-bottom: 20px;
+        color:#1d8ade;
       }
 
       .question-content {
-        font-size: 1.2em;
+        font-size: 1.8em;
         margin-bottom: 10px;
+        font-weight: bold;
       }
 
       .options {
         display: flex;
         flex-direction: column;
+        font-size: 1.4em;
 
         .option {
           display: flex;
@@ -509,6 +602,7 @@
 
       .buttons {
         margin-top: 20px;
+        padding: 10px;
 
         .navigation-buttons {
           display: flex;
@@ -542,10 +636,13 @@
   z-index: 999;
 
   .grading-content {
-    background-color: #fff;
+    background-color: #ade2fa;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    background-image: linear-gradient(45deg, #0073e6, #72affa, #00c6ff, #569ef7);
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 }
 </style>

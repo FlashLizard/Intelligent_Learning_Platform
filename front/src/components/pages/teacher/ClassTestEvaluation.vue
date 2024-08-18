@@ -1,27 +1,30 @@
 <template>
     <div class="evaluation-page">
       <header>
-        <h1>测试评估</h1>
-        <button @click="goBack">返回</button>
+        <h1><i class="fas fa-star"></i> 测试评估</h1>
+        <button @click="goBack"><i class="fas fa-arrow-left"></i>  返回</button>
       </header>
       <div class="content">
         <div class="left-panel">
           <div class="evaluation-section">
-            <h2>评价</h2>
+            <h2><i class="fas fa-star"></i> 评价</h2>
             <textarea v-model="evaluationContent" readonly></textarea>
           </div>
           <div class="evaluation-section">
-            <h2>不足</h2>
+            <h2><i class="fas fa-exclamation-triangle"></i> 不足</h2>
             <textarea v-model="shortcomingContent" readonly></textarea>
           </div>
           <div class="evaluation-section">
-            <h2>建议</h2>
+            <h2><i class="fas fa-lightbulb"></i> 建议</h2>
             <textarea v-model="suggestionContent" readonly></textarea>
           </div>
         </div>
         <div class="right-panel">
           <hexagon-chart :data="userAbilities" :labels="userLabels"></hexagon-chart>
           <div class="button-container">
+          </div>
+          <div class="button-container">
+            <button @click="viewQuestions"><i class="fas fa-save"></i> 查看答案</button>
           </div>
         </div>
       </div>
@@ -71,12 +74,8 @@
         this.$router.push('/index');
       },
       viewQuestions() {
-        this.$router.push('/testanswer');
+        this.$router.push('/classtestanswer');
         console.log('查看题目');
-      },
-      saveResults() {
-        // 保存结果逻辑
-        console.log('保存结果');
       },
     },
     async mounted() {

@@ -432,7 +432,7 @@ export default {
   },
   beforeUnmount() {
     clearInterval(this.timer);
-    clearInterval(this.starPositionInterval);
+    // clearInterval(this.starPositionInterval);
   }
 };
 </script>

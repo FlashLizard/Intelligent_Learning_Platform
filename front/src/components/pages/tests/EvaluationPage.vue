@@ -1,7 +1,7 @@
 <template>
   <div class="evaluation-page">
     <header>
-      <h1><i class="fas fa-star"></i>测试评估 </h1>
+      <h1><i class="fas fa-star"></i> 测试评估 </h1>
       <div class="stars">
         <div v-for="n in 6" :key="n" class="star" :ref="'starTitle' + n"></div>
       </div>

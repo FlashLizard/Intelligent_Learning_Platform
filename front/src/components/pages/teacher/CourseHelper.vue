@@ -113,23 +113,23 @@
     </div>
 
     <!-- 弹窗 -->
-    <div class="modal" v-show="isModalVisible">
-      <div class="modal-content">
-        <button class="tmclose-button" @click="closeModal"><i class="fas fa-times"></i></button>
+    <div class="test-modal" v-show="isModalVisible">
+      <div class="test-modal-content">
+        <button class="test-close-button" @click="closeModal"><i class="fas fa-times"></i></button>
         <h3>设置题目要求</h3>
-        <div class="input-group">
+        <div class="test-input-group">
           <label><i class="fas fa-book"></i> 学科：</label>
-          <input type="text" class="input-field" v-model="questionRequirements.subject" />
+          <input type="text" class="test-input-field" v-model="questionRequirements.subject" />
         </div>
-        <div class="input-group">
+        <div class="test-input-group">
           <label><i class="fas fa-lightbulb"></i> 知识点：</label>
-          <input type="text" class="input-field" v-model="questionRequirements.topic" />
+          <input type="text" class="test-input-field" v-model="questionRequirements.topic" />
         </div>
-        <div class="input-group">
+        <div class="test-input-group">
           <label><i class="fas fa-clipboard-list"></i> 其他要求：</label>
-          <input type="text" class="input-field" v-model="questionRequirements.other" />
+          <input type="text" class="test-input-field" v-model="questionRequirements.other" />
         </div>
-        <button class="generate-button" @click="generateQuestions">生成题目</button>
+        <button class="test-generate-button" @click="generateQuestions">生成题目</button>
       </div>
     </div>
     <!-- 加载中弹窗 -->
@@ -1540,6 +1540,79 @@ h3 {
   100% {
     color: #00c6ff;
   }
+}
+
+.test-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* 背景半透明遮罩 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.test-modal-content {
+  background-color: #e0f7ff; /* 浅蓝色背景 */
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  color: #003366; /* 深蓝色字体 */
+}
+
+.test-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #003366; /* 深蓝色图标 */
+  font-size: 18px;
+  cursor: pointer;
+}
+
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #003366; /* 深蓝色标题 */
+}
+
+.test-input-group {
+  margin-bottom: 15px;
+}
+
+.test-input-group label {
+  color: #003366; /* 深蓝色标签 */
+  font-weight: bold;
+}
+
+.test-input-field {
+  width: 90%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 2px solid #003366; /* 深蓝色边框 */
+  border-radius: 4px;
+  color: #003366; /* 深蓝色文本 */
+}
+
+.test-generate-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.test-generate-button:hover {
+  background-color: #0056b3;
 }
 
 </style>
