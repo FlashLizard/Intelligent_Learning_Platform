@@ -196,7 +196,7 @@ export default {
         if (data['status'] === 'success') {
           this.test = {
             id: data.id,
-            user_id: data.user_id,
+            user_name: data.user_name,
             test_name: data.test_name,
             test_time: data.test_time,
             test_questions: data.test_questions,
