@@ -112,12 +112,13 @@ export default {
   stroke-width: 0.01;
 }
 .hexagon-label {
-  font-size: 0.009em;
+  font-size: 0.008em;
   font-weight: bold;
   text-anchor: middle;
 }
 
 .vertical-label {
+  font-size: 0.008em;
   writing-mode: vertical-rl;
   glyph-orientation-vertical: 0;
   text-anchor: middle;

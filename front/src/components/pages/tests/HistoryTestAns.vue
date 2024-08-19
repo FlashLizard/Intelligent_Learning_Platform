@@ -632,11 +632,14 @@ h2 {
   display: flex;
   align-items: center;
   margin-bottom: 0px;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bolder;
   color:#2389d7;
 
   h3{
+    font-size: 1.5em;
+    margin-top: 20px;
+    margin-bottom: 20px;
     margin-right: 10px;
   }
 }

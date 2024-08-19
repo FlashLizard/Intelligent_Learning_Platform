@@ -119,6 +119,11 @@ export default {
       this.stopCamera();
     },
     startCamera() {
+      if(this.username==''){
+        this.dialogMessage = '请先填写用户名';
+        this.dialogVisible = true;
+        return;
+      }
       this.cameraDialogVisible = true;
       navigator.mediaDevices
         .getUserMedia({ video: true })
@@ -296,6 +301,7 @@ export default {
             await this.saveUserToIndexedDB(this.username, userId);
             this.$router.push('/index');
           } else {
+            console.log("failed facelogin")
             this.dialogMessage = data.msg;
             this.dialogVisible = true;
           }
@@ -307,6 +313,12 @@ export default {
     async register() {
       console.log('注册用户名:', this.username);
       console.log('注册密码:', this.password);
+
+      if(this.username=='' || this.password==''){
+        this.dialogMessage = "请填写完整信息";
+        this.dialogVisible = true;
+        return;
+      }
 
       try {
         this.loading = true;
@@ -339,6 +351,11 @@ export default {
         this.dialogVisible = true;
         return;
       }
+      if(this.username==''){
+        this.dialogMessage = '请先填写用户名';
+        this.dialogVisible = true;
+        return;
+      }
       try {
         const response = await axios.post('/voiceregister', {
           username: this.username
@@ -359,6 +376,11 @@ export default {
     async registerFace() {
       if (!this.hasPictured) {
         this.dialogMessage = '请先上传人脸图像';
+        this.dialogVisible = true;
+        return;
+      }
+      if(this.username==''){
+        this.dialogMessage = '请先填写用户名';
         this.dialogVisible = true;
         return;
       }

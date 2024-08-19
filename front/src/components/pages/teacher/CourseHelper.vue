@@ -130,7 +130,7 @@
     <div class="test-modal" v-show="isModalVisible">
       <div class="test-modal-content">
         <button class="test-close-button" @click="closeModal"><i class="fas fa-times"></i></button>
-        <h3>设置题目要求</h3>
+        <h3><i class="fas fa-exclamation-circle"></i> 设置题目要求</h3>
         <div class="test-input-group">
           <label><i class="fas fa-book"></i> 学科：</label>
           <input type="text" class="test-input-field" v-model="questionRequirements.subject" />
@@ -150,7 +150,7 @@
     <div class="test-modal" v-show="isDownloadModalVisible">
       <div class="test-modal-content">
         <button class="test-close-button" @click="isDownloadModalVisible=false"><i class="fas fa-times"></i></button>
-        <h3>设置题目要求</h3>
+        <h3><i class="fas fa-exclamation-circle"></i> 设置题目要求</h3>
         <div class="test-input-group">
           <label><i class="fas fa-book"></i> 学科：</label>
           <input type="text" class="test-input-field" v-model="questionRequirements.subject" />
@@ -1264,6 +1264,10 @@ export default {
     max-width: 600px;
     position: relative;
     text-align: center;
+
+    h2 {
+      color:#0738fc !important;
+    }
   }
 
   .DDclose {

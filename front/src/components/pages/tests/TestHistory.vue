@@ -98,7 +98,7 @@
 <script>
 import axios from 'axios';
 import { openDB } from 'idb';
-import HexagonChart from '../../component/HexagonChart.vue';
+import HexagonChart from '../../component/HistoryHexagonChart.vue';
 
 export default {
   components: {
@@ -628,10 +628,13 @@ export default {
   }
 
   .section-content .analysis-text label {
+    font-size:1em;
+    font-weight:bold;
     color: #2389d7; /* Blue color for the labels */
   }
 
   .section-content textarea {
+    font-size: 1.2em;
     width: 100%;
     height: 55px;
     resize: none;

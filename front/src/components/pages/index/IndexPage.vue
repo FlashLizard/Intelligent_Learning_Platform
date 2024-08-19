@@ -274,7 +274,7 @@ export default {
   .course-learning-section {
     margin-bottom: 20px;
     padding: 20px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+    background: linear-gradient(145deg, rgba(113, 222, 241, 0.8), rgba(43, 204, 236, 0.5));
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;

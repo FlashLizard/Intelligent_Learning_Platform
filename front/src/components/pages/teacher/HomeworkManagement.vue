@@ -232,13 +232,13 @@ export default {
   .page-title {
     // margin-bottom: 20p
     padding:20px;
-    background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+    background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
     background-size: cover; /* 让背景图片充满容器 */
     background-position: center; /* 居中显示背景图片 */
     background-repeat: no-repeat; /* 禁止背景图片重复 */
     h1 {
       font-size: 2.5rem;
-      color: #0474de;
+      color: #b2d8fc;
       margin: 0;
 
       i {
@@ -259,7 +259,7 @@ export default {
     display: inline-block; 
     vertical-align: middle;
     background-color: transparent;
-    color: #0026ff;
+    color: #c3cbf9;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -270,7 +270,7 @@ export default {
     right:130px;
   }
   .openguide-button:hover {
-    color: #667cfa;
+    color: #98a7fd;
   }
   .return-button {
     padding: 10px 20px;
@@ -278,13 +278,13 @@ export default {
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
-    background: #3778e0;
-    color: #fff;
+    background: #c4d8fa;
+    color: #4542fc;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      background: #584eec;
-      transform: translateY(-5px);
+      background: #a7a1fa;
+      // transform: translateY(-5px);
     }
   }
 

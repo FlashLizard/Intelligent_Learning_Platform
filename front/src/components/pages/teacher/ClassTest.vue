@@ -636,13 +636,31 @@
   z-index: 999;
 
   .grading-content {
-    background-color: #ade2fa;
+    background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    background-image: linear-gradient(45deg, #0073e6, #72affa, #00c6ff, #569ef7);
-    -webkit-background-clip: text;
-    background-clip: text;
+
+    h2 {
+      background-image: linear-gradient(90deg, #FF5733, #FFC300, #c9f774);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientAnimation 2s infinite;
+      background-size: 300%;
+    }
+  }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>

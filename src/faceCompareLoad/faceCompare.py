@@ -129,7 +129,10 @@ def runFaceCompare(appid, apikey, apisecret, img1_path, img2_path, server_id='s6
 
     # 解析解码后的 JSON 字符串
     decoded_json = json.loads(decoded_text)
-
+    print("decoded_json:",decoded_json)
     # 提取 groupName、groupId 和 groupInfo 的值
-    score = decoded_json["score"]
+    if "score" in decoded_json:
+        score = decoded_json["score"]
+    else:
+        score = 0
     return score

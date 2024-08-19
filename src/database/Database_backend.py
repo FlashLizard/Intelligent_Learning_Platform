@@ -275,7 +275,7 @@ def voice_login():
             "status": "failure",
             "score": score,
             "user_id": feature_info,
-            "msg": "用户声纹错误，请重试",
+            "msg": "声纹验证未通过，请重试",
         })
 
 @app.route('/save_user_face', methods=['POST'])
@@ -364,18 +364,18 @@ def face_login():
         img1_path=ToBeChecked_file_path,
         img2_path=database_file_path,
     )
-    living = livingbodyTest(
-        appid=appid,
-        apisecret=apisecret,
-        apikey=apikey,
-        img_path=ToBeChecked_file_path,
-    )
-    print("score,living: ",score, living)
+    # living = livingbodyTest(
+    #     appid=appid,
+    #     apisecret=apisecret,
+    #     apikey=apikey,
+    #     img_path=ToBeChecked_file_path,
+    # )
+    print("score: ",score)
     # score是一个0-1的浮点数，大于0.99？ 可以视为同一个人
     # living为一个布尔变量，false表示未能通过活体检测（用户可能使用照片欺骗人像识别）
 
 
-    if score > 0.9:  # 阈值可以根据需要调整
+    if score > 0.99:  # 阈值可以根据需要调整
         return jsonify({
             "status": "success",
             "score": score,
@@ -386,7 +386,7 @@ def face_login():
             "status": "failed",
             "score": score,
             "user_id": user_id,
-            "msg": "人脸识别失败，请重试",
+            "msg": "人脸验证未通过，请重试",
         })
 
 def clear_directory(directory_path):

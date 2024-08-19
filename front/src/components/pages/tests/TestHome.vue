@@ -192,12 +192,12 @@
   <div v-if="isRecommendedDialogOpen" class="recdialog">
     <div class="recdialog-content">
       <h2 class="recdialog-title">
-        推荐知识点
+        <i class="fas fa-book-open"></i> 推荐知识点
         <button class="recclose-button" @click="closeRecommendedDialog"><i class="fas fa-times"></i></button>
       </h2>
-      <div class="recrecommended-list">
-        <div class="recrecommended-column">
-          <label v-for="(subject) in recommendedSubjects" :key="subject" class="recrecommended-item">
+      <div class="recommended-list">
+        <div class="recommended-column">
+          <label v-for="(subject) in recommendedSubjects" :key="subject" class="recommended-item">
             <input type="checkbox" v-model="selectedRecommendedSubjects" :value="subject">
             {{ subject }}
           </label>
@@ -848,72 +848,88 @@ h1 {
 
 .recdialog {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  padding: 20px;
+  width: 400px;
+  background: linear-gradient(45deg, #4A90E2, #50E3C2, #9013FE);
+  background-size: 300% 300%;
+  animation: gradientAnimation 6s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .recdialog-content {
-  width: 300px;
-  height: 300px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
 }
 
 .recdialog-title {
-  font-size: 20px;
+  color:#2d0398;
+  font-size: 1.6em;
+  font-weight: bold;
+  text-align: center;
   margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  color: #007bff;
+  position: relative;
+  width: 100%;
 }
 
 .recclose-button {
-  background: transparent;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
   border: none;
+  font-size: 18px;
   cursor: pointer;
-  font-size: 20px;
 }
 
-.recrecommended-list {
-  flex: 1;
+.recommended-list {
+  max-height: 300px;
   overflow-y: auto;
+  margin-bottom: 20px;
 }
 
-.recrecommended-column {
+.recommended-column {
   display: flex;
   flex-direction: column;
 }
 
-.recrecommended-item {
-  margin-bottom: 10px;
+.recommended-item {
+  margin: 10px 0;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #2d0398;
 }
 
 .recfinish-selection-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #007bff;
-  color: #fff;
+  background-color: #4CAF50;
+  color: white;
   border: none;
-  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
   cursor: pointer;
-  align-self: center;
+  border-radius: 4px;
   transition: background-color 0.3s;
 }
 
 .recfinish-selection-button:hover {
-  background-color: #0056b3;
+  background-color: #45a049;
 }
 
 .guide-modal {
