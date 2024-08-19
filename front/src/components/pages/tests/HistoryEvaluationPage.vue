@@ -48,7 +48,7 @@
   <!-- 加载中弹窗 -->
   <div v-if="saving" class="loading-dialog">
     <div class="loading-content">
-      <h2><i class="fas fa-spinner fa-spin"></i> 在线密卷下载中...</h2>
+      <h2><i class="fas fa-spinner fa-spin"></i> 密卷下载中...</h2>
     </div>
   </div>
   <!-- 加载中弹窗 -->

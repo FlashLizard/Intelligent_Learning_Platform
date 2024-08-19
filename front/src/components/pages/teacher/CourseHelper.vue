@@ -1,4 +1,16 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
+
   <div class="container">
     <!-- 加载中弹窗 -->
   <div v-if="recordloading" class="loading-dialog">
@@ -11,7 +23,7 @@
       <button class="sumclose-button" @click="closeClassSummary">
         <i class="fas fa-times"></i>
       </button>
-      <h3>课堂概述</h3>
+      <h3><i class="fas fa-book-open"></i> 课堂概述</h3>
       <div class="summary-content">
         <p v-for="line in classtext.split('\n')" :key="line">{{ line }}</p>
       </div>
@@ -20,6 +32,7 @@
     <div class="header-container">
       <header class="header">
         <h1><i class="fas fa-book-open"></i> 随堂助手</h1>
+        <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
         <button class="back-button" @click="goBack"><i class="fas fa-arrow-left"></i>返回</button>
       </header>
     </div>
@@ -86,7 +99,8 @@
             <div class="section">
               <h2><i class="fas fa-pencil-alt"></i> 随堂测试</h2>
               <div class="button-container">
-                <button @click="openModal"><i class="fas fa-pencil-alt"></i> AI生成题目</button>
+                <button @click="openModal"><i class="fas fa-pencil-alt"></i> 在线测试</button>
+                <button @click="isDownloadModalVisible = true"><i class="fas fa-download"></i> 下载试卷</button>
               </div>
             </div>
 
@@ -112,7 +126,7 @@
       </div>
     </div>
 
-    <!-- 弹窗 -->
+    <!-- 在线测试弹窗 -->
     <div class="test-modal" v-show="isModalVisible">
       <div class="test-modal-content">
         <button class="test-close-button" @click="closeModal"><i class="fas fa-times"></i></button>
@@ -129,7 +143,27 @@
           <label><i class="fas fa-clipboard-list"></i> 其他要求：</label>
           <input type="text" class="test-input-field" v-model="questionRequirements.other" />
         </div>
-        <button class="test-generate-button" @click="generateQuestions">生成题目</button>
+        <button class="test-generate-button" @click="generateQuestions"><i class="fas fa-magic"></i> 生成题目</button>
+      </div>
+    </div>
+    <!-- 下载试卷弹窗 -->
+    <div class="test-modal" v-show="isDownloadModalVisible">
+      <div class="test-modal-content">
+        <button class="test-close-button" @click="isDownloadModalVisible=false"><i class="fas fa-times"></i></button>
+        <h3>设置题目要求</h3>
+        <div class="test-input-group">
+          <label><i class="fas fa-book"></i> 学科：</label>
+          <input type="text" class="test-input-field" v-model="questionRequirements.subject" />
+        </div>
+        <div class="test-input-group">
+          <label><i class="fas fa-lightbulb"></i> 知识点：</label>
+          <input type="text" class="test-input-field" v-model="questionRequirements.topic" />
+        </div>
+        <div class="test-input-group">
+          <label><i class="fas fa-clipboard-list"></i> 其他要求：</label>
+          <input type="text" class="test-input-field" v-model="questionRequirements.other" />
+        </div>
+        <button class="test-generate-button" @click="downloadQuestions_docx"><i class="fas fa-magic"></i> 下载试卷</button>
       </div>
     </div>
     <!-- 加载中弹窗 -->
@@ -177,6 +211,8 @@ import { openDB } from 'idb';
 export default {
   data() {
     return {
+      guidetext: "1. 如果用户需要AI生成课堂总结,在开课前点击'开始课堂'按钮开启摄像头和麦克风,下课时点击'结束课堂'按钮关闭摄像头麦克风的同时,讯飞智教为您提供您的随堂总结. \n\n2.点答器从用户上传的名单随机抽取学生,方便教师课堂提问或点到. \n\n3.用户可以点击'在线测试'按钮直接做题并查看答案,也可以点击'下载试题'按钮直接下载题目文件. \n\n4.用户可以使用随堂答疑功能,语音提问或键入提问,点击'发送问题'按钮得到AI回答. ",
+      guidevisible:false,
       isLoading: false,
       isRecording: false,
       mediaRecorder: null,
@@ -193,6 +229,7 @@ export default {
       inputValue: '',
       isStartClassModalVisible: false,
       isModalVisible: false,
+      isDownloadModalVisible: false,
       questionRequirements: {
         subject: '',
         topic: '',
@@ -212,7 +249,6 @@ export default {
       selectedStudentIndex: 0,
       showDDAlertModal: false, // 控制警告模态框显示
       classtext: null,
-      // classtext: "ok",
       recordloading:false,
     };
   },
@@ -500,11 +536,61 @@ export default {
           console.log("res.data['problems']:",(res.data)['problems']);
           this.saveQuestionsToIndexedDB((res.data)['problems']);
           this.closeModal(); // Close modal after successful operation
+          this.questionRequirements = {
+            subject: '',
+            topic: '',
+            other: '无',
+            useClassContent: false
+          };
         })
         .catch((err) => {
           console.error('Error generating questions:', err);
           // Optionally handle error display or logging
         });
+    },
+    async downloadQuestions_docx() {
+      this.loading = true;
+      this.isDownloadModalVisible=false;
+      const requestData = {
+        username: "教师",
+        subjects: [
+          this.questionRequirements.subject || '',
+          this.questionRequirements.topic || this.questionRequirements.subject
+        ],
+        time: 10, // Example time in minutes
+        min_difficulty: 3,
+        max_difficulty: 8,
+        type: ["single_choice", "judgement",'fillin'],
+        others: this.questionRequirements.other || '无'
+      };
+      // 发送 POST 请求到后端获取试题文本
+      const response = await axios.post('/get_downloadproblems_docx', requestData, {
+        responseType: 'blob' // 响应类型为 Blob
+      });
+
+      // 创建一个 Blob URL
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+
+      // 创建一个隐藏的链接并触发下载
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'problems.docx'); // 设置下载文件名
+      document.body.appendChild(link);
+      link.click();
+
+      // 清除 URL 和链接
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+
+      // 完成下载后，隐藏加载动画
+      this.loading = false;
+      this.questionRequirements = {
+        subject: '',
+        topic: '',
+        other: '无',
+        useClassContent: false
+      };
     },
     async saveQuestionsToIndexedDB(problems) {
       const db = await openDB('ClassTestProblems', 1, {
@@ -688,34 +774,59 @@ export default {
   text-align: center; /* Center the content horizontally */
 }
 .header {
-  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
   background-repeat: no-repeat; /* 禁止背景图片重复 */
   display: flex;
   justify-content: space-between;
+  text-align: center;
   align-items: center;
   padding: 1rem;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  /* background-color: #f5f5f5; */
+  /* border-bottom: 1px solid #ddd; */
 
   h1 {
     text-align: center;
-    color:#3451f7;
+    color:#c8ebf8;
     margin: 0px;
     margin-left: 600px;
   }
 
-  .back-button {
-    padding: 0.5rem 1rem;
-    background-color: #4862f8;
-    color: white;
+  .openguide-button {
+    text-align: center;
+    justify-self: center;
+    padding: 0.5rem;
+    display: inline-block; 
+    vertical-align: middle;
+    background-color: transparent;
+    color: #c8ebf8;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    position: absolute; 
+    font-weight: bold;
+    font-size: 1.5em;
+    top:26px;
+    right:130px;
+  }
+  .openguide-button:hover {
+    color: #667cfa;
+  }
+
+  .back-button {
+    padding: 0.5rem 1rem;
+    background-color: #c8ebf8;
+    color: rgb(1, 117, 232);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size:1.0em;
+    font-weight:bold;
   }
   .back-button:hover {
-    background-color: #0026ff;
+    background-color: #15a7dc;
+    color:white;
   }
 }
 
@@ -761,7 +872,11 @@ export default {
 .main-content {
   display: flex;
   flex: 1;
-  background-color: #bbd8f9;
+  /* background-color: #bbd8f9; */
+  background-image: url('../../../assets/PPTbackground1.jpg'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
 }
 
 .left {
@@ -861,12 +976,12 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      border: 3px solid #0c78dc; /* 设置蓝色边框 */
+      border: 3px solid #79d2fb; /* 设置蓝色边框 */
       border-radius: 5px;
       padding: 0.5rem; /* 为内容添加一些内边距 */
 
       h2 {
-        color:#0026ff;
+        color:#ebf6fc;
         margin: 0 0 1rem 0;
       }
 
@@ -876,12 +991,17 @@ export default {
         margin-bottom: 30px;
 
         button {
+          font-weight: bold;
           padding: 0.5rem 1rem;
-          background-color: #007bff;
-          color: white;
+          background-color: #79d2fb;;
+          color: rgb(39, 94, 245);
           border: none;
           border-radius: 4px;
           cursor: pointer;
+        }
+        button:hover{
+          background-color: #0072ff;
+          color:white;
         }
       }
 
@@ -902,7 +1022,7 @@ export default {
         font-weight: bold;
         margin-top:-20px;
         margin-bottom: 3px;
-        color: #0026ff;
+        color: #bce6fa;
       }
 
       .scrollable-input {
@@ -1565,9 +1685,9 @@ h3 {
 }
 
 .test-close-button {
-  position: absolute;
+  position: relative;
   top: 10px;
-  right: 10px;
+  left: 350px;
   background: none;
   border: none;
   color: #003366; /* 深蓝色图标 */
@@ -1600,6 +1720,8 @@ h3 {
 }
 
 .test-generate-button {
+  justify-content: center;
+  text-align: center;
   width: 100%;
   padding: 10px;
   background-color: #007bff;
@@ -1607,12 +1729,83 @@ h3 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 1.0em;
   font-weight: bold;
   margin-top: 20px;
 }
 
 .test-generate-button:hover {
   background-color: #0056b3;
+}
+
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
 }
 
 </style>

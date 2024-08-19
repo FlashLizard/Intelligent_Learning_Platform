@@ -1,4 +1,15 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div class="homework-management">
     <!-- Page Title -->
     <div class="page-title">
@@ -7,6 +18,7 @@
 
     <!-- Return Button -->
     <div class="top-right">
+      <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
       <button class="return-button" @click="goBack"><i class="fas fa-arrow-left"></i> 返回</button>
     </div>
 
@@ -88,6 +100,8 @@ export default {
       uploadButtonText: '批量上传作业',
       initialRows: 15,
       loading:false,
+      guidetext: "1. 用户点击“上传答案”按键，从本地选择答案文件\n\n2. 用户点击“批量上传答案”按键，从本地选择待检查的录音。\n\n3. 用户可以从右侧的方框中得到智能批改的结果。",
+      guidevisible:false,
     };
   },
   computed: {
@@ -238,7 +252,26 @@ export default {
     top: 20px;
     right: 20px;
   }
-
+  .openguide-button {
+    text-align: center;
+    justify-self: center;
+    padding: 0.5rem;
+    display: inline-block; 
+    vertical-align: middle;
+    background-color: transparent;
+    color: #0026ff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    position: absolute; 
+    font-weight: bold;
+    font-size: 1.5em;
+    top:0px;
+    right:130px;
+  }
+  .openguide-button:hover {
+    color: #667cfa;
+  }
   .return-button {
     padding: 10px 20px;
     border: none;
@@ -458,5 +491,74 @@ export default {
       border-image: linear-gradient(360deg, #2389d7, #add8e6, #3f62ee) 1;
     }
   }
+}
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
 }
 </style>

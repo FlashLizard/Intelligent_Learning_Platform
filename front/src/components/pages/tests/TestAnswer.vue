@@ -627,8 +627,9 @@ h2 {
 .explanation-header {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  font-size: 22px;
+  margin-top:10px;
+  margin-bottom: 30px;
+  font-size: 17px;
   font-weight: bolder;
   color:#2389d7;
 

@@ -1,4 +1,15 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div class="homework-management">
     <!-- Page Title -->
     <div class="page-title">
@@ -7,6 +18,7 @@
 
     <!-- Return Button -->
     <div class="top-right">
+      <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
       <button class="return-button" @click="goBack"><i class="fas fa-arrow-left"></i> 返回</button>
     </div>
 
@@ -104,6 +116,8 @@ export default {
       initialRows: 15,
       loading: false,
       hasCategory: false,
+      guidetext: "1. 用户点击“批量上传文件”按键，从本地选择待分类文档。\n\n2.  用户在“输出文档类别”中输入预期分类的名称。（如备课、工作、试卷）\n\n3.  用户可以得到分类完毕后的文件夹压缩包",
+      guidevisible:false,
     };
   },
   computed: {
@@ -257,13 +271,13 @@ export default {
     
     .page-title {
       padding: 20px;
-      background-image: url('../../../assets/10.png');
+      background-image: url('../../../assets/PPTbackground.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       h1 {
         font-size: 2.5rem;
-        color: #0474de;
+        color: #bcddfc;
         margin: 0;
         i {
           margin-right: 10px;
@@ -277,24 +291,48 @@ export default {
       right: 20px;
     }
 
+    
+    .openguide-button {
+      text-align: center;
+      justify-self: center;
+      padding: 0.5rem;
+      display: inline-block; 
+      vertical-align: middle;
+      background-color: transparent;
+      color: #acd2fa;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      position: absolute; 
+      font-weight: bold;
+      font-size: 1.5em;
+      top:0px;
+      right:100px;
+    }
+    .openguide-button:hover {
+      color: #4ca0fa;
+    }
+
     .return-button {
       padding: 10px 20px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      background: #3778e0;
-      color: #fff;
+      background: #c3d6f4;
+      color: #1630f7;
+      font-size:1em;
+      font-weight: bold;
       transition: background-color 0.3s, transform 0.3s;
       &:hover {
-        background: #584eec;
-        transform: translateY(-5px);
+        background: #9a94f1;
+        // transform: translateY(-5px);
       }
     }
   
     .content {
       display: flex;
       justify-content: space-between;
-      gap: 5px;
+      gap: 10px;
       height: 85vh;
       border: 4px solid transparent;
       border-radius: 5px;
@@ -307,12 +345,9 @@ export default {
         padding: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-        border: 3px solid transparent;
-        border-radius: 5px;
+        // border: 3px solid transparent;
+        // border-radius: 5px;
         // animation: border-rotation 5s linear infinite; 
-        background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
-        background-size: 300% 300%;
-        animation: gradientAnimation 6s ease infinite; /* 添加循环渐变动画 */
       }
       @keyframes gradientAnimation {
         0% {
@@ -331,6 +366,9 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
+        background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF);
+        background-size: 300% 300%;
+        animation: gradientAnimation 6s ease infinite; /* 添加循环渐变动画 */
 
         .category-input-container {
           display: flex;
@@ -413,6 +451,9 @@ export default {
   
       .right-section {
         width: 40%;
+        background: linear-gradient(-45deg, #FDF6E3, #FBE8A6, #F7C39D, #F5B37D);
+        background-size: 300% 300%;
+        animation: gradientAnimation 10s ease infinite; /* 添加循环渐变动画 */
         h2 {
           font-size: 1.5rem;
           color: #3778e0;
@@ -496,4 +537,74 @@ export default {
       }
     }
   }
+
+  .guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
+}
 </style>

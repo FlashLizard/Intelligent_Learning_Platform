@@ -1,9 +1,25 @@
 <template>
-  <div v-if="imageloading" class="loading-dialog">
-      <div class="loading-content">
-        <h2><i class="fas fa-spinner fa-spin"></i> 图片解析中...</h2>
-      </div>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
     </div>
+  </div>
+  <div v-if="fileloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 文件解析中...</h2>
+    </div>
+  </div>
+  <div v-if="imageloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 图片解析中...</h2>
+    </div>
+  </div>
   <!-- Loading Dialog -->
   <div v-if="loading" class="loading-dialog">
       <div class="loading-content">
@@ -17,6 +33,7 @@
     </div>
   </div>
   <div class="translation-container">
+    <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
     <button class="back-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
     </button> 
@@ -36,7 +53,7 @@
       <button v-if="isTranslateTextTab" @click="translateText" class="translate-button">
         <i class="fas fa-language"></i> 翻译
       </button>
-      <div v-else-if="isTranslateImageTab || isTranslateAudioTab" class="upload-translate-group">
+      <div v-else-if="isTranslateFileTab || isTranslateImageTab || isTranslateAudioTab" class="upload-translate-group">
         <label class="upload-button">
           <i class="fas fa-upload"></i> 上传
           <input type="file" @change="uploadFile" class="file-input" />
@@ -79,7 +96,7 @@
           ></textarea>
         </div>
       </div>
-      <div v-else-if="isTranslateImageTab || isTranslateAudioTab" class="left-pane">
+      <div v-else-if="isTranslateFileTab || isTranslateImageTab || isTranslateAudioTab" class="left-pane">
         <div class="input-container">
           <div class="language-selector">
             <button @click="toggleSourceLanguageMenu" class="language-button">
@@ -147,8 +164,8 @@
     name: 'TranslationPage',
     data() {
       return {
-        tabs: ['翻译文本', '翻译图片', '翻译音频', '翻译语音'],
-        tabIcons: ['fa-file-alt', 'fa-image', 'fa-music', 'fa-microphone'],
+        tabs: ['翻译文本', '翻译文件', '翻译图片', '翻译音频', '翻译语音'],
+        tabIcons: ['fa-file-alt', 'fa-folder','fa-image', 'fa-music', 'fa-microphone'],
         activeTab: '翻译文本',
         textToTranslate: '',
         translationResult: '',
@@ -158,16 +175,22 @@
         showTargetLanguageMenu: false,
         recording: false, // 新增录音状态
         yinpining:false,
+        fileloading:false,
         loading:false,
         imageloading:false,
         mediaRecorder: null,
         audioChunks: [],
         stream: [],
+        guidetext: "1. 用户可以根据自身需求，使用文本，图片，音频，语音（即时的录音）方式键入文本\n\n2. 键入的文本会显示在左侧的文本框中，可以手动修改\n\n3. 确认文本无误后，点击“源语言”和“目标语言”选择翻译的语言种类\n\n4. 点击“翻译”即可在右侧得到翻译结果",
+        guidevisible:false,
       };
     },
     computed: {
       isTranslateTextTab() {
         return this.activeTab === '翻译文本';
+      },
+      isTranslateFileTab() {
+        return this.activeTab === '翻译文件';
       },
       isTranslateImageTab() {
         return this.activeTab === '翻译图片';
@@ -213,6 +236,10 @@
         try {
           let endpoint;
           switch (this.activeTab) {
+            case '翻译文件':
+              endpoint = '/get_allfileppt'
+              this.fileloading = true;
+              break;
             case '翻译图片':
               endpoint = '/get_imagetranslation';
               this.imageloading = true;
@@ -236,6 +263,7 @@
           event.target.value = null;
           this.textToTranslate = (response.data)['word'];
           this.imageloading = false;
+          this.fileloading = false;
           this.yinpining = false;
           this.$forceUpdate();
           console.log(this.textToTranslate);
@@ -370,7 +398,27 @@
     background-position: center; /* 居中显示背景图片 */
     background-repeat: no-repeat; /* 禁止背景图片重复 */
   }
-  
+  .openguide-button {
+  text-align: center;
+  justify-self: center;
+  padding: 0.5rem;
+  display: inline-block; 
+  vertical-align: middle;
+  background-color: transparent;
+  color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute; 
+  font-weight: bold;
+  font-size: 1.5em;
+  top:28px;
+  right:120px;
+}
+.openguide-button:hover {
+  color: #4ca0fa;
+}
+
   .back-button {
   position: absolute;
   font-size: 1.2em;
@@ -630,5 +678,75 @@
   100% {
     background-position: 0% 50%;
   }
+}
+
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
 }
   </style>

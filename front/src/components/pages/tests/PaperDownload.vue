@@ -1,6 +1,18 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div class="online-test">
     <h1><i class="fas fa-pen"></i> 量身密卷</h1>
+    <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
 
     <div class="block">
       <div class="block-title">
@@ -308,6 +320,8 @@ export default {
       isCustomDownloadDialogOpen: false,
       isNewDownloadDialogOpen: false,
       downloadDialogTitle: '',
+      guidetext: "1. 用户可以选择默认的学科，也可以自定义学科作为考试的主题\n\n2. 在用户选定学科后，可以在右侧“已选知识点”框中选择更加精细的知识点\n\n3. 用户自定义考试的时间以及难度\n\n4. 用户输入对题目的特殊要求（可以是特殊知识点，特殊题型要求等）",
+      guidevisible:false,
     };
   },
   methods: {
@@ -695,6 +709,27 @@ h1 {
   margin-bottom: 20px;
   /* color: #007bff; */
   color:rgb(171, 238, 253);
+}
+
+.openguide-button {
+  text-align: center;
+  justify-self: center;
+  padding: 0.5rem;
+  display: inline-block; 
+  vertical-align: middle;
+  background-color: transparent;
+  color: #8ec2f9;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute; 
+  font-weight: bold;
+  font-size: 1.5em;
+  top:50px;
+  right:160px;
+}
+.openguide-button:hover {
+  color: #4ca0fa;
 }
 
 .block {
@@ -1220,4 +1255,73 @@ h1 {
   background-color: #45a049;
 }
 
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
+}
 </style>

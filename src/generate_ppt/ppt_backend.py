@@ -103,6 +103,30 @@ def download_ppt():
     else:
         return 'Generated PPT file not found', 404
 
+@app.route('/get_allfileppt', methods=['POST', 'GET'])
+def get_all_fileppt():
+    # 检查是否有文件在请求内
+    if 'file' not in request.files:
+        return 'No file part in the request'
+    
+    file = request.files['file']
+    filename = file.filename
+    if filename.endswith('.txt'):
+        # 处理 txt 文件
+        file_content = file.stream.read().decode('utf-8')
+    elif filename.endswith('.docx'):
+        # 处理 docx 文件
+        file_content = read_docx(file.stream)
+    else:
+        return 'Unsupported file format'
+
+    question = file_content + '的100字以内总结是什么？只返回即可总结结果。'
+    print(question)
+    ans = llm.query(question)
+    print(ans)
+    # 返回文件内容给前端
+    return jsonify({'word': file_content,'ans':ans})
+
 @app.route('/get_txtfileppt', methods=['POST', 'GET'])
 def get_txt_fileppt():
     # 检查是否有文件在请求内

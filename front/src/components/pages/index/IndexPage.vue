@@ -201,12 +201,17 @@ export default {
   display: flex;
   position: relative;
   text-align: center;
-  padding: 20px;
+  padding-right: 20px;
+  // padding: 20px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   color: #333;
   font-family: 'Arial, sans-serif';
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
+  background-size: cover; /* 让背景图片充满容器 */
+  background-position: center; /* 居中显示背景图片 */
+  background-repeat: no-repeat; /* 禁止背景图片重复 */
 
   .main-content {
     flex: 1;
@@ -217,7 +222,7 @@ export default {
     margin-top: 5px;
     margin-bottom: 20px;
     text-align: center;
-    background: linear-gradient(-45deg, #50a0f0, #53a2ec, #4d8ccb, #9ac8f3);
+    background: linear-gradient(-45deg, #bfdaf5, #acd3f8, #acd9f9, #ccdff3);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -281,11 +286,13 @@ export default {
   }
 
   .section-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
+    font-weight:bolder;
     margin-bottom: 20px;
     margin-top: 3px;
-    color: #555;
+    color:#1201fd;
   }
+
 
   .button-container {
     display: flex;
@@ -293,6 +300,9 @@ export default {
     gap: 20px;
   }
 
+  .button-title{
+    color:#fff;
+  }
   .button {
     flex: 1;
     padding: 20px;

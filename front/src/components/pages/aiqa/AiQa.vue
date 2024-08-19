@@ -1,7 +1,19 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div class="container">
     <div class="header">
       <h1 class="title"><i class="fas fa-book-open"></i> AI教育辅导</h1>
+      <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
       <div class="back-button" @click="goBack"><i class="fas fa-arrow-left"></i></div>
     </div>
     <div class="content">
@@ -34,7 +46,7 @@
     <div class="input-container">
       <i class="fas fa-comment fa-lg"></i>
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
-      <button class="send-button" @click="sendMessage">发送</button>
+      <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button>
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
       <button v-else class="voice-button" @click="stopVoiceRecognition">🛑 结束录音</button>
     </div>
@@ -79,6 +91,8 @@ export default {
       dialogVisible: false, // 控制弹窗显示
       selectedQuestion: '', // 当前选中的问题
       selectedAnswer: '', // 当前选中的答案
+      guidetext: "1. 用户可以直接在左下角键入问题，也可以点击右下角的麦克风语音输入问题\n\n2. 点击发送，片刻后即可在左侧文本框中得到解答\n\n3. 在右侧的“历史问题”一栏，用户可以看到自己曾经问过什么问题,并点击问题查看相应的回复",
+      guidevisible:false,
     };
   },
   methods: {
@@ -218,6 +232,27 @@ export default {
   color: #0026ff;
 }
 
+.openguide-button {
+  text-align: center;
+  justify-self: center;
+  padding: 0.5rem;
+  display: inline-block; 
+  vertical-align: middle;
+  background-color: transparent;
+  color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute; 
+  font-weight: bold;
+  font-size: 1.5em;
+  top:22px;
+  right:100px;
+}
+.openguide-button:hover {
+  color: #4ca0fa;
+}
+
 .back-button {
   font-weight: bold;
   position: absolute;
@@ -339,6 +374,12 @@ export default {
   padding: 10px;
   background-color: #fff;
   border-top: 1px solid #ccc;
+
+  i {
+    color:#1890ff;
+    margin-right: 10px;
+    font-size:2em;
+  }
 }
 
 .input-box {
@@ -434,4 +475,73 @@ export default {
   color: #00796b;
 }
 
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
+}
 </style>

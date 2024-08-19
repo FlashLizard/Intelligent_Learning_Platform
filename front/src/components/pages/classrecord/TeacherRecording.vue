@@ -1,5 +1,15 @@
 <template>
-  
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div v-if="loading" class="loading-dialog">
     <div class="loading-content">
       <h2><i class="fas fa-spinner fa-spin"></i> 课件分析中...</h2>
@@ -16,13 +26,13 @@
     </div>
   </div>
   <!-- PPT生成弹窗 -->
-  <div class="modal" v-show="isUploadModalVisible">
-    <div class="modal-content">
-      <button class="close-button" @click="isUploadModalVisible=false">
+  <div class="ppt-modal" v-show="isUploadModalVisible">
+    <div class="ppt-modal-content">
+      <button class="ppt-close-button" @click="isUploadModalVisible=false">
         <i class="fas fa-times"></i> 
       </button>
       <h3><i class="fas fa-file"></i> 选择课件类型</h3>
-      <div class="button-group">
+      <div class="ppt-button-group">
         <button @click="selectFile('txt')"><i class="fas fa-file-alt"></i> 上传txt课件</button>
         <button @click="selectFile('docx')"><i class="fas fa-file-word"></i> 上传docx课件</button>
         <button @click="selectFile('image')"><i class="fas fa-image"></i> 上传图片课件</button>
@@ -63,6 +73,7 @@
   <div class="container">
     <div class="header">
       <h1 class="title"><i class="fas fa-chalkboard-teacher"></i>  备课助手</h1>
+      <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
       <div class="back-button" @click="goBack"> <i class="fas fa-arrow-left"></i></div>
     </div>
     <div class="content">
@@ -111,7 +122,7 @@
     <div class="input-container">
       <i class="fas fa-comment fa-lg"></i>
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
-      <button class="send-button" @click="sendMessage">发送</button>
+      <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button>
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
       <button v-else class="voice-button" @click="stopVoiceRecognition">🛑 结束录音</button>
     </div>
@@ -149,6 +160,8 @@ export default {
       loading: false, // 增加loading控制生成题目弹窗
       quesloading:false,
       pptloading:false,
+      guidetext: "1. 用户点击“上传课件”按键，从本地选择课件文件\n\n2. 用户可以从“课件预览”一栏看见自己上传的内容，在“课件总结”一栏看见上传课件的总结\n\n3. 用户点击“课件转PPT”按键，即可得到按照课件内容自动生成的PPT\n\n4. 用户点击“智能出题”按钮，即可根据课件内容使用AI自动生成题目",
+      guidevisible:false,
     };
   },
   methods: {
@@ -437,7 +450,7 @@ export default {
   border-bottom: 1px solid #ccc;
   position: relative;
   margin-top: 10px;
-  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
   background-repeat: no-repeat; /* 禁止背景图片重复 */
@@ -446,8 +459,28 @@ export default {
 .title {
   font-size: 30px;
   font-weight: bold;
-  color: #0026ff;
+  color: #bee8f8;
 }
+.openguide-button {
+    text-align: center;
+    justify-self: center;
+    padding: 0.5rem;
+    display: inline-block; 
+    vertical-align: middle;
+    background-color: transparent;
+    color: #bcd9f9;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    position: absolute; 
+    font-weight: bold;
+    font-size: 1.5em;
+    top:28px;
+    right:100px;
+  }
+  .openguide-button:hover {
+    color: #4ca0fa;
+  }
 
 .back-button {
   font-weight: bold;
@@ -456,16 +489,16 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #f2f2f3;
+  color: #1616eb;
   padding: 8px 12px;
   border: 1px solid #1980c5;
   border-radius: 5px;
-  background-color:  #007bff;
+  background-color:  #afd3fa;
   transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
+  background-color: #5aa6f8;
   color: #fff;
 }
 
@@ -589,7 +622,9 @@ export default {
 .file-analysis h3 {
   color: #0026ff;
   margin-bottom: 5px;
-  font-size: 0.9em;
+  margin-top:10px;
+  left:10px;
+  font-size: 1.0em;
   font-weight: bold;
 }
 
@@ -601,6 +636,7 @@ export default {
   border-radius: 5px;
   background-color: #fff;
   resize: none;
+  font-size: 1.0em;
 }
 
 .message {
@@ -635,6 +671,13 @@ export default {
   padding: 10px;
   background-color: #fff;
   border-top: 1px solid #ccc;
+
+  i {
+    color:#4ca0fa;
+    font-size:2em;
+    font-weight: bold;
+    margin-right: 10px;
+  }
 }
 
 .input-box {
@@ -666,7 +709,7 @@ export default {
   cursor: pointer;
 }
 
-.modal {
+.ppt-modal {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -679,10 +722,10 @@ export default {
   z-index: 1000;
 }
 
-.modal-content {
+.ppt-modal-content {
   padding: 20px;
   border-radius: 5px;
-  width: 520px;
+  width: 700px;
   max-width: 90%;
   text-align: center;
   position: relative;
@@ -697,13 +740,13 @@ export default {
     margin-top: -9px;
   }
 
-  .button-group {
+  .ppt-button-group {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
   }
 
-  .button-group button {
+  .ppt-button-group button {
     flex: 1;
     margin: 0 10px;
     padding: 10px;
@@ -715,11 +758,11 @@ export default {
     cursor: pointer;
   }
 
-  .button-group button i {
+  .ppt-button-group button i {
     margin-right: 8px;
   }
 
-  .button-group button:hover {
+  .ppt-button-group button:hover {
     background-color: #374abd;
   }
 
@@ -736,7 +779,7 @@ export default {
   }
 }
 
-.close-button {
+.ppt-close-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -746,6 +789,9 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.ppt-close-button:hover{
+  background-color: rgb(246, 122, 122);
 }
 
 .input-group {
@@ -831,6 +877,16 @@ export default {
   z-index: 1000;
 }
 
+.modal-content {
+  background-color: #b5eaf7 !important;
+  border-radius: 8px;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px; /* 最大宽度，防止过宽 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative; /* 用于定位关闭按钮 */
+}
+
 .close-button {
   position: absolute;
   top: 10px;
@@ -861,5 +917,75 @@ export default {
 
 .button-group button:hover {
   background-color: #0056b3;
+}
+
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
 }
 </style>

@@ -1,4 +1,15 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 页面操作指南</h3>
+      <textarea type="text" v-model="guidetext" class="guide-text" readonly />
+      <slot></slot>
+      <button class="guide-action-button" @click="guidevisible=false"><i class="fas fa-check"></i> 确认</button>
+    </div>
+  </div>
   <div v-if="textloading" class="loading-dialog">
       <div class="loading-content">
         <h2><i class="fas fa-spinner fa-spin"></i> 文件解析中...</h2>
@@ -76,6 +87,8 @@
     <button class="back-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
     </button> 
+    <button class="openguide-button" @click="guidevisible = true"> <i class="fas fa-exclamation-circle"></i> </button>
+        
     <h1><i class="fas fa-book-open"></i> PPT生成助手</h1>
     <div class="switch-tabs">
       <div
@@ -198,6 +211,8 @@
         mediaRecorder: null,
         audioChunks: [],
         stream: [],
+        guidetext: "1.用户可以根据自身需求，使用文本，文件，图片，音频，语音（即时的录音）方式键入PPT的文本要求。\n\n2. 键入的文本会显示在左侧的文本框中，可以手动修改\n\n3. 确认文本无误后，点击“PPT生成”即可得到智能生成的PPT",
+        guidevisible:false,
       };
     },
     computed: {
@@ -269,7 +284,7 @@
               break;
             case '文件生成':
               this.textloading = true;
-              endpoint = '/get_txtfileppt';
+              endpoint = '/get_allfileppt';
               break;
             // Add more cases if needed
             default:
@@ -450,6 +465,27 @@
   }
 }
 
+.openguide-button {
+    text-align: center;
+    justify-self: center;
+    padding: 0.5rem;
+    display: inline-block; 
+    vertical-align: middle;
+    background-color: transparent;
+    color: #bcd9f7;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    position: absolute; 
+    font-weight: bold;
+    font-size: 1.5em;
+    top:35px;
+    right:130px;
+  }
+  .openguide-button:hover {
+    color: #77b4f7;
+  }
+
 .back-button {
   position: absolute;
   margin-top:20px;
@@ -458,8 +494,10 @@
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background: #007bff;
-  color: #fff;
+  background: #a0ddfe;
+  color: #1228eb;
+  font-size:1em;
+  font-weight:bold;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -467,7 +505,8 @@
 }
 
 .back-button:hover {
-  background: #0056b3;
+  background: #77b4f7;
+  color:white;
 }
 
 h1 {
@@ -844,5 +883,75 @@ textarea {
   100% {
     transform: translateY(0); /* 回到初始位置 */
   }
+}
+
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  color:#007bff;
+  font-size: 1.5em;
 }
 </style>
