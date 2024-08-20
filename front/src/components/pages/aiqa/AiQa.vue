@@ -19,10 +19,10 @@
     <div class="content">
       <div class="chat-box" ref="chatBox">
         <div v-for="(message, index) in messages" :key="index" :class="{ 'message': true, 'user-message': message.isUser }">
-          <p>
+          <p :style="{ whiteSpace: 'pre-wrap' }">
             <span v-if="message.isUser">
               <!-- User message with user icon -->
-              <i class="fas fa-user"></i> {{ message.text }}
+              <i class="fas fa-user"></i> <!-- {{ message.text }} --><span v-html="message.text"></span>
             </span>
             <span v-else>
               <!-- AI message with robot icon -->
@@ -46,6 +46,10 @@
     <div class="input-container">
       <i class="fas fa-comment fa-lg"></i>
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
+      <button class="send-button image-upload-button">
+        <input type="file" @change="handleImageUpload" />
+        <span class="fas fa-paper-plane"></span> 图片上传
+      </button>
       <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button>
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
       <button v-else class="voice-button" @click="stopVoiceRecognition">🛑 结束录音</button>
@@ -93,31 +97,88 @@ export default {
       selectedAnswer: '', // 当前选中的答案
       guidetext: "1. 用户可以直接在左下角键入问题，也可以点击右下角的麦克风语音输入问题\n\n2. 点击发送，片刻后即可在左侧文本框中得到解答\n\n3. 在右侧的“历史问题”一栏，用户可以看到自己曾经问过什么问题,并点击问题查看相应的回复",
       guidevisible:false,
+      uploadedImage: null, // 用于存储用户上传的图片文件
     };
   },
   methods: {
-    sendMessage() {
-      if (this.inputValue.trim() === '') return;
-      this.messages.push({ text: this.inputValue, isUser: true });
-      const userMessage = this.inputValue;
+    handleImageUpload(event) {
+      this.uploadedImage = event.target.files[0]; // 处理图片文件上传
+    },
+    // sendMessage() {
+    //   if (this.inputValue.trim() === '') return;
+    //   this.messages.push({ text: this.inputValue, isUser: true });
+    //   const userMessage = this.inputValue;
 
-      // Display thinking message
-      this.thinking = true;
-      // 向后端发送请求
-      axios.post('/get_chatanswer', {
-        message: userMessage
-      })
-      .then((res) => {
-        this.thinking = false;
-        this.messages.push({ text: res.data, isUser: false });
-        this.answers.push(res.data)
-        this.questions.push(this.inputValue);
-        this.inputValue = '';
-      })
-      .catch((err) => {
-        this.thinking = false;
-        console.error(err);
-      });
+    //   // Display thinking message
+    //   this.thinking = true;
+    //   // 向后端发送请求
+    //   axios.post('/get_chatanswer', {
+    //     message: userMessage
+    //   })
+    //   .then((res) => {
+    //     this.thinking = false;
+    //     this.messages.push({ text: res.data, isUser: false });
+    //     this.answers.push(res.data)
+    //     this.questions.push(this.inputValue);
+    //     this.inputValue = '';
+    //   })
+    //   .catch((err) => {
+    //     this.thinking = false;
+    //     console.error(err);
+    //   });
+    // },
+    sendMessage() {
+      if (this.inputValue.trim() === '' && this.uploadedImage === null) return;
+
+      // 如果用户上传了图片文件
+      if (this.uploadedImage) {
+        const formData = new FormData();
+        formData.append('message', this.inputValue);
+        formData.append('image', this.uploadedImage); // 添加图片文件
+
+        // 显示 AI 正在思考的消息
+        this.thinking = true;
+
+        // 向后端发送图片和消息
+        axios.post('/get_imagechatanswer', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then((res) => {
+          this.thinking = false;
+          // let question_str = res.data['question'] + "\\n\\n图像内容如下:\\n\\n" + res.data['imagecontent'];
+          let question_str = "&nbsp;&nbsp;" + res.data['question'] + "<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;图像内容如下:<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + res.data['imagecontent'];
+          this.messages.push({ text: question_str, isUser: true });
+          this.messages.push({ text: res.data['answer'], isUser: false });
+          this.questions.push(res.data['question']);
+          this.answers.push(res.data['answer'])
+          this.inputValue = '';
+          this.uploadedImage = null; // 发送后清空图片
+        })
+        .catch((err) => {
+          this.thinking = false;
+          console.error(err);
+        });
+      } else {
+        // 没有图片，仅发送文本消息
+        this.messages.push({ text: this.inputValue, isUser: true });
+        const userMessage = this.inputValue;
+        this.thinking = true;
+
+        axios.post('/get_chatanswer', { message: userMessage })
+        .then((res) => {
+          this.thinking = false;
+          this.messages.push({ text: res.data, isUser: false });
+          this.answers.push(res.data);
+          this.questions.push(this.inputValue);
+          this.inputValue = '';
+        })
+        .catch((err) => {
+          this.thinking = false;
+          console.error(err);
+        });
+      }
     },
     startVoiceRecognition() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -220,7 +281,7 @@ export default {
   border-bottom: 1px solid #ccc;
   position: relative;
   margin-top: 0px; /* 调整标题距离顶部的距离 */
-  background-image: url('../../../assets/10.png'); /* 背景图片的路径 */
+  background-image: url('../../../assets/PPTbackground.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
   background-repeat: no-repeat; /* 禁止背景图片重复 */
@@ -229,7 +290,7 @@ export default {
 .title {
   font-size: 30px;
   font-weight: bold;
-  color: #0026ff;
+  color: #d3d8f0;
 }
 
 .openguide-button {
@@ -239,7 +300,7 @@ export default {
   display: inline-block; 
   vertical-align: middle;
   background-color: transparent;
-  color: #007bff;
+  color: #bbd8f7;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -250,7 +311,7 @@ export default {
   right:100px;
 }
 .openguide-button:hover {
-  color: #4ca0fa;
+  color: #a5cefa;
 }
 
 .back-button {
@@ -260,16 +321,16 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #f2f2f3;
+  color: #1616e7;
   padding: 8px 12px; /* 添加内边距 */
-  border: 1px solid #0474de; /* 添加边框 */
+  border: 1px solid #c6e3fe; /* 添加边框 */
   border-radius: 5px; /* 添加圆角 */
-  background-color:  #007bff;
+  background-color:  #cde1f7;
   transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
+  background-color: #85bcf7;
   color: #fff;
 }
 
@@ -399,6 +460,39 @@ export default {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.image-upload-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 10px;
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+}
+
+.image-upload-button:hover {
+  background-color: #007bff;
+}
+
+.image-upload-button input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.image-upload-button span {
+  margin-right: 8px;
+  font-size: 16px;
 }
 
 .voice-button {

@@ -39,6 +39,63 @@ def get_chatanswer_handler():
     print(ans)
     return ans
 
+@app.route('/get_imagechatanswer', methods=['POST'])
+def get_imagechatanswer_handler():
+    # 获取文本消息
+    message = request.form.get('message')
+    # 获取上传的图片文件
+    image = request.files.get('image')
+    
+    if image:
+        # 保存图片文件
+        filename = image.filename
+        image_temp_path = os.path.join('img_2_words','image')
+        delete_dir(image_temp_path)
+        os.makedirs(image_temp_path, exist_ok=True)
+        image_path = os.path.join(image_temp_path, filename)
+        image.save(image_path)
+        # 图像识别
+        image_content = img_2_words_run()
+        print("get_imagechatanswer_content:",image_content)
+
+        filepath = os.path.join('img_2_words','image', filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"File {filepath} has been deleted.")
+        else:
+            print(f"File {filepath} does not exist.")
+    
+    print("get_imagechatanswer_content:",image_content)
+    print("get_imagechatanswer_message:",message)
+
+    question =  message + "\n您上传图片的主要内容如下:\n" + image_content
+    print("question:",question)
+    ans = llm.query(question)
+    print('ans',ans)
+
+    # 返回question和ans
+    response = {
+        'question': message,
+        'answer': ans,
+        'imagecontent': image_content,
+    }
+    return jsonify(response)
+
+def delete_dir(save_dir):
+    if os.path.exists(save_dir):
+        # 遍历目录中的所有文件和子目录
+        for filename in os.listdir(save_dir):
+            file_path = os.path.join(save_dir, filename)
+            try:
+                # 如果是文件，则删除文件
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                # 如果是目录，则删除目录及其内容
+                elif os.path.isdir(file_path):
+                    os.rmdir(file_path)
+            except Exception as e:
+                print(f'Failed to delete {file_path}. Reason: {e}')
+
 @app.route('/get_chatvoiceanswer', methods=['POST'])
 def get_chatvoiceanswer_handler():
     if 'audio' not in request.files:
