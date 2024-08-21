@@ -96,7 +96,7 @@
     <!-- AI正在阅卷中...弹窗 -->
     <div v-if="grading" class="grading-dialog">
       <div class="grading-content">
-        <h2><i class="fas fa-robot"></i> AI正在阅卷中...</h2>
+        <h2><i class="fas fa-robot"></i> AI正在生成测试评价...</h2>
       </div>
     </div>
   </div>

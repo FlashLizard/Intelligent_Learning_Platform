@@ -103,13 +103,13 @@
     </div>
 
     <!-- 弹窗组件 -->
-    <div v-if="isBranchesDialogOpen" class="dialog">
-      <div class="dialog-content">
-        <h2 class="dialog-title">
-          选择学科知识点
-          <button class="close-button" @click="closeBranchesDialog"><i class="fas fa-times"></i></button>
+    <div v-if="isBranchesDialogOpen" class="recdialog">
+      <div class="recdialog-content">
+        <h2 class="recdialog-title">
+          <i class="fas fa-book"></i> 选择学科知识点
+          <button class="recclose-button" @click="closeBranchesDialog"><i class="fas fa-times"></i></button>
         </h2>
-        <div class="button-group">
+        <div class="recbutton-group">
           <button
             v-for="branch in currentBranches"
             :key="branch"
@@ -464,6 +464,7 @@ export default {
         const data = response.data;
         await this.storeProblems(data.problems);
       } catch (error) {
+        this.loading = false;
         console.error('Error starting test:', error);
       } finally {
         this.loading = false;
@@ -898,6 +899,45 @@ h1 {
   font-size: 18px;
   cursor: pointer;
 }
+
+.recbutton-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.recbutton-group button {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recbutton-group button i {
+  margin-right: 5px;
+  font-size:1.6em;
+}
+
+.recbutton-group button:hover {
+  background-color: #50E3C2;
+  transform: scale(1.05);
+}
+
+.recbutton-group button:active {
+  background-color: #9013FE;
+  transform: scale(1);
+}
+
 
 .recommended-list {
   max-height: 300px;

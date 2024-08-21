@@ -27,6 +27,8 @@
       <div class="summary-content">
         <p v-for="line in classtext.split('\n')" :key="line">{{ line }}</p>
       </div>
+      <!-- Copy Button -->
+      <button class="copy-button" @click="copyClassSummary">{{ copyButtonText }}</button>
     </div>
   </div>
     <div class="header-container">
@@ -250,6 +252,7 @@ export default {
       showDDAlertModal: false, // 控制警告模态框显示
       classtext: null,
       recordloading:false,
+      copyButtonText: '复制',
     };
   },
   computed: {
@@ -297,6 +300,23 @@ export default {
     },
   },
   methods: {
+    copyClassSummary() {
+      // Create a temporary text area to copy the text
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = this.classtext;
+      document.body.appendChild(tempTextarea);
+      tempTextarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextarea);
+
+      // Update the button text to indicate success
+      this.copyButtonText = '复制成功';
+
+      // Change it back after 3 seconds
+      setTimeout(() => {
+        this.copyButtonText = '复制';
+      }, 3000);
+    },
     startClass() {
       this.isStartClassModalVisible = true;
     },
@@ -1404,6 +1424,25 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+.copy-button {
+  margin-top: 0px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.copy-button:hover {
+  background-color: #0056b3;
 }
 
 .class-content {

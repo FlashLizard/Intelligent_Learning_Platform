@@ -189,7 +189,7 @@ export default {
         this.loading = false;
       } catch (error) {
         this.loading= false;
-        alert("")
+        alert("网络不畅，请重试")
         console.error('下载失败:', error);
       }
     },
@@ -206,6 +206,7 @@ export default {
         const data = response.data;
         await this.storeProblems(data.problems);
       } catch (error) {
+        this.loading = false;
         console.error('Error starting test:', error);
       } finally {
         this.loading = false;

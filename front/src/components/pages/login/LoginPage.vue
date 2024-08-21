@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-container">
-      <h1>欢迎来到讯飞智教</h1>
+      <h1><i class="fas fa-school"></i> 欢迎来到讯飞智教</h1>
 
       <!-- 切换栏 -->
       <div class="switch-tabs">
@@ -51,16 +51,16 @@
         </div>
         <!-- 其他登录方式的输入框可以在这里添加 -->
         <div v-if="activeTab === 'password'" class="button-group">
-          <button type="submit" class="animated-button">登录</button>
-          <button type="button" @click="register" class="animated-button register-button">注册</button>
+          <button type="submit" class="animated-button"><i class="fas fa-sign-in-alt"></i> 登录</button>
+          <button type="button" @click="register" class="animated-button register-button"><i class="fas fa-user-plus"></i> 注册</button>
         </div>
         <div v-else-if="activeTab === 'voice'" class="button-group">
-          <button type="submit" class="animated-button">登录</button>
-          <button type="button" @click="registerVoice" class="animated-button register-button">注册</button>
+          <button type="submit" class="animated-button"><i class="fas fa-sign-in-alt"></i> 登录</button>
+          <button type="button" @click="registerVoice" class="animated-button register-button"><i class="fas fa-user-plus"></i> 注册</button>
         </div>
         <div v-else-if="activeTab === 'face'" class="button-group">
-          <button type="submit" class="animated-button">登录</button>
-          <button type="button" @click="registerFace" class="animated-button register-button">注册</button>
+          <button type="submit" class="animated-button"><i class="fas fa-sign-in-alt"></i> 登录</button>
+          <button type="button" @click="registerFace" class="animated-button register-button"><i class="fas fa-user-plus"></i> 注册</button>
         </div>
       </form>
 
@@ -433,16 +433,22 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(to right, #89c8ff 0%, #00f2fe 100%);
+  // background: linear-gradient(to right, #89c8ff 0%, #00f2fe 100%);
   font-family: 'Arial', sans-serif;
-}
-
-.login-container {
-  // background-color: white;
   background-image: url('../../../assets/Login.jpg'); /* 背景图片的路径 */
   background-size: cover; /* 让背景图片充满容器 */
   background-position: center; /* 居中显示背景图片 */
   background-repeat: no-repeat; /* 禁止背景图片重复 */
+}
+
+.login-container {
+  background: linear-gradient(145deg, rgba(113, 222, 241, 0.8), rgba(43, 204, 236, 0.5));
+  border-radius: 10px;
+  // background-color: white;
+  // background-image: url('../../../assets/Login.jpg'); 
+  // background-size: cover; 
+  // background-position: center; 
+  // background-repeat: no-repeat; 
   padding: 40px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -459,7 +465,7 @@ h1 {
   margin-top: 5px;
   margin-bottom: 40px;
   // color: #2e83df;
-  color: #baf0fa;
+  color: #fafafa;
   font-size: 2.5em;
 }
 
@@ -499,7 +505,8 @@ label {
   display: block;
   margin-bottom: 10px;
   // color: #4facfe;
-  color:#ade8f1;
+  // color:#ade8f1;
+  color:#f5fbfc;
   font-weight: bold;
   font-size: 1.2em;
 }
@@ -540,6 +547,8 @@ button:hover {
 .animated-button {
   position: relative;
   overflow: hidden;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 .animated-button span {
