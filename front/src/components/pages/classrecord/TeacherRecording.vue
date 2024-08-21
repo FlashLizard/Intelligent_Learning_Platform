@@ -8,6 +8,24 @@
     <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
   </div>
 </div>
+<div v-if="pptloading" class="downloading-dialog">
+  <div class="downloading-content">
+    <!-- 关闭按钮 -->
+    <button class="downloading-close-button" @click="pptloading = false">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2><i class="fas fa-spinner fa-spin"></i> PPT生成中...</h2>
+  </div>
+</div>
+<div v-if="quesloading" class="downloading-dialog">
+  <div class="downloading-content">
+    <!-- 关闭按钮 -->
+    <button class="downloading-close-button" @click="quesloading = false">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
+  </div>
+</div>
 
   <div class="guide-modal" v-if="guidevisible">
     <div class="guide-modal-content">
@@ -25,16 +43,16 @@
       <h2><i class="fas fa-spinner fa-spin"></i> 课件分析中...</h2>
     </div>
   </div>
-  <div v-if="pptloading" class="loading-dialog">
+  <!-- <div v-if="pptloading" class="loading-dialog">
     <div class="loading-content">
       <h2><i class="fas fa-spinner fa-spin"></i> PPT生成中...</h2>
     </div>
-  </div>
-  <div v-if="quesloading" class="loading-dialog">
+  </div> -->
+  <!-- <div v-if="quesloading" class="loading-dialog">
     <div class="loading-content">
       <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
     </div>
-  </div>
+  </div> -->
   <!-- PPT生成弹窗 -->
   <div class="ppt-modal" v-show="isUploadModalVisible">
     <div class="ppt-modal-content">
@@ -350,10 +368,12 @@ export default {
 
           // 完成下载后，隐藏加载动画
           this.quesloading = false;
+          this.isModalVisible = false;
         } catch (error) {
           console.error('Error:', error);
           // 处理错误情况
           this.quesloading = false;
+          this.isModalVisible = false;
         }
       },
       async getDownloadProblems_docx() {
