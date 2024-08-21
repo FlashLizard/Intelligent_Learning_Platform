@@ -718,10 +718,10 @@ export default {
     },
     randomSelectStudent() {
       if (this.students.length === 0) {
-        console.log(111)
+        // console.log(111)
         this.showDDAlertModal = true;
       } else {
-        console.log(222)
+        // console.log(222)
         this.showDDModal = true;
         this.startSelection();
       }
@@ -735,7 +735,7 @@ export default {
       this.selectionInterval = setInterval(() => {
         this.selectedStudentIndex = Math.floor(Math.random() * this.students.length);
         counter++;
-        if (counter >= 30) { // 控制循环次数来模拟动画效果
+        if (counter >= 10) { // 控制循环次数来模拟动画效果
           clearInterval(this.selectionInterval);
         }
       }, 100); // 每100毫秒切换一次
@@ -1326,8 +1326,8 @@ export default {
   }
 
   .student-list li.selected {
-    background-color: #ebef10; /* 选择后的背景颜色，可以根据需要进行调整 */
-    color:#000
+    background-color: #ebef10 !important; /* 选择后的背景颜色，可以根据需要进行调整 */
+    color: #000 !important;
   }
   .extract-button {
     background-color: #007bff; /* 设置按钮背景颜色 */

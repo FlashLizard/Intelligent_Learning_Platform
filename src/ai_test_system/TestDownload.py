@@ -191,6 +191,34 @@ def get_downloadproblems_docx_handler():
     # 返回 Word 文档供下载
     return send_file(filename, as_attachment=True, download_name='problems.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
+@app.route('/get_kejian2problems_docx', methods=['POST'])
+def get_kejian2problems_docx_handler():
+    content = request.json
+    kejian = content['summary']
+    
+    ans = {'problems': []}
+    question = "基于下述内容生成题目，内容如下：" + kejian + get_problems_prompt1
+
+    ans_str = llm.query(question)
+    ans_str = ans_str[ans_str.find('{'): ans_str.rfind('}') + 1]
+    now_ans = json5.loads(ans_str)
+    ans['problems'].extend(now_ans['problems'])
+
+    paper_text = generate_paper_text(ans)
+    # 创建 Word 文档
+    document = Document()
+    document.add_heading('测试试卷', 0)
+    document.add_paragraph(paper_text)
+
+    # 保存文档
+    filepath = os.path.join('ai_test_system', 'paper')
+    os.makedirs(filepath, exist_ok=True)
+    filename = os.path.join(filepath, 'test.docx')
+    document.save(filename)
+
+    # 返回 Word 文档供下载
+    return send_file(filename, as_attachment=True, download_name='problems.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
 
 @app.route('/get_download_customproblems_txt', methods=['POST'])
 def get_download_customproblems_txt_handler():
@@ -295,6 +323,58 @@ def get_download_customproblems_docx_handler():
     # 返回 Word 文档供下载
     return send_file(filename, as_attachment=True, download_name='problems.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
+# def generate_paper_text(problems_data):
+#     problems = problems_data['problems']
+    
+#     # 创建各题型的部分列表
+#     single_choice_text = []
+#     fillin_text = []
+#     judgement_text = []
+
+#     option_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']  # 可以扩展到更多选项
+
+#     # 统计各题型数量
+#     problem_count = {'single_choice': 0, 'fillin': 0, 'judgement': 0}
+
+#     # 按题型分配到不同的部分
+#     for problem in problems:
+#         if problem['type'] == 'single_choice':
+#             problem_count['single_choice'] += 1
+#             single_choice_text.append(f"{problem_count['single_choice']}. {problem['problem']}")
+#             for i, choice in enumerate(problem['choices']):
+#                 if i < len(option_letters):
+#                     single_choice_text.append(f"{option_letters[i]}. {choice}")
+#                 else:
+#                     single_choice_text.append(f"{i + 1}. {choice}")  # 超过10个选项时使用数字序号
+
+#         elif problem['type'] == 'fillin':
+#             problem_count['fillin'] += 1
+#             fillin_text.append(f"{problem_count['fillin']}. {problem['problem']}")
+#             fillin_text.append("___________")  # 填空题用下划线表示
+
+#         elif problem['type'] == 'judgement':
+#             problem_count['judgement'] += 1
+#             judgement_text.append(f"{problem_count['judgement']}. {problem['problem']}")
+#             judgement_text.append("A. 是")
+#             judgement_text.append("B. 否")
+
+#     # 拼接各部分内容
+#     paper_text = []
+
+#     if single_choice_text:
+#         paper_text.append("一、选择题：")
+#         paper_text.extend(single_choice_text)
+
+#     if fillin_text:
+#         paper_text.append("\n二、填空题：")
+#         paper_text.extend(fillin_text)
+
+#     if judgement_text:
+#         paper_text.append("\n三、判断题：")
+#         paper_text.extend(judgement_text)
+
+#     # 将列表转换为字符串并返回
+#     return "\n".join(map(str, paper_text))
 def generate_paper_text(problems_data):
     problems = problems_data['problems']
     
@@ -302,6 +382,11 @@ def generate_paper_text(problems_data):
     single_choice_text = []
     fillin_text = []
     judgement_text = []
+
+    # 创建各题型答案和解析的部分列表
+    single_choice_answers = []
+    fillin_answers = []
+    judgement_answers = []
 
     option_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']  # 可以扩展到更多选项
 
@@ -312,23 +397,41 @@ def generate_paper_text(problems_data):
     for problem in problems:
         if problem['type'] == 'single_choice':
             problem_count['single_choice'] += 1
-            single_choice_text.append(f"{problem_count['single_choice']}. {problem['problem']}")
+            index = problem_count['single_choice']
+            single_choice_text.append(f"{index}. {problem['problem']}")
             for i, choice in enumerate(problem['choices']):
                 if i < len(option_letters):
                     single_choice_text.append(f"{option_letters[i]}. {choice}")
                 else:
                     single_choice_text.append(f"{i + 1}. {choice}")  # 超过10个选项时使用数字序号
+            
+            # 处理单选或多选答案
+            selected_options = [option_letters[i] for i in problem['answer']]
+            single_choice_answers.append(f"{index}. 答案: {'/'.join(selected_options)}")
+            single_choice_answers.append(f"解析: {problem['analysis']}")
 
         elif problem['type'] == 'fillin':
             problem_count['fillin'] += 1
-            fillin_text.append(f"{problem_count['fillin']}. {problem['problem']}")
+            index = problem_count['fillin']
+            fillin_text.append(f"{index}. {problem['problem']}")
             fillin_text.append("___________")  # 填空题用下划线表示
+            
+            # 处理填空题答案
+            answer_text = " / ".join(problem['answer'])
+            fillin_answers.append(f"{index}. 答案: {answer_text}")
+            fillin_answers.append(f"解析: {problem['analysis']}")
 
         elif problem['type'] == 'judgement':
             problem_count['judgement'] += 1
-            judgement_text.append(f"{problem_count['judgement']}. {problem['problem']}")
+            index = problem_count['judgement']
+            judgement_text.append(f"{index}. {problem['problem']}")
             judgement_text.append("A. 是")
             judgement_text.append("B. 否")
+            
+            # 处理判断题答案
+            answer_text = "是" if problem['answer'] else "否"
+            judgement_answers.append(f"{index}. 答案: {answer_text}")
+            judgement_answers.append(f"解析: {problem['analysis']}")
 
     # 拼接各部分内容
     paper_text = []
@@ -344,6 +447,21 @@ def generate_paper_text(problems_data):
     if judgement_text:
         paper_text.append("\n三、判断题：")
         paper_text.extend(judgement_text)
+
+    # 添加答案和解析部分
+    paper_text.append("\n\n答案和解析：")
+
+    if single_choice_answers:
+        paper_text.append("一、选择题：")
+        paper_text.extend(single_choice_answers)
+
+    if fillin_answers:
+        paper_text.append("\n二、填空题：")
+        paper_text.extend(fillin_answers)
+
+    if judgement_answers:
+        paper_text.append("\n三、判断题：")
+        paper_text.extend(judgement_answers)
 
     # 将列表转换为字符串并返回
     return "\n".join(map(str, paper_text))

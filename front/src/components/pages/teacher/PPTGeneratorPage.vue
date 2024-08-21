@@ -346,6 +346,7 @@
           this.loading = false;
           this.translationResult = this.tmptext;
         } catch (error) {
+          this.loading = false;
           console.error('Error generating PPT:', error);
         }
       },
