@@ -1,4 +1,9 @@
 <template>
+  <div v-if="imageloading" class="loading-dialog">
+    <div class="loading-content">
+      <h2><i class="fas fa-spinner fa-spin"></i> 图片上传中...</h2>
+    </div>
+  </div>
   <div class="guide-modal" v-if="guidevisible">
     <div class="guide-modal-content">
       <button class="guide-close-button" @click="guidevisible=false">
@@ -48,11 +53,12 @@
       <input class="input-box" type="text" v-model="inputValue" @keypress.enter="sendMessage" placeholder="输入消息..." />
       <button class="send-button image-upload-button">
         <input type="file" @change="handleImageUpload" />
-        <span class="fas fa-paper-plane"></span> 图片上传
+        <span class="fas fa-image"></span> 图片上传
       </button>
-      <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button>
+      <!-- <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button> -->
       <button v-if="!isRecording" class="voice-button" @click="startVoiceRecognition">🎤 开始录音</button>
       <button v-else class="voice-button" @click="stopVoiceRecognition">🛑 结束录音</button>
+      <button class="send-button" @click="sendMessage"><span class="fas fa-paper-plane"></span> 发送</button>
     </div>
 
     <div v-if="dialogVisible" class="dialog-overlay">
@@ -98,11 +104,18 @@ export default {
       guidetext: "1. 用户可以直接在左下角键入问题，也可以点击右下角的麦克风语音输入问题\n\n2. 点击发送，片刻后即可在左侧文本框中得到解答\n\n3. 在右侧的“历史问题”一栏，用户可以看到自己曾经问过什么问题,并点击问题查看相应的回复",
       guidevisible:false,
       uploadedImage: null, // 用于存储用户上传的图片文件
+      imageloading: false, //图片上传弹窗0821
     };
   },
   methods: {
     handleImageUpload(event) {
       this.uploadedImage = event.target.files[0]; // 处理图片文件上传
+      event.target.value = null;
+      this.imageloading= true;
+      setTimeout(() => {
+        this.imageloading= false;
+        alert("图片上传成功");
+      }, 500);
     },
     // sendMessage() {
     //   if (this.inputValue.trim() === '') return;
@@ -128,7 +141,9 @@ export default {
     //   });
     // },
     sendMessage() {
-      if (this.inputValue.trim() === '' && this.uploadedImage === null) return;
+      if (this.inputValue.trim() === '' && this.uploadedImage === null){
+        return;
+      } 
 
       // 如果用户上传了图片文件
       if (this.uploadedImage) {
@@ -151,7 +166,9 @@ export default {
           let question_str = "&nbsp;&nbsp;" + res.data['question'] + "<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;图像内容如下:<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + res.data['imagecontent'];
           this.messages.push({ text: question_str, isUser: true });
           this.messages.push({ text: res.data['answer'], isUser: false });
-          this.questions.push(res.data['question']);
+          // this.questions.push(res.data['question']);
+          let history_question = res.data['question'] + " 图片内容：" +res.data['imagecontent']
+          this.questions.push(history_question);
           this.answers.push(res.data['answer'])
           this.inputValue = '';
           this.uploadedImage = null; // 发送后清空图片
@@ -637,5 +654,51 @@ h3 {
   margin: 0;
   color:#007bff;
   font-size: 1.5em;
+}
+
+.loading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(-45deg, #A1CFFF, #B3E5FF, #CDEFFF, #D1F5FF); 
+  background-size: 300% 300%; 
+  animation: waveAnimation 1s infinite linear , gradientAnimation 5s ease infinite; 
+}
+@keyframes waveAnimation {
+  0% {
+    transform: translateY(0); /* 初始位置 */
+  }
+  50% {
+    transform: translateY(-5px); /* 波动上升 */
+  }
+  100% {
+    transform: translateY(0); /* 回到初始位置 */
+  }
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 </style>

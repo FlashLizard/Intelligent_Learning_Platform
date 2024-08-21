@@ -1,4 +1,12 @@
 <template>
+  <div class="guide-modal" v-if="guidevisible">
+    <div class="guide-modal-content">
+      <button class="guide-close-button" @click="guidevisible=false">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3> <i class="fas fa-exclamation-circle"></i> 测试保存成功</h3>
+    </div>
+  </div>
   <div class="evaluation-page">
     <header>
       <h1><i class="fas fa-star"></i> 测试评估 </h1>
@@ -64,6 +72,7 @@ export default {
   },
   data() {
     return {
+      guidevisible: false,
       userAbilities: [50,50,50,50,50,50],
       userLabels: ['分析','使用','思维','理论','计算','综合'],
       evaluationContent: '',
@@ -214,13 +223,17 @@ export default {
         const data = response.data;
         this.saving = false;
         if (data.status === 'success') {
-          alert('本次测试保存成功')
+          this.saving = false;
+          this.guidevisible = true;
+          // alert('本次测试保存成功')
           console.log('测试结果保存成功:', data.test_id);
         } else {
+          this.saving = false;
           alert('网络不畅，请重新保存')
           console.error('测试结果保存失败');
         }
       } catch (error) {
+        this.saving = false;
         console.error('保存结果失败:', error);
       }
     },
@@ -479,6 +492,79 @@ header .stars {
     }
   }
 
+}
+
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.guide-modal-content {
+  background: #a9e2f7;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  width: 10%;
+  max-width: 300px !important;
+  height: 20% !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-close-button {
+  color:#007bff;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.guide-action-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.guide-action-button:hover {
+  background: #0056b3;
+}
+
+.guide-text {
+  width: 100%;
+  min-height: 200px;
+  margin: 20px 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size:1.2em;
+}
+
+h3 {
+  font-size: 1.7em !important;
+  font-weight: bold !important;
+  margin-top: 60px !important;
+  justify-content: center !important;
+  text-align: center;
+  color:#007bff;
 }
 </style>
 

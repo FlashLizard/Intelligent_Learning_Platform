@@ -259,6 +259,7 @@ export default {
             await this.saveUserToIndexedDB(this.username, userId);
             this.$router.push('/index');
           } else {
+            console.log("data.msg:",data.msg)
             this.dialogMessage = data.msg;
             this.dialogVisible = true;
           }
@@ -322,6 +323,7 @@ export default {
 
       try {
         this.loading = true;
+        console.log("create_user:",this.username,this.password)
         const response = await axios.post('create_user', {
           username: this.username,
           password: this.password,

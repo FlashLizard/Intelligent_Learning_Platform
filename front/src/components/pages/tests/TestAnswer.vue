@@ -643,6 +643,7 @@ h2 {
   color: gray;
   border: 1px solid #ccc;
   padding: 5px 10px;
+  margin-top: 60px;
   margin-right: 10px;
   cursor: pointer;
   border-radius: 5px;

@@ -208,6 +208,8 @@
       },
       setActiveTab(tab) {
         this.activeTab = tab;
+        this.textToTranslate = '';//0821
+        this.translationResult = '';//0821
       },
       async translateText() {
         let message = {

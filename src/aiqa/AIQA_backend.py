@@ -68,7 +68,7 @@ def get_imagechatanswer_handler():
     print("get_imagechatanswer_content:",image_content)
     print("get_imagechatanswer_message:",message)
 
-    question =  message + "\n您上传图片的主要内容如下:\n" + image_content
+    question =  "我提出的问题是：" + message + "\n上传图片的内容如下:\n" + image_content
     print("question:",question)
     ans = llm.query(question)
     print('ans',ans)

@@ -238,6 +238,8 @@
       },
       setActiveTab(tab) {
         this.activeTab = tab;
+        this.textToTranslate = '';//0821
+        this.translationResult = '';//0821
       },
       selectTheme(theme) {
         this.selectedTheme = theme;

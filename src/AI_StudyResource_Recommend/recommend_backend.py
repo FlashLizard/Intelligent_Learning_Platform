@@ -18,6 +18,7 @@ def generate_from_text():
     # 获取POST请求中的文本
     data = request.get_json()
     course = data['course']
+    print("course:",course)
     limit = data['limit']  # TODO 前端传回两个量，表示课程名称（必须是一个英文单词）和查询要求（一段中文）
     print(course,limit)
     appid = 'e76d7d8f'

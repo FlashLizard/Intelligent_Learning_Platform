@@ -130,6 +130,8 @@ def password_login_handler():
     Logger.info(request)
     result = get_user_id(content['username'])
     password = get_user_password(content['username'])
+    print("passlogin_userid:",result,password)
+
     if(result is None):
         return {
             "status": "failed",
@@ -156,10 +158,11 @@ def password_register():
     print(request)
     # user_id = create_user(content['username'])
     user_id = create_user(content['username'], content['password'], None, None)
+    print("passregister:",user_id,content['username'], content['password'])
     if user_id is None:
         return {
             "status": "failed",
-            "msg": "注册失败"
+            "msg": "该用户名已被使用"
         }
     return {
         "status": "success",
@@ -240,6 +243,13 @@ def voice_register():
         "group_info": group_info,
         "feature_id": feature_id
     })
+
+    # return jsonify({
+    #     "group_name": group_name,
+    #     "group_id": group_id,
+    #     "group_info": group_info,
+    #     "feature_id": feature_id
+    # })
 
 @app.route('/voicelogin', methods=['POST'])
 def voice_login():

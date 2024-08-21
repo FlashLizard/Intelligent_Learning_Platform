@@ -113,7 +113,11 @@ def create_user(username, user_password=None, user_voice_url=None, user_image_ur
 
     # 检查用户是否已存在
     existing_user_id = get_user_id(username)
+    existing_user_password = get_user_password(username)
+    if existing_user_id is not None and existing_user_password is not None:
+        return None
     if existing_user_id is not None:
+        print("resi not none:",username, user_password, user_voice_url, user_image_url)
         # 如果用户已存在，则更新记录
         user_voice_url = get_user_voiceurl(username)
         user_image_url = get_user_imageurl(username)
@@ -126,6 +130,7 @@ def create_user(username, user_password=None, user_voice_url=None, user_image_ur
         get_database().commit()
         Logger.info(f"User {username} updated")
     else:
+        print("resi:",username, user_password, user_voice_url, user_image_url)
         # 如果用户不存在，则插入新记录
         insert_query = """
         INSERT INTO users (username, user_password, user_voice_url, user_image_url)
@@ -144,6 +149,9 @@ def create_voice_user(username, user_password=None, user_voice_url=None, user_im
 
     # 检查用户是否已存在
     existing_user_id = get_user_id(username)
+    existing_user_voice_url = get_user_voiceurl(username)
+    # if existing_user_id is not None and user_voice_url is not None:
+    #     return None
     if existing_user_id is not None:
         user_password = get_user_password(username)
         user_image_url = get_user_imageurl(username)
@@ -248,13 +256,16 @@ def get_user_id(username):
     return result[0]
 
 def get_user_password(username):
+    print("get_user_password:",username)
     cursor = get_database().cursor()
     query = "SELECT user_password FROM users WHERE username = %s"
     cursor.execute(query, (username,))
     result = cursor.fetchone()
+    print("get_user_password:",result)
     if result is None:
         return None
     cursor.fetchall()
+    print("get_user_password:",result[0])
     return result[0]
 
 def get_user_voiceurl(username):
