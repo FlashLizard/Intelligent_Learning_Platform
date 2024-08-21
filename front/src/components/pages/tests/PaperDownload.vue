@@ -1,4 +1,13 @@
 <template>
+  <div v-if="loading" class="downloading-dialog">
+  <div class="downloading-content">
+    <!-- 关闭按钮 -->
+    <button class="downloading-close-button" @click="downloading = false">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
+  </div>
+</div>
   <div class="guide-modal" v-if="guidevisible">
     <div class="guide-modal-content">
       <button class="guide-close-button" @click="guidevisible=false">
@@ -214,11 +223,11 @@
   </div>
 
   <!-- 加载中弹窗 -->
-  <div v-if="loading" class="loading-dialog">
+  <!-- <div v-if="loading" class="loading-dialog">
     <div class="loading-content">
       <h2><i class="fas fa-spinner fa-spin"></i> 题目生成中...</h2>
     </div>
-  </div>
+  </div> -->
   <!-- 试卷下载弹窗 -->
   <div v-if="isNewDownloadDialogOpen" class="downloaddialogwrapper">
     <div class="downloaddialog">
@@ -1323,5 +1332,57 @@ h3 {
   margin: 0;
   color:#007bff;
   font-size: 1.5em;
+}
+
+.downloading-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.downloading-content {
+  position: relative; /* 使关闭按钮定位相对于容器 */
+  background: linear-gradient(45deg, #4A90E2, #50E3C2, #9013FE);
+  background-size: 300% 300%;
+  animation: gradientAnimation 6s ease infinite;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.downloading-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.downloading-close-button i {
+  color: #333;
+}
+
+.downloading-close-button:hover i {
+  color: #999;
 }
 </style>

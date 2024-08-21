@@ -692,13 +692,13 @@ export default {
 }
 
 .file-analysis {
-  margin-top: 0px;
+  margin-top: -15px;
 }
 
 .file-analysis h3 {
   color: #0026ff;
   margin-bottom: 5px;
-  margin-top:10px;
+  margin-top:-10px;
   left:10px;
   font-size: 1.0em;
   font-weight: bold;
